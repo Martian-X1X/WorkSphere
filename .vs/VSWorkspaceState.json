@@ -1,0 +1,10 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\WorkHub.API",
+    "\\WorkHub.API\\Data",
+    "\\WorkHub.API\\Models"
+  ],
+  "SelectedNode": "\\WorkHub.API\\Data\\AppDbContext.cs",
+  "PreviewInSolutionExplorer": false
+}
