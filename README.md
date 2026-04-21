@@ -268,6 +268,23 @@ http://localhost:5210/swagger
 
 ---
 
+### ✅ Day 3 — Full Schema Design & ER Diagram
+
+## 📊 ER Diagram
+
+<p align="center">
+  <img src="docs/er-diagram.png" alt="WorkSphere ER Diagram" width="900"/>
+</p>
+
+<details open>
+- Designed the **complete 11-table database schema** covering all platform features
+- Defined all entities: `Projects`, `Tasks`, `Comments`, `FileAttachments`, `ActivityLogs`, `Notifications`, `ChatRooms`, `Messages`
+- Mapped all **foreign key relationships** with `DEFERRABLE INITIALLY IMMEDIATE` constraints
+- Documented column types, constraints, and enum values (`Status`, `Priority`, `Role`)
+- Generated the **full ER Diagram** — visualizing all tables, columns, and relationships
+- Published schema as `.sql` source file and diagram to `docs/`
+</details>
+
 ## 🛣️ Product Roadmap
 
 | Phase | Days     | Milestone                                              | Status      |
@@ -295,6 +312,7 @@ http://localhost:5210/swagger
 | 100 | Production-ready SaaS — fully deployed, secured, and documented     |
 
 ---
+
 
 ## 📄 License
 
