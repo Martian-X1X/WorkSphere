@@ -34,6 +34,9 @@ C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsof
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.DependencyModel.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.Diagnostics.HealthChecks.dll
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions.dll
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.FileProviders.Abstractions.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.Hosting.Abstractions.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.Logging.dll
@@ -163,4 +166,3 @@ C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\refint\W
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\WorkHub.API.pdb
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\WorkHub.API.genruntimeconfig.cache
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\ref\WorkHub.API.dll
-C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

@@ -7,12 +7,12 @@
       "RelativeMoniker": "D:0:0:{BE94F311-634C-4520-8663-B70D6034ADE8}|WorkHub.API\\WorkHub.API.csproj|solutionrelative:workhub.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BE94F311-634C-4520-8663-B70D6034ADE8}|WorkHub.API\\WorkHub.API.csproj|c:\\users\\abdul\\documents\\github\\worksphere\\workhub.api\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BE94F311-634C-4520-8663-B70D6034ADE8}|WorkHub.API\\WorkHub.API.csproj|solutionrelative:workhub.api\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{BE94F311-634C-4520-8663-B70D6034ADE8}|WorkHub.API\\WorkHub.API.csproj|c:\\users\\abdul\\documents\\github\\worksphere\\workhub.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{BE94F311-634C-4520-8663-B70D6034ADE8}|WorkHub.API\\WorkHub.API.csproj|solutionrelative:workhub.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BE94F311-634C-4520-8663-B70D6034ADE8}|WorkHub.API\\WorkHub.API.csproj|c:\\users\\abdul\\documents\\github\\worksphere\\workhub.api\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BE94F311-634C-4520-8663-B70D6034ADE8}|WorkHub.API\\WorkHub.API.csproj|solutionrelative:workhub.api\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -32,14 +32,14 @@
               "RelativeDocumentMoniker": "WorkHub.API\\Program.cs",
               "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Program.cs",
               "RelativeToolTip": "WorkHub.API\\Program.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAApwBcAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABwAAAAAAAAAAAAswDIAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-19T06:49:23.737Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "AppDbContext.cs",
               "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Data\\AppDbContext.cs",
               "RelativeDocumentMoniker": "WorkHub.API\\Data\\AppDbContext.cs",
@@ -47,20 +47,20 @@
               "RelativeToolTip": "WorkHub.API\\Data\\AppDbContext.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA6AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-19T06:48:25.099Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-19T06:48:25.099Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\appsettings.json",
               "RelativeDocumentMoniker": "WorkHub.API\\appsettings.json",
               "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\appsettings.json",
               "RelativeToolTip": "WorkHub.API\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-04-19T06:47:05.444Z"
+              "WhenOpened": "2026-04-19T06:47:05.444Z",
+              "EditorCaption": ""
             }
           ]
         }
