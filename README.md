@@ -285,6 +285,41 @@ http://localhost:5210/swagger
 - Published schema as `.sql` source file and diagram to `docs/`
 </details>
 
+
+### ✅ Day 4 — Database Connection Hardening
+ 
+> 🎯 **Goal:** Make the database layer secure, resilient, and production-observable
+ 
+| Task | Status |
+|------|--------|
+| Migrated credentials to `.NET User Secrets` — connection string removed from source control | ✅ |
+| Added EF Core **retry resilience** — 3 retries with 5-second delay on transient failures | ✅ |
+| Enabled **SQL query logging** in development — every EF Core command visible in console | ✅ |
+| Enabled **detailed EF Core error messages** for development debugging | ✅ |
+| Installed `HealthChecks.EntityFrameworkCore` package | ✅ |
+| Registered and mapped `/health` endpoint — returns `Healthy` confirming DB connectivity | ✅ |
+| Verified both applied migrations via `dotnet ef migrations list` | ✅ |
+| Verified all table columns, constraints, and indexes in pgAdmin 4 | ✅ |
+| Confirmed FK constraint: `FK_Users_Organizations_OrganizationId` | ✅ |
+| Confirmed unique indexes: `IX_Users_Email`, `IX_Organizations_Slug` | ✅ |
+| Tested raw SQL insert / read / delete in pgAdmin Query Tool — passed | ✅ |
+ 
+**Migration Status:**
+```
+✔  20260419_InitialCreate                    [Applied]
+✔  20260420_AddOrganizationAndUserTables     [Applied]
+```
+ 
+**Active Endpoints after Day 4:**
+ 
+| Method | Endpoint   | Description           | Auth   |
+|--------|------------|-----------------------|--------|
+| `GET`  | `/health`  | Database health check | Public |
+| `GET`  | `/swagger` | API documentation UI  | Public |
+ 
+---
+
+
 ## 🛣️ Product Roadmap
 
 | Phase | Days     | Milestone                                              | Status      |
