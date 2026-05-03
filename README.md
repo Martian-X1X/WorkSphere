@@ -318,7 +318,68 @@ http://localhost:5210/swagger
 | `GET`  | `/swagger` | API documentation UI  | Public |
  
 ---
-
+### ✅ Day 5 — Production-Grade Model Upgrade
+ 
+> 🎯 **Goal:** Upgrade all models, introduce DTOs, soft delete, and service layer foundation
+ 
+| Task | Status |
+|---|---|
+| Upgraded `BaseEntity` with soft delete — `IsDeleted`, `DeletedAt` | ✅ |
+| Intercepted hard deletes in `SaveChangesAsync` → converted to soft delete | ✅ |
+| Added EF Core global query filters — deleted records excluded from all queries | ✅ |
+| Upgraded `Organization` model — `Description`, `LogoUrl`, `Plan` fields | ✅ |
+| Upgraded `User` model — `IsEmailVerified`, `LastLoginAt`, `ProfilePictureUrl` | ✅ |
+| Added auth token fields to `User` — `RefreshToken`, `EmailVerificationToken`, `PasswordResetToken` | ✅ |
+| Added `FullName` computed property (not persisted to DB) | ✅ |
+| Upgraded `UserRole` with `IsValid()` helper and `All` array | ✅ |
+| Created `RegisterRequestDto` with full validation annotations | ✅ |
+| Created `LoginRequestDto` | ✅ |
+| Created `AuthResponseDto` + `UserDto` — safe API response shapes | ✅ |
+| Created `OrganizationDto` + `CreateOrganizationDto` | ✅ |
+| Created `ISlugService` interface in `Interfaces/` | ✅ |
+| Implemented `SlugService` — generates URL slugs + ensures uniqueness in DB | ✅ |
+| Registered `ISlugService` / `SlugService` in DI container | ✅ |
+| Ran migration `UpgradeModelsDay5` — all new columns verified in pgAdmin 4 | ✅ |
+ 
+**Migration History after Day 5:**
+```
+✔  20260419_InitialCreate                      [Applied]
+✔  20260420_AddOrganizationAndUserTables        [Applied]
+✔  20260421_UpgradeModelsDay5                   [Applied]
+```
+ 
+**New Columns Added — Organizations:**
+```
++ Description          VARCHAR(500)    nullable
++ LogoUrl              VARCHAR(255)    nullable
++ Plan                 VARCHAR(20)     default: 'Free'
++ IsDeleted            BOOLEAN         default: false
++ DeletedAt            TIMESTAMP       nullable
+```
+ 
+**New Columns Added — Users:**
+```
++ IsEmailVerified          BOOLEAN      default: false
++ LastLoginAt              TIMESTAMP    nullable
++ ProfilePictureUrl        TEXT         nullable
++ RefreshToken             TEXT         nullable
++ RefreshTokenExpiry       TIMESTAMP    nullable
++ EmailVerificationToken   TEXT         nullable
++ EmailVerificationExpiry  TIMESTAMP    nullable
++ PasswordResetToken       TEXT         nullable
++ PasswordResetExpiry      TIMESTAMP    nullable
++ IsDeleted                BOOLEAN      default: false
++ DeletedAt                TIMESTAMP    nullable
+```
+ 
+**Live Endpoints after Day 5:**
+ 
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| `GET` | `/health` | Database health check | Public |
+| `GET` | `/swagger` | API documentation UI | Public |
+ 
+---
 
 ## 🛣️ Product Roadmap
 
