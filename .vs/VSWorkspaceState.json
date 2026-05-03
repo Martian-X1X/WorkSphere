@@ -3,8 +3,13 @@
     "",
     "\\WorkHub.API",
     "\\WorkHub.API\\Data",
-    "\\WorkHub.API\\Models"
+    "\\WorkHub.API\\DTOs",
+    "\\WorkHub.API\\DTOs\\Auth",
+    "\\WorkHub.API\\DTOs\\Organization",
+    "\\WorkHub.API\\Interfaces",
+    "\\WorkHub.API\\Models",
+    "\\WorkHub.API\\Services"
   ],
-  "SelectedNode": "\\WorkHub.API\\Program.cs",
+  "SelectedNode": "\\WorkHub.sln",
   "PreviewInSolutionExplorer": false
 }

@@ -12,18 +12,34 @@ public class AppDbContext : DbContext
     public DbSet<Organization> Organizations { get; set; }
     public DbSet<User> Users { get; set; }
 
-    // ✅ Auto-update UpdatedAt on every save
+    // ✅ Auto-update timestamps + handle soft delete
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var entries = ChangeTracker.Entries<BaseEntity>();
+
         foreach (var entry in entries)
         {
-            if (entry.State == EntityState.Modified)
-                entry.Entity.UpdatedAt = DateTime.UtcNow;
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                    break;
 
-            if (entry.State == EntityState.Added)
-                entry.Entity.CreatedAt = DateTime.UtcNow;
+                case EntityState.Modified:
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                    break;
+
+                case EntityState.Deleted:
+                    // ✅ Intercept hard delete → convert to soft delete
+                    entry.State = EntityState.Modified;
+                    entry.Entity.IsDeleted = true;
+                    entry.Entity.DeletedAt = DateTime.UtcNow;
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                    break;
+            }
         }
+
         return base.SaveChangesAsync(cancellationToken);
     }
 
@@ -31,21 +47,34 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // ✅ Global soft delete filter — automatically excludes deleted records
+        // from ALL queries without needing to manually add .Where(x => !x.IsDeleted)
+        modelBuilder.Entity<Organization>().HasQueryFilter(o => !o.IsDeleted);
+        modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
+
+        // Organization configuration
         modelBuilder.Entity<Organization>(entity =>
         {
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Slug).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Plan).HasMaxLength(20).HasDefaultValue("Free");
             entity.HasIndex(e => e.Slug).IsUnique();
         });
 
+        // User configuration
         modelBuilder.Entity<User>(entity =>
         {
             entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
             entity.HasIndex(e => e.Email).IsUnique();
             entity.Property(e => e.FirstName).IsRequired().HasMaxLength(50);
             entity.Property(e => e.LastName).IsRequired().HasMaxLength(50);
-            entity.Property(e => e.Role).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Role).IsRequired().HasMaxLength(20)
+                  .HasDefaultValue(UserRole.Member);
 
+            // Ignore computed property — not stored in DB
+            entity.Ignore(e => e.FullName);
+
+            // FK relationship
             entity.HasOne(e => e.Organization)
                   .WithMany(o => o.Users)
                   .HasForeignKey(e => e.OrganizationId)

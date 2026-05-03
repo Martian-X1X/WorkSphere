@@ -1,4 +1,6 @@
 ﻿using WorkHub.API.Data;
+using WorkHub.API.Interfaces;
+using WorkHub.API.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,14 +14,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        npgsqlOptions =>
-        {
-            npgsqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 3,
-                maxRetryDelay: TimeSpan.FromSeconds(5),
-                errorCodesToAdd: null
-            );
-        }
+        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(5),
+            errorCodesToAdd: null
+        )
     );
 
     if (builder.Environment.IsDevelopment())
@@ -29,7 +28,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     }
 });
 
-// ✅ Health check endpoint
+// ✅ Register services
+builder.Services.AddScoped<ISlugService, SlugService>();
+
+// ✅ Health check
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>("database");
 
@@ -43,9 +45,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
-
-// ✅ Map health check route
 app.MapHealthChecks("/health");
-
 app.MapControllers();
 app.Run();
