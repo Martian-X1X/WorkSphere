@@ -381,6 +381,265 @@ http://localhost:5210/swagger
  
 ---
 
+### ✅ Day 6 — User Registration API
+ 
+> 🎯 **Goal:** Build `POST /api/auth/register` — the first real working endpoint with full validation, BCrypt hashing, auto slug generation, and atomic DB writes
+ 
+| Task | Status |
+|---|---|
+| Created `ApiResponse<T>` universal response wrapper in `DTOs/Common/` | ✅ |
+| Suppressed ASP.NET default validation format — all errors use `ApiResponse<T>` | ✅ |
+| Created `IAuthService` interface in `Interfaces/` | ✅ |
+| Implemented `AuthService` with full registration logic | ✅ |
+| Email normalization — trimmed + lowercased before DB check | ✅ |
+| Email uniqueness check — `409 Conflict` if already registered | ✅ |
+| Auto slug generation via `ISlugService` — `"Martian Labs"` → `"martian-labs"` | ✅ |
+| BCrypt password hashing — work factor `12` (~300ms, production-safe) | ✅ |
+| Organization + User created atomically in single `SaveChangesAsync` | ✅ |
+| First registered user automatically assigned `Owner` role | ✅ |
+| Created `AuthController` — thin controller, all logic in service | ✅ |
+| Correct HTTP status codes: `201 Created`, `400 Bad Request`, `409 Conflict` | ✅ |
+| Registered `IAuthService` / `AuthService` in DI container | ✅ |
+| All edge cases tested in Postman — all passing | ✅ |
+| BCrypt hash verified in pgAdmin — `$2a$12$...` format confirmed | ✅ |
+ 
+---
+ 
+#### 🔌 Endpoint Reference
+ 
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | Register new org + owner account | Public |
+| `GET` | `/health` | Database health check | Public |
+| `GET` | `/swagger` | API documentation UI | Public |
+ 
+---
+ 
+#### 📬 Postman Test Suite — `POST /api/auth/register`
+ 
+**Base URL:** `http://localhost:5210/api/auth/register`
+**Headers:** `Content-Type: application/json`
+ 
+---
+ 
+##### ✅ Test 1 — Happy Path: Successful Registration
+ 
+**Request Body:**
+```json
+{
+  "firstName": "Abdul",
+  "lastName": "Martian",
+  "email": "abdul@worksphere.io",
+  "password": "SecurePass123!",
+  "organizationName": "Martian Labs"
+}
+```
+ 
+**Response — `201 Created`:**
+```json
+{
+  "success": true,
+  "message": "Registration successful. Welcome to WorkSphere!",
+  "data": {
+    "accessToken": "",
+    "refreshToken": "",
+    "expiresAt": "2026-05-04T10:44:12.4607028Z",
+    "user": {
+      "id": "1f91c17c-c2f8-48ff-90f6-c09c7e8fda55",
+      "firstName": "Abdul",
+      "lastName": "Martian",
+      "fullName": "Abdul Martian",
+      "email": "abdul@worksphere.io",
+      "role": "Owner",
+      "organizationId": "c85699b6-5cb3-4ca9-9107-287ed66e3caf",
+      "organizationName": "Martian Labs",
+      "isEmailVerified": false,
+      "profilePictureUrl": null
+    }
+  },
+  "errors": [],
+  "timestamp": "2026-05-04T10:44:12.46139Z"
+}
+```
+ 
+> 🟢 Organization created with slug `martian-labs`. User assigned `Owner` role. Password stored as BCrypt hash `$2a$12$...`. Tokens will be populated on Day 8 (JWT).
+ 
+---
+ 
+##### ❌ Test 2 — Duplicate Email: Conflict
+ 
+**Request Body:**
+```json
+{
+  "firstName": "Abdul",
+  "lastName": "Martian",
+  "email": "abdul@worksphere.io",
+  "password": "SecurePass123!",
+  "organizationName": "Another Labs"
+}
+```
+ 
+**Response — `409 Conflict`:**
+```json
+{
+  "success": false,
+  "message": "An account with this email address already exists.",
+  "data": null,
+  "errors": [
+    "An account with this email address already exists."
+  ],
+  "timestamp": "2026-05-04T10:15:24.001749Z"
+}
+```
+ 
+> 🔴 Email uniqueness enforced at service level before any DB write. No duplicate organizations created.
+ 
+---
+ 
+##### ❌ Test 3 — Missing All Required Fields: Validation Error
+ 
+**Request Body:**
+```json
+{
+  "firstName": "",
+  "email": "notvalid",
+  "password": "123"
+}
+```
+ 
+**Response — `400 Bad Request`:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "data": null,
+  "errors": [
+    "Invalid email address",
+    "Last name is required",
+    "Password must be at least 8 characters",
+    "First name is required",
+    "Organization name is required"
+  ],
+  "timestamp": "2026-05-04T10:44:58.8296049Z"
+}
+```
+ 
+> 🔴 All validation errors returned in a single response. Custom `ApiResponse<T>` format used — no ASP.NET default error shape.
+ 
+---
+ 
+##### ❌ Test 4 — Invalid Email Format
+ 
+**Request Body:**
+```json
+{
+  "firstName": "Abdul",
+  "lastName": "Martian",
+  "email": "not-an-email",
+  "password": "SecurePass123!",
+  "organizationName": "Martian Labs"
+}
+```
+ 
+**Response — `400 Bad Request`:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "data": null,
+  "errors": [
+    "Invalid email address"
+  ],
+  "timestamp": "2026-05-04T10:45:13.6631008Z"
+}
+```
+ 
+---
+ 
+##### ❌ Test 5 — Password Too Short
+ 
+**Request Body:**
+```json
+{
+  "firstName": "Abdul",
+  "lastName": "Martian",
+  "email": "test2@worksphere.io",
+  "password": "123",
+  "organizationName": "Martian Labs"
+}
+```
+ 
+**Response — `400 Bad Request`:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "data": null,
+  "errors": [
+    "Password must be at least 8 characters"
+  ],
+  "timestamp": "2026-05-04T10:45:30.3277028Z"
+}
+```
+ 
+---
+ 
+#### 🗄️ Database State After Registration — pgAdmin Verified
+ 
+**Organizations table:**
+ 
+| Field | Value |
+|---|---|
+| `Id` | `d712cfa7-32d5-4088-8405-863b34c63133` |
+| `Name` | `Martian Labs` |
+| `Slug` | `martian-labs` ← auto-generated |
+| `Plan` | `Free` |
+| `IsActive` | `true` |
+| `IsDeleted` | `false` |
+| `CreatedAt` | `2026-05-04 16:14:49` |
+ 
+**Users table:**
+ 
+| Field | Value |
+|---|---|
+| `Id` | `1dc1ec78-ae24-4f1c-a087-a0cee8bd5092` |
+| `Email` | `abdul@worksphere.io` |
+| `Role` | `Owner` |
+| `PasswordHash` | `$2a$12$6LxNRO1XNmnckaUOPAFE4.d4lwK...` ← BCrypt |
+| `IsEmailVerified` | `false` |
+| `IsDeleted` | `false` |
+| `OrganizationId` | `d712cfa7-...` ← FK to org above |
+ 
+> 🔐 Plain text password is **never stored**. The `$2a$12$` prefix confirms BCrypt with work factor 12.
+ 
+---
+ 
+#### 🔄 Registration Flow Diagram
+ 
+```
+Client                    AuthController              AuthService                PostgreSQL
+  │                            │                          │                          │
+  │─── POST /api/auth/register ──>│                          │                          │
+  │                            │── RegisterAsync(dto) ────>│                          │
+  │                            │                          │── Normalize email         │
+  │                            │                          │── Check email exists ────>│
+  │                            │                          │<── false ─────────────────│
+  │                            │                          │── GenerateUniqueSlug()    │
+  │                            │                          │── BCrypt.HashPassword()   │
+  │                            │                          │── Create Organization     │
+  │                            │                          │── Create User (Owner)     │
+  │                            │                          │── SaveChangesAsync() ────>│
+  │                            │                          │<── Saved ─────────────────│
+  │                            │<── ApiResponse<T> ────────│                          │
+  │<── 201 Created ─────────────│                          │                          │
+```
+ 
+--- 
+ 
+> No new migration required on Day 6 — no schema changes, only new service and controller code.
+ 
+---
+
 ## 🛣️ Product Roadmap
 
 | Phase | Days     | Milestone                                              | Status      |
