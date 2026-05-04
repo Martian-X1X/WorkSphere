@@ -7,7 +7,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new()
+    {
+        Title = "WorkSphere API",
+        Version = "v1",
+        Description = "Multi-tenant project management platform API"
+    });
+});
 
 // ✅ PostgreSQL with retry resilience
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -28,8 +36,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     }
 });
 
-// ✅ Register services
+// ✅ Register all services
 builder.Services.AddScoped<ISlugService, SlugService>();
+builder.Services.AddScoped<IAuthService, AuthService>();  // ← ADD THIS
 
 // ✅ Health check
 builder.Services.AddHealthChecks()
@@ -40,7 +49,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "WorkSphere API v1");
+        c.RoutePrefix = "swagger";
+    });
 }
 
 app.UseHttpsRedirection();

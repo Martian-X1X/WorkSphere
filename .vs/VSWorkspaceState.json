@@ -2,6 +2,7 @@
   "ExpandedNodes": [
     "",
     "\\WorkHub.API",
+    "\\WorkHub.API\\Controllers",
     "\\WorkHub.API\\Data",
     "\\WorkHub.API\\DTOs",
     "\\WorkHub.API\\DTOs\\Auth",
@@ -10,6 +11,6 @@
     "\\WorkHub.API\\Models",
     "\\WorkHub.API\\Services"
   ],
-  "SelectedNode": "\\WorkHub.sln",
+  "SelectedNode": "\\WorkHub.API\\Services\\AuthService.cs",
   "PreviewInSolutionExplorer": false
 }
