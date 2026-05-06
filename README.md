@@ -638,6 +638,305 @@ Client                    AuthController              AuthService               
  
 > No new migration required on Day 6 — no schema changes, only new service and controller code.
  
+--- 
+ ### ✅ Day 7 — Password Hashing Service
+ 
+> 🎯 **Goal:** Extract all password logic into a dedicated, injectable `IPasswordService` with full policy enforcement, common password detection, and silent rehash support
+ 
+| Task | Status |
+|---|---|
+| Added `PasswordPolicy` section to `appsettings.json` — configurable work factor, length, complexity rules | ✅ |
+| Created `PasswordPolicySettings.cs` strongly-typed config class in `Settings/` | ✅ |
+| Created `PasswordValidationResult.cs` in `DTOs/Common/` — clean result object | ✅ |
+| Created `IPasswordService` interface — `ValidatePassword`, `HashPassword`, `VerifyPassword`, `NeedsRehash` | ✅ |
+| Implemented `PasswordService` with full BCrypt hashing (work factor 12) | ✅ |
+| Password policy enforcement — uppercase, lowercase, digit, special character required | ✅ |
+| Minimum length (8) and maximum length (128) enforced | ✅ |
+| Common password blocklist — 25 known weak passwords rejected | ✅ |
+| Whitespace detection — passwords containing spaces rejected | ✅ |
+| `NeedsRehash()` — detects old work factor hashes for silent upgrade on login | ✅ |
+| Registered `IPasswordService` / `PasswordService` in DI container | ✅ |
+| Bound `PasswordPolicySettings` from config via `IOptions<T>` pattern | ✅ |
+| Updated `AuthService` — replaced raw `BCrypt` call with `IPasswordService` | ✅ |
+| Updated `RegisterRequestDto` — removed `[MinLength]`, policy service owns all rules | ✅ |
+| All 6 Postman policy tests passing | ✅ |
+ 
+---
+ 
+#### 🔐 Password Policy Configuration
+ 
+```json
+"PasswordPolicy": {
+  "WorkFactor": 12,
+  "MinLength": 8,
+  "MaxLength": 128,
+  "RequireUppercase": true,
+  "RequireLowercase": true,
+  "RequireDigit": true,
+  "RequireSpecialChar": true
+}
+```
+ 
+> Policy is fully configurable via `appsettings.json` — no code changes required to adjust rules.
+ 
+---
+ 
+#### 🛡️ IPasswordService Contract
+ 
+| Method | Purpose |
+|---|---|
+| `ValidatePassword(string)` | Run all policy rules — returns `PasswordValidationResult` with all errors |
+| `HashPassword(string)` | BCrypt hash with configured work factor — never call without validating first |
+| `VerifyPassword(string, string)` | Constant-time BCrypt comparison — used on every login |
+| `NeedsRehash(string)` | Detects lower work factor hashes — triggers silent rehash on login |
+ 
+---
+ 
+#### 📬 Postman Test Suite — `POST /api/auth/register` (Password Policy)
+ 
+**Base URL:** `http://localhost:5210/api/auth/register`
+**Headers:** `Content-Type: application/json`
+ 
+---
+ 
+##### ❌ Test 1 — No Uppercase Letter
+ 
+**Request Body:**
+```json
+{
+  "firstName": "Abdul",
+  "lastName": "Martian",
+  "email": "test3@worksphere.io",
+  "password": "weakpass1!",
+  "organizationName": "Test Org"
+}
+```
+ 
+**Response — `400 Bad Request`:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "data": null,
+  "errors": [
+    "Password must contain at least one uppercase letter (A-Z)."
+  ],
+  "timestamp": "2026-05-06T10:08:06.9678949Z"
+}
+```
+ 
+---
+ 
+##### ❌ Test 2 — No Special Character
+ 
+**Request Body:**
+```json
+{
+  "firstName": "Abdul",
+  "lastName": "Martian",
+  "email": "test4@worksphere.io",
+  "password": "WeakPass1",
+  "organizationName": "Test Org"
+}
+```
+ 
+**Response — `400 Bad Request`:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "data": null,
+  "errors": [
+    "Password must contain at least one special character (!@#$%^&*)."
+  ],
+  "timestamp": "2026-05-06T10:08:29.1252738Z"
+}
+```
+ 
+---
+ 
+##### ❌ Test 3 — Common Password Blocked
+ 
+**Request Body:**
+```json
+{
+  "firstName": "Abdul",
+  "lastName": "Martian",
+  "email": "test5@worksphere.io",
+  "password": "Password123!",
+  "organizationName": "Test Org"
+}
+```
+ 
+**Response — `400 Bad Request`:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "data": null,
+  "errors": [
+    "This password is too common. Please choose a more unique password."
+  ],
+  "timestamp": "2026-05-06T10:08:57.9379266Z"
+}
+```
+ 
+> 🔴 `Password123!` is on the 25-entry common password blocklist. Rejected regardless of complexity rules passing.
+ 
+---
+ 
+##### ❌ Test 4 — Spaces in Password
+ 
+**Request Body:**
+```json
+{
+  "firstName": "Abdul",
+  "lastName": "Martian",
+  "email": "test6@worksphere.io",
+  "password": "Secure Pass1!",
+  "organizationName": "Test Org"
+}
+```
+ 
+**Response — `400 Bad Request`:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "data": null,
+  "errors": [
+    "Password must not contain spaces."
+  ],
+  "timestamp": "2026-05-06T10:09:22.9255609Z"
+}
+```
+ 
+---
+ 
+##### ❌ Test 5 — Multiple Violations Returned at Once
+ 
+**Request Body:**
+```json
+{
+  "firstName": "Abdul",
+  "lastName": "Martian",
+  "email": "test7@worksphere.io",
+  "password": "weak",
+  "organizationName": "Test Org"
+}
+```
+ 
+**Response — `400 Bad Request`:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "data": null,
+  "errors": [
+    "Password must be at least 8 characters long.",
+    "Password must contain at least one uppercase letter (A-Z).",
+    "Password must contain at least one number (0-9).",
+    "Password must contain at least one special character (!@#$%^&*)."
+  ],
+  "timestamp": "2026-05-06T10:09:44.9295858Z"
+}
+```
+ 
+> 🔴 All 4 violations detected and returned in a single response — client gets a complete list, not just the first failure.
+ 
+---
+ 
+##### ✅ Test 6 — Strong Password: Registration Successful
+ 
+**Request Body:**
+```json
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "email": "strongpass@worksphere.io",
+  "password": "W0rkSph3re#2026",
+  "organizationName": "Strong Pass Corp"
+}
+```
+ 
+**Response — `201 Created`:**
+```json
+{
+  "success": true,
+  "message": "Registration successful. Welcome to WorkSphere!",
+  "data": {
+    "accessToken": "",
+    "refreshToken": "",
+    "expiresAt": "2026-05-06T10:10:07.4968256Z",
+    "user": {
+      "id": "653db7e8-e055-4629-a3fe-5a26186b7ab5",
+      "firstName": "Test",
+      "lastName": "User",
+      "fullName": "Test User",
+      "email": "strongpass@worksphere.io",
+      "role": "Owner",
+      "organizationId": "771d6dfd-33b6-4f8b-ba3c-2ca1b19758f6",
+      "organizationName": "Strong Pass Corp",
+      "isEmailVerified": false,
+      "profilePictureUrl": null
+    }
+  },
+  "errors": [],
+  "timestamp": "2026-05-06T10:10:07.4988672Z"
+}
+```
+ 
+> 🟢 `W0rkSph3re#2026` passes all 7 policy rules — uppercase, lowercase, digit, special char, length, no spaces, not on blocklist.
+ 
+---
+ 
+#### 📊 Password Policy Test Results Summary
+ 
+| Test | Password Used | Rule Triggered | HTTP | Result |
+|---|---|---|---|---|
+| 1 | `weakpass1!` | No uppercase | `400` | ✅ Blocked |
+| 2 | `WeakPass1` | No special character | `400` | ✅ Blocked |
+| 3 | `Password123!` | Common password | `400` | ✅ Blocked |
+| 4 | `Secure Pass1!` | Contains spaces | `400` | ✅ Blocked |
+| 5 | `weak` | 4 violations at once | `400` | ✅ All returned |
+| 6 | `W0rkSph3re#2026` | All rules passed | `201` | ✅ Registered |
+ 
+---
+ 
+#### 🔄 Password Validation Flow
+ 
+```
+AuthService.RegisterAsync()
+        │
+        ├── _passwordService.ValidatePassword(password)
+        │           │
+        │           ├── Length check (min 8, max 128)
+        │           ├── Uppercase required
+        │           ├── Lowercase required
+        │           ├── Digit required
+        │           ├── Special character required
+        │           ├── Whitespace check
+        │           └── Common password blocklist (25 entries)
+        │
+        ├── [FAIL] → return ApiResponse.Fail(errors) → 400
+        │
+        └── [PASS] → _passwordService.HashPassword(password)
+                            │
+                            └── BCrypt.HashPassword(work factor: 12)
+                                        │
+                                        └── $2a$12$... stored in DB
+```
+ 
+**Live Endpoints after Day 7:**
+ 
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | Register new org + owner account | Public |
+| `GET` | `/health` | Database health check | Public |
+| `GET` | `/swagger` | API documentation UI | Public |
+ 
+> No new migration required on Day 7 — no schema changes, only new service layer code.
+ 
 ---
 
 ## 🛣️ Product Roadmap
