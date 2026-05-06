@@ -1,5 +1,4 @@
-﻿using BCrypt.Net;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using WorkHub.API.Data;
 using WorkHub.API.DTOs.Auth;
 using WorkHub.API.DTOs.Common;
@@ -12,15 +11,18 @@ public class AuthService : IAuthService
 {
     private readonly AppDbContext _context;
     private readonly ISlugService _slugService;
+    private readonly IPasswordService _passwordService; // ← NEW
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
         AppDbContext context,
         ISlugService slugService,
+        IPasswordService passwordService, // ← NEW
         ILogger<AuthService> logger)
     {
         _context = context;
         _slugService = slugService;
+        _passwordService = passwordService; // ← NEW
         _logger = logger;
     }
 
@@ -31,7 +33,15 @@ public class AuthService : IAuthService
             // ─── Step 1: Normalize email ──────────────────────────────
             var email = request.Email.Trim().ToLowerInvariant();
 
-            // ─── Step 2: Check if email already exists ────────────────
+            // ─── Step 2: Validate password policy ────────────────────
+            // ✅ NEW — validate before checking email or touching DB
+            var passwordValidation = _passwordService.ValidatePassword(request.Password);
+            if (!passwordValidation.IsValid)
+            {
+                return ApiResponse<AuthResponseDto>.Fail(passwordValidation.Errors);
+            }
+
+            // ─── Step 3: Check if email already exists ────────────────
             var emailExists = await _context.Users
                 .AnyAsync(u => u.Email == email);
 
@@ -42,10 +52,10 @@ public class AuthService : IAuthService
                     "An account with this email address already exists.");
             }
 
-            // ─── Step 3: Generate unique org slug ─────────────────────
+            // ─── Step 4: Generate unique org slug ─────────────────────
             var slug = await _slugService.GenerateUniqueSlugAsync(request.OrganizationName);
 
-            // ─── Step 4: Create Organization ──────────────────────────
+            // ─── Step 5: Create Organization ──────────────────────────
             var organization = new Organization
             {
                 Name = request.OrganizationName.Trim(),
@@ -55,12 +65,11 @@ public class AuthService : IAuthService
 
             _context.Organizations.Add(organization);
 
-            // ─── Step 5: Hash the password ────────────────────────────
-            // BCrypt automatically generates a salt and hashes it
-            // Work factor 12 = ~300ms on modern hardware (safe, not too slow)
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password, workFactor: 12);
+            // ─── Step 6: Hash password via service ────────────────────
+            // ✅ Now using IPasswordService instead of BCrypt directly
+            var passwordHash = _passwordService.HashPassword(request.Password);
 
-            // ─── Step 6: Create User ──────────────────────────────────
+            // ─── Step 7: Create User ──────────────────────────────────
             var user = new User
             {
                 FirstName = request.FirstName.Trim(),
@@ -68,27 +77,26 @@ public class AuthService : IAuthService
                 Email = email,
                 PasswordHash = passwordHash,
                 OrganizationId = organization.Id,
-                Role = UserRole.Owner, // First user = Owner
+                Role = UserRole.Owner,
                 IsActive = true,
-                IsEmailVerified = false // Will verify via email later
+                IsEmailVerified = false
             };
 
             _context.Users.Add(user);
 
-            // ─── Step 7: Save both records atomically ─────────────────
-            // If either insert fails, BOTH are rolled back (transaction)
+            // ─── Step 8: Save both atomically ─────────────────────────
             await _context.SaveChangesAsync();
 
             _logger.LogInformation(
                 "New organization registered: {OrgName} (slug: {Slug}) by {Email}",
                 organization.Name, organization.Slug, email);
 
-            // ─── Step 8: Build response ───────────────────────────────
+            // ─── Step 9: Build response ───────────────────────────────
             var response = new AuthResponseDto
             {
-                AccessToken = string.Empty, // JWT added on Day 8
-                RefreshToken = string.Empty, // Refresh tokens added on Day 9
-                ExpiresAt = DateTime.UtcNow, // Real expiry on Day 8
+                AccessToken = string.Empty,
+                RefreshToken = string.Empty,
+                ExpiresAt = DateTime.UtcNow,
                 User = new UserDto
                 {
                     Id = user.Id,

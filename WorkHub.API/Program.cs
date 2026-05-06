@@ -1,6 +1,7 @@
 ﻿using WorkHub.API.Data;
 using WorkHub.API.Interfaces;
 using WorkHub.API.Services;
+using WorkHub.API.Settings;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,10 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
     {
-        // ✅ Suppress default model validation response
-        // so our custom ApiResponse<T> format is used instead
         options.SuppressModelStateInvalidFilter = true;
     });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -22,6 +22,10 @@ builder.Services.AddSwaggerGen(c =>
         Description = "Multi-tenant project management platform API"
     });
 });
+
+// ✅ Bind PasswordPolicy settings from appsettings.json
+builder.Services.Configure<PasswordPolicySettings>(
+    builder.Configuration.GetSection(PasswordPolicySettings.SectionName));
 
 // ✅ PostgreSQL with retry resilience
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -44,7 +48,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // ✅ Register all services
 builder.Services.AddScoped<ISlugService, SlugService>();
-builder.Services.AddScoped<IAuthService, AuthService>();  // ← ADD THIS
+builder.Services.AddScoped<IPasswordService, PasswordService>(); // ← ADD THIS
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // ✅ Health check
 builder.Services.AddHealthChecks()

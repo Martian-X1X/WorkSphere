@@ -142,7 +142,7 @@
             "format": "email"
           },
           "password": {
-            "minLength": 8,
+            "minLength": 1,
             "type": "string"
           },
           "organizationName": {
