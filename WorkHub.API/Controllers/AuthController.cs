@@ -19,25 +19,19 @@ public class AuthController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// Register a new organization and owner account
-    /// </summary>
-    /// <param name="request">Registration details</param>
-    /// <returns>Auth response with user info</returns>
+    /// <summary>Register a new organization and owner account</summary>
     [HttpPost("register")]
     [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
-        // Model validation (Data Annotations checked automatically)
         if (!ModelState.IsValid)
         {
             var errors = ModelState.Values
                 .SelectMany(v => v.Errors)
                 .Select(e => e.ErrorMessage)
                 .ToList();
-
             return BadRequest(ApiResponse<AuthResponseDto>.Fail(errors));
         }
 
@@ -45,13 +39,45 @@ public class AuthController : ControllerBase
 
         if (!result.Success)
         {
-            // Email conflict = 409, validation errors = 400
             if (result.Message.Contains("already exists"))
                 return Conflict(result);
-
             return BadRequest(result);
         }
 
         return StatusCode(StatusCodes.Status201Created, result);
+    }
+
+    /// <summary>Login with email and password — returns JWT access token</summary>
+    [HttpPost("login")]
+    [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+    {
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+            return BadRequest(ApiResponse<AuthResponseDto>.Fail(errors));
+        }
+
+        var result = await _authService.LoginAsync(request);
+
+        if (!result.Success)
+        {
+            // Invalid credentials = 401 Unauthorized
+            if (result.Message.Contains("Invalid email or password"))
+                return Unauthorized(result);
+
+            // Deactivated account = 403 Forbidden
+            if (result.Message.Contains("deactivated"))
+                return StatusCode(StatusCodes.Status403Forbidden, result);
+
+            return BadRequest(result);
+        }
+
+        return Ok(result);
     }
 }

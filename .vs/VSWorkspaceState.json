@@ -8,6 +8,6 @@
     "\\WorkHub.API\\Services",
     "\\WorkHub.API\\Settings"
   ],
-  "SelectedNode": "\\WorkHub.API\\Services\\AuthService.cs",
+  "SelectedNode": "\\WorkHub.API\\Settings\\PasswordPolicySettings.cs",
   "PreviewInSolutionExplorer": false
 }

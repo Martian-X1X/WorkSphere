@@ -11,6 +11,50 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\Controllers\\AuthController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Services\\AuthService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\Services\\AuthService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Interfaces\\IAuthService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\Interfaces\\IAuthService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Services\\JwtService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\Services\\JwtService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Interfaces\\IJwtService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\Interfaces\\IJwtService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Settings\\JwtSettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\Settings\\JwtSettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\DTOs\\Auth\\RegisterRequestDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\DTOs\\Auth\\RegisterRequestDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Services\\PasswordService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\Services\\PasswordService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Interfaces\\IPasswordService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\Interfaces\\IPasswordService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\DTOs\\Common\\PasswordValidationResult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\DTOs\\Common\\PasswordValidationResult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Settings\\PasswordPolicySettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\Settings\\PasswordPolicySettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Services\\SlugService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\Services\\SlugService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -29,10 +73,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\DTOs\\Auth\\LoginRequestDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\DTOs\\Auth\\LoginRequestDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\DTOs\\Auth\\RegisterRequestDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:WorkHub.API\\DTOs\\Auth\\RegisterRequestDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Data\\AppDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -62,7 +102,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Bookmark",
@@ -78,15 +118,81 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IAuthService.cs",
+              "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Interfaces\\IAuthService.cs",
+              "RelativeDocumentMoniker": "WorkHub.API\\Interfaces\\IAuthService.cs",
+              "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Interfaces\\IAuthService.cs",
+              "RelativeToolTip": "WorkHub.API\\Interfaces\\IAuthService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAABLAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-09T10:14:59.278Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "JwtService.cs",
+              "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Services\\JwtService.cs",
+              "RelativeDocumentMoniker": "WorkHub.API\\Services\\JwtService.cs",
+              "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Services\\JwtService.cs",
+              "RelativeToolTip": "WorkHub.API\\Services\\JwtService.cs",
+              "ViewState": "AgIAADoAAAAAAAAAAAAuwFYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-09T10:13:55.711Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "IJwtService.cs",
+              "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Interfaces\\IJwtService.cs",
+              "RelativeDocumentMoniker": "WorkHub.API\\Interfaces\\IJwtService.cs",
+              "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Interfaces\\IJwtService.cs",
+              "RelativeToolTip": "WorkHub.API\\Interfaces\\IJwtService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-09T10:13:02.407Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "JwtSettings.cs",
+              "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Settings\\JwtSettings.cs",
+              "RelativeDocumentMoniker": "WorkHub.API\\Settings\\JwtSettings.cs",
+              "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Settings\\JwtSettings.cs",
+              "RelativeToolTip": "WorkHub.API\\Settings\\JwtSettings.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-09T10:12:03.19Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "WorkHub.API\\Services\\AuthService.cs",
+              "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Services\\AuthService.cs",
+              "RelativeToolTip": "WorkHub.API\\Services\\AuthService.cs",
+              "ViewState": "AgIAANQAAAAAAAAAAAAuwOoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-06T10:04:38.5Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 1,
               "Title": "AuthController.cs",
               "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "WorkHub.API\\Controllers\\AuthController.cs",
               "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Controllers\\AuthController.cs",
               "RelativeToolTip": "WorkHub.API\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAACEAAAAAAAAAAAAAADgAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAADYAAAAAAAAAAAAuwFIAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-04T10:06:13.327Z"
+              "WhenOpened": "2026-05-04T10:06:13.327Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -96,14 +202,88 @@
               "RelativeDocumentMoniker": "WorkHub.API\\Program.cs",
               "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Program.cs",
               "RelativeToolTip": "WorkHub.API\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAHAAAAAAAAAA==",
+              "ViewState": "AgIAAKAAAAAAAAAAAAAQwLgAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-03T03:43:14.843Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 11,
+              "Title": "PasswordValidationResult.cs",
+              "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\DTOs\\Common\\PasswordValidationResult.cs",
+              "RelativeDocumentMoniker": "WorkHub.API\\DTOs\\Common\\PasswordValidationResult.cs",
+              "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\DTOs\\Common\\PasswordValidationResult.cs",
+              "RelativeToolTip": "WorkHub.API\\DTOs\\Common\\PasswordValidationResult.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-06T04:59:27.765Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "PasswordPolicySettings.cs",
+              "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Settings\\PasswordPolicySettings.cs",
+              "RelativeDocumentMoniker": "WorkHub.API\\Settings\\PasswordPolicySettings.cs",
+              "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Settings\\PasswordPolicySettings.cs",
+              "RelativeToolTip": "WorkHub.API\\Settings\\PasswordPolicySettings.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-06T04:56:55.749Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "IPasswordService.cs",
+              "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Interfaces\\IPasswordService.cs",
+              "RelativeDocumentMoniker": "WorkHub.API\\Interfaces\\IPasswordService.cs",
+              "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Interfaces\\IPasswordService.cs",
+              "RelativeToolTip": "WorkHub.API\\Interfaces\\IPasswordService.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAuwB0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-06T05:00:41.617Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "PasswordService.cs",
+              "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Services\\PasswordService.cs",
+              "RelativeDocumentMoniker": "WorkHub.API\\Services\\PasswordService.cs",
+              "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Services\\PasswordService.cs",
+              "RelativeToolTip": "WorkHub.API\\Services\\PasswordService.cs",
+              "ViewState": "AgIAAHkAAAAAAAAAAAAuwIwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-06T05:01:31.887Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\appsettings.json",
+              "RelativeDocumentMoniker": "WorkHub.API\\appsettings.json",
+              "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\appsettings.json",
+              "RelativeToolTip": "WorkHub.API\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwBwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-05-06T04:55:48.912Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "RegisterRequestDto.cs",
+              "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\DTOs\\Auth\\RegisterRequestDto.cs",
+              "RelativeDocumentMoniker": "WorkHub.API\\DTOs\\Auth\\RegisterRequestDto.cs",
+              "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\DTOs\\Auth\\RegisterRequestDto.cs",
+              "RelativeToolTip": "WorkHub.API\\DTOs\\Auth\\RegisterRequestDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-03T03:39:26.041Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
               "Title": "ISlugService.cs",
               "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Interfaces\\ISlugService.cs",
               "RelativeDocumentMoniker": "WorkHub.API\\Interfaces\\ISlugService.cs",
@@ -115,7 +295,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 15,
               "Title": "OrganizationDto.cs",
               "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\DTOs\\Organization\\OrganizationDto.cs",
               "RelativeDocumentMoniker": "WorkHub.API\\DTOs\\Organization\\OrganizationDto.cs",
@@ -127,7 +307,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 16,
               "Title": "AuthResponseDto.cs",
               "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\DTOs\\Auth\\AuthResponseDto.cs",
               "RelativeDocumentMoniker": "WorkHub.API\\DTOs\\Auth\\AuthResponseDto.cs",
@@ -139,7 +319,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 17,
               "Title": "LoginRequestDto.cs",
               "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\DTOs\\Auth\\LoginRequestDto.cs",
               "RelativeDocumentMoniker": "WorkHub.API\\DTOs\\Auth\\LoginRequestDto.cs",
@@ -151,19 +331,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "RegisterRequestDto.cs",
-              "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\DTOs\\Auth\\RegisterRequestDto.cs",
-              "RelativeDocumentMoniker": "WorkHub.API\\DTOs\\Auth\\RegisterRequestDto.cs",
-              "ToolTip": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\DTOs\\Auth\\RegisterRequestDto.cs",
-              "RelativeToolTip": "WorkHub.API\\DTOs\\Auth\\RegisterRequestDto.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABoAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-03T03:39:26.041Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 18,
               "Title": "AppDbContext.cs",
               "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Data\\AppDbContext.cs",
               "RelativeDocumentMoniker": "WorkHub.API\\Data\\AppDbContext.cs",
@@ -175,7 +343,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 13,
               "Title": "SlugService.cs",
               "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Services\\SlugService.cs",
               "RelativeDocumentMoniker": "WorkHub.API\\Services\\SlugService.cs",
@@ -187,7 +355,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 19,
               "Title": "UserRole.cs",
               "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Models\\UserRole.cs",
               "RelativeDocumentMoniker": "WorkHub.API\\Models\\UserRole.cs",
@@ -199,7 +367,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 20,
               "Title": "User.cs",
               "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Models\\User.cs",
               "RelativeDocumentMoniker": "WorkHub.API\\Models\\User.cs",
@@ -211,7 +379,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 21,
               "Title": "Organization.cs",
               "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Models\\Organization.cs",
               "RelativeDocumentMoniker": "WorkHub.API\\Models\\Organization.cs",
@@ -223,7 +391,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 22,
               "Title": "BaseEntity.cs",
               "DocumentMoniker": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\Models\\BaseEntity.cs",
               "RelativeDocumentMoniker": "WorkHub.API\\Models\\BaseEntity.cs",
