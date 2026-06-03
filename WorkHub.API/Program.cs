@@ -28,7 +28,7 @@ builder.Services.AddSwaggerGen(c =>
         Description = "Multi-tenant project management platform API"
     });
 
-    // ✅ Add JWT Bearer button to Swagger UI
+    // Add JWT Bearer button to Swagger UI
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -62,15 +62,20 @@ builder.Services.Configure<JwtSettings>(
 builder.Services.Configure<PasswordPolicySettings>(
     builder.Configuration.GetSection(PasswordPolicySettings.SectionName));
 
-// ─── JWT Authentication ───────────────────────────────────────────
+// ─── Read JWT settings safely ─────────────────────────────────────
+// ✅ FIXED: Single declaration — removed duplicate jwtSettings variable
 var jwtSettings = builder.Configuration
     .GetSection(JwtSettings.SectionName)
-    .Get<JwtSettings>()!;
-
-var jwtSecret = builder.Configuration["JwtSettings:Secret"]
+    .Get<JwtSettings>()
     ?? throw new InvalidOperationException(
-        "JwtSettings:Secret is not configured. Run: dotnet user-secrets set \"JwtSettings:Secret\" \"your-secret\"");
+        "JwtSettings section is missing from configuration.");
 
+var jwtSecret = jwtSettings.Secret;
+if (string.IsNullOrWhiteSpace(jwtSecret))
+    throw new InvalidOperationException(
+        "JwtSettings:Secret is missing. Run: dotnet user-secrets set \"JwtSettings:Secret\" \"YourSecretKey\"");
+
+// ─── JWT Authentication ───────────────────────────────────────────
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -80,25 +85,25 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        // ✅ Validate the server that issued the token
+        // Validate the server that issued the token
         ValidateIssuer = true,
         ValidIssuer = jwtSettings.Issuer,
 
-        // ✅ Validate the recipient the token is intended for
+        // Validate the recipient the token is intended for
         ValidateAudience = true,
         ValidAudience = jwtSettings.Audience,
 
-        // ✅ Validate expiry — reject expired tokens
+        // Validate expiry — reject expired tokens
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero, // No tolerance — token expired = rejected immediately
+        ClockSkew = TimeSpan.Zero,
 
-        // ✅ Validate signature — verify token wasn't tampered with
+        // Validate signature — verify token wasn't tampered with
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(jwtSecret))
     };
 
-    // ✅ Return 401 properly formatted
+    // Return 401/403 in ApiResponse format
     options.Events = new JwtBearerEvents
     {
         OnChallenge = context =>
@@ -154,7 +159,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // ─── Application Services ─────────────────────────────────────────
 builder.Services.AddScoped<ISlugService, SlugService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
-builder.Services.AddScoped<IJwtService, JwtService>();       // ← NEW
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 // ─── Health Checks ────────────────────────────────────────────────
@@ -176,7 +182,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// ✅ ORDER MATTERS: Authentication before Authorization
+// ORDER MATTERS: Authentication before Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 

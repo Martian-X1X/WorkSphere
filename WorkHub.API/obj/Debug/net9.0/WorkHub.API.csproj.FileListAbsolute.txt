@@ -166,4 +166,3 @@ C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\refint\W
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\WorkHub.API.pdb
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\WorkHub.API.genruntimeconfig.cache
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\ref\WorkHub.API.dll
-C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
