@@ -939,6 +939,332 @@ AuthService.RegisterAsync()
  
 ---
 
+### ✅ Day 8 — Login API + JWT Token Generation
+
+> 🎯 **Goal:** Build `POST /api/auth/login` — validate credentials and issue a signed JWT access token
+
+| Task | Status |
+|---|---|
+| Installed `Microsoft.IdentityModel.Tokens` + `System.IdentityModel.Tokens.Jwt` | ✅ |
+| Added `JwtSettings` section to `appsettings.json` — issuer, audience, expiry config | ✅ |
+| Stored JWT secret securely via `.NET User Secrets` — never in source control | ✅ |
+| Created `JwtSettings.cs` strongly-typed config class in `Settings/` | ✅ |
+| Created `IJwtService` interface — `GenerateAccessToken`, `GetAccessTokenExpiry` | ✅ |
+| Implemented `JwtService` — HMAC-SHA256 signed token with full claims payload | ✅ |
+| JWT claims: `UserId`, `Email`, `Role`, `OrganizationId`, `FullName`, `IsEmailVerified` | ✅ |
+| Added `LoginAsync` to `IAuthService` interface | ✅ |
+| Implemented `LoginAsync` in `AuthService` — email lookup, password verify, rehash, LastLoginAt | ✅ |
+| Same error message for wrong email AND wrong password — prevents email enumeration | ✅ |
+| Added `POST /api/auth/login` to `AuthController` | ✅ |
+| Correct HTTP codes: `200 OK`, `400 Bad Request`, `401 Unauthorized`, `403 Forbidden` | ✅ |
+| Configured JWT middleware in `Program.cs` — validates issuer, audience, signature, expiry | ✅ |
+| `ClockSkew = TimeSpan.Zero` — zero tolerance on expired tokens | ✅ |
+| Custom `OnChallenge` + `OnForbidden` events — `401`/`403` return `ApiResponse<T>` format | ✅ |
+| `UseAuthentication()` registered before `UseAuthorization()` in middleware pipeline | ✅ |
+| Swagger updated — 🔒 Authorize button visible for JWT Bearer testing | ✅ |
+| `LastLoginAt` field updated in DB on every successful login | ✅ |
+| JWT decoded on `jwt.io` — all claims verified | ✅ |
+
+---
+
+#### 🔌 Endpoints after Day 8
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | Register new org + owner | Public |
+| `POST` | `/api/auth/login` | Login — returns JWT + refresh token | Public |
+| `GET` | `/health` | Database health check | Public |
+| `GET` | `/swagger` | API documentation | Public |
+
+---
+
+#### 🔐 JWT Claims Payload
+
+```json
+{
+  "sub":                "653db7e8-e055-4629-a3fe-5a26186b7ab5",
+  "jti":                "ffe8a72c-ceea-492a-84db-cc18d4eb76bf",
+  "email":              "strongpass@worksphere.io",
+  "role":               "Owner",
+  "org_id":             "771d6dfd-33b6-4f8b-ba3c-2ca1b19758f6",
+  "full_name":          "Test User",
+  "is_email_verified":  "false",
+  "iss":                "WorkSphere.API",
+  "aud":                "WorkSphere.Client",
+  "exp":                1780459979
+}
+```
+
+> 🔐 Signed with HMAC-SHA256. Token expires in 15 minutes (`ClockSkew = 0`). Secret stored in `.NET User Secrets` — never committed to source control.
+
+---
+
+### ✅ Day 9 — Refresh Token Rotation System
+
+> 🎯 **Goal:** Implement secure refresh token rotation — seamless silent re-authentication without forcing users to log in again
+
+| Task | Status |
+|---|---|
+| Created `RefreshTokenRequestDto` + `RevokeTokenRequestDto` in `DTOs/Auth/` | ✅ |
+| Created `IRefreshTokenService` interface — `GenerateRefreshToken`, `GetRefreshTokenExpiry` | ✅ |
+| Implemented `RefreshTokenService` — 64-byte cryptographically secure random token | ✅ |
+| Uses `RandomNumberGenerator` (OS entropy) — 512 bits, impossible to brute-force | ✅ |
+| Added `RefreshTokenAsync` + `RevokeTokenAsync` to `IAuthService` | ✅ |
+| Updated `AuthService` — login + register both issue refresh token stored in DB | ✅ |
+| `RefreshTokenAsync` — validates token, checks expiry, rotates BOTH tokens atomically | ✅ |
+| Old refresh token immediately invalidated on rotation — theft detection built-in | ✅ |
+| `RevokeTokenAsync` — clears `RefreshToken` + `RefreshTokenExpiry` from DB (logout) | ✅ |
+| Revoke always returns `200` for unknown tokens — prevents token enumeration | ✅ |
+| Added `POST /api/auth/refresh` to `AuthController` | ✅ |
+| Added `POST /api/auth/revoke` to `AuthController` — protected with `[Authorize]` | ✅ |
+| `IRefreshTokenService` registered in `Program.cs` DI container | ✅ |
+| All 6 Postman tests passing | ✅ |
+| pgAdmin verified — `RefreshToken` + `RefreshTokenExpiry` populated after login | ✅ |
+| pgAdmin verified — both fields `NULL` after revoke | ✅ |
+
+---
+
+#### 🔌 Endpoints after Day 9
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | Register new org + owner | Public |
+| `POST` | `/api/auth/login` | Login — returns JWT + refresh token | Public |
+| `POST` | `/api/auth/refresh` | Exchange refresh token for new token pair | Public |
+| `POST` | `/api/auth/revoke` | Logout — invalidate refresh token | 🔒 Bearer |
+| `GET` | `/health` | Database health check | Public |
+| `GET` | `/swagger` | API documentation | Public |
+
+---
+
+#### 🔄 Token Lifecycle
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    TOKEN LIFECYCLE                           │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  POST /auth/login                                            │
+│  └── Issues: AccessToken (15 min) + RefreshToken (7 days)   │
+│                                                              │
+│  Normal API calls [0–15 min]                                 │
+│  └── Authorization: Bearer {AccessToken}                    │
+│                                                              │
+│  AccessToken expires → client detects 401                    │
+│  └── POST /auth/refresh with RefreshToken                   │
+│       ├── Old RefreshToken → ❌ Immediately invalidated       │
+│       └── Issues: NEW AccessToken + NEW RefreshToken         │
+│                                                              │
+│  User logs out → POST /auth/revoke                           │
+│  └── RefreshToken = NULL in DB → both tokens dead           │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+#### ♻️ Rotation Security Model
+
+```
+Login          DB: RefreshToken = "TokenA"
+    │
+    ├─ Client uses AccessToken for 15 min
+    │
+    ├─ AccessToken expires → client calls /refresh with "TokenA"
+    │       DB: RefreshToken = "TokenB"  ← rotated
+    │       "TokenA" is now DEAD
+    │
+    └─ If attacker tries "TokenA" → 401 Invalid token
+       If attacker tries "TokenB" before client → both killed
+```
+
+---
+
+#### 📬 Postman Test Suite — Refresh Token System
+
+**Base URL:** `http://localhost:5210/api/auth`
+**Headers:** `Content-Type: application/json`
+
+---
+
+##### ✅ Test 1 — Login: Receive Both Tokens
+
+**`POST /api/auth/login`**
+```json
+{
+  "email": "strongpass@worksphere.io",
+  "password": "W0rkSph3re#2026"
+}
+```
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Login successful.",
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...K8L3ieKmrgCasTHTfKgoFa7hi-VXejKq2Yrx1eyG1Sk",
+    "refreshToken": "+xb79d3jEGpNd5DRPgFST8xoyRuVRBcl6Jkz2w/BX3uOUJxXoHvcUO7jyJ+/+3xnLQTF8sMg8UYM9W+rUjCtmA==",
+    "expiresAt": "2026-06-03T04:12:59.6827392Z",
+    "user": {
+      "id": "653db7e8-e055-4629-a3fe-5a26186b7ab5",
+      "fullName": "Test User",
+      "email": "strongpass@worksphere.io",
+      "role": "Owner",
+      "organizationName": "Strong Pass Corp"
+    }
+  }
+}
+```
+
+---
+
+##### ✅ Test 2 — Refresh: New Token Pair Issued
+
+**`POST /api/auth/refresh`** *(using refreshToken from Test 1)*
+```json
+{
+  "refreshToken": "+xb79d3jEGpNd5DRPgFST8xoyRuVRBcl6Jkz2w/BX3uOUJxXoHvcUO7jyJ+/+3xnLQTF8sMg8UYM9W+rUjCtmA=="
+}
+```
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Token refreshed successfully.",
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...D2Oi_otwfACnELkDImahhyK5B_k6oI4EwJHozkToNEQ",
+    "refreshToken": "SqwB4c4TNJGc4Zm++MjQMPTWihoRv5oyA4pzX57A08r8y4yS1+7Bm9DLCtA+gWB5PzKUM2QxkgPdAhdhtEjMEw==",
+    "expiresAt": "2026-06-03T04:15:13.8339172Z"
+  }
+}
+```
+
+> 🔵 Brand new access token + brand new refresh token. Old refresh token is now dead.
+
+---
+
+##### ❌ Test 3 — Old Token Rejected After Rotation
+
+**`POST /api/auth/refresh`** *(using the OLD refreshToken from Test 1)*
+
+**Response — `401 Unauthorized`:**
+```json
+{
+  "success": false,
+  "message": "Invalid or expired refresh token. Please log in again.",
+  "data": null,
+  "errors": ["Invalid or expired refresh token. Please log in again."],
+  "timestamp": "2026-06-03T04:00:43.6034799Z"
+}
+```
+
+> 🔴 Rotation confirmed — old token immediately dead after first use.
+
+---
+
+##### ✅ Test 4 — Revoke: Logout Successfully
+
+**`POST /api/auth/revoke`** *(Authorization: Bearer {accessToken})*
+```json
+{
+  "refreshToken": "SqwB4c4TNJGc4Zm++MjQMPTWihoRv5oyA4pzX57A08r8y4yS1+7Bm9DLCtA+..."
+}
+```
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Logged out successfully.",
+  "data": null,
+  "errors": [],
+  "timestamp": "2026-06-03T04:06:02.1689581Z"
+}
+```
+
+---
+
+##### ✅ Test 5 — Revoked Token Returns Safe Response
+
+**`POST /api/auth/revoke`** *(same token again)*
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Token revoked successfully.",
+  "data": null,
+  "errors": [],
+  "timestamp": "2026-06-03T04:08:30.2453104Z"
+}
+```
+
+> 🔵 Always returns `200` for unknown/already-revoked tokens — **token enumeration prevention**. Attacker learns nothing.
+
+---
+
+##### ❌ Test 6 — Empty Token Rejected
+
+**Response — `400 Bad Request`:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "data": null,
+  "errors": ["Refresh token is required"],
+  "timestamp": "2026-06-03T04:09:16.4460592Z"
+}
+```
+
+---
+
+#### 📊 Test Results Summary
+
+| Test | Action | HTTP | Result |
+|---|---|---|---|
+| 1 | Login — receive access + refresh token | `200` | ✅ Both tokens issued |
+| 2 | Refresh — new token pair from old refresh token | `200` | ✅ Rotation working |
+| 3 | Old refresh token used after rotation | `401` | ✅ Dead immediately |
+| 4 | Revoke — logout clears token from DB | `200` | ✅ Logged out |
+| 5 | Revoked token used again | `200` | ✅ Safe response (enumeration prevention) |
+| 6 | Empty refresh token | `400` | ✅ Validation error |
+
+---
+
+#### 🗄️ pgAdmin Verification
+
+**After login — token stored in DB:**
+
+| Field | Value |
+|---|---|
+| `RefreshToken` | `+xb79d3jEGp...` ← 88-char base64 token |
+| `RefreshTokenExpiry` | `2026-06-10 04:00:00` ← 7 days from login |
+| `LastLoginAt` | `2026-06-03 10:03:23` ← updated on every login |
+
+**After revoke — token cleared:**
+
+| Field | Value |
+|---|---|
+| `RefreshToken` | `NULL` ← cleared |
+| `RefreshTokenExpiry` | `NULL` ← cleared |
+
+> ✅ User is fully logged out at the database level. No token can be used until they log in again.
+
+---
+
+**Migration History after Day 9:**
+```
+✔  20260419_InitialCreate                      [Applied]
+✔  20260420_AddOrganizationAndUserTables        [Applied]
+✔  20260421_UpgradeModelsDay5                   [Applied]
+```
+
+> No new migration required on Days 8 or 9 — `RefreshToken` and `RefreshTokenExpiry` columns were added on Day 5.
+
+---
+
 ## 🛣️ Product Roadmap
 
 | Phase | Days     | Milestone                                              | Status      |
