@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using WorkHub.API.Data;
 using WorkHub.API.Interfaces;
 using WorkHub.API.Services;
+using WorkHub.API.Middleware;
 using WorkHub.API.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,9 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddEndpointsApiExplorer();
+
+// ─── HttpContextAccessor — needed by CurrentUserService ──────────
+builder.Services.AddHttpContextAccessor();
 
 // ─── Swagger with JWT support ─────────────────────────────────────
 builder.Services.AddSwaggerGen(c =>
@@ -162,6 +166,7 @@ builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // ─── Health Checks ────────────────────────────────────────────────
 builder.Services.AddHealthChecks()
@@ -169,6 +174,10 @@ builder.Services.AddHealthChecks()
 
 // ─── Build app ────────────────────────────────────────────────────
 var app = builder.Build();
+
+// ─── Middleware pipeline — ORDER IS CRITICAL ──────────────────────
+app.UseGlobalExceptionHandler(); // ← FIRST — catches everything
+app.UseRequestLogging();         // ← SECOND — logs all requests
 
 if (app.Environment.IsDevelopment())
 {
@@ -181,10 +190,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// ORDER MATTERS: Authentication before Authorization
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseAuthentication(); // ← BEFORE Authorization
+app.UseAuthorization();  // ← AFTER Authentication
 
 app.MapHealthChecks("/health");
 app.MapControllers();
