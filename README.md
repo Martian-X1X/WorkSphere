@@ -1265,6 +1265,343 @@ Login          DB: RefreshToken = "TokenA"
 
 ---
 
+### ✅ Day 10 — Auth Middleware & Request Pipeline
+
+> 🎯 **Goal:** Build `ICurrentUserService`, global exception handling, request logging, and protect routes with `[Authorize]` — completing the production-grade middleware pipeline
+
+| Task | Status |
+|---|---|
+| Created `ICurrentUserService` interface — `UserId`, `Email`, `Role`, `OrganizationId`, `FullName`, role helpers | ✅ |
+| Implemented `CurrentUserService` — reads JWT claims via `IHttpContextAccessor`, zero DB queries | ✅ |
+| Role helpers: `IsOwner`, `IsAdminOrOwner` — reusable across all future services | ✅ |
+| Created `CurrentUserDto` in `DTOs/Common/` — safe profile shape for API responses | ✅ |
+| Created `UsersController` with 3 protected endpoints demonstrating auth layers | ✅ |
+| `GET /api/users/me` — reads full profile from JWT claims, no database hit | ✅ |
+| `GET /api/users/owner-only` — `[Authorize(Roles = "Owner")]` enforced | ✅ |
+| `GET /api/users/admin-area` — `[Authorize(Roles = "Owner,Admin")]` enforced | ✅ |
+| Created `GlobalExceptionMiddleware` — catches unhandled exceptions, returns `ApiResponse<T>` | ✅ |
+| Dev mode: exposes exception message. Production: returns safe generic message | ✅ |
+| Created `RequestLoggingMiddleware` — logs method, path, status code, elapsed ms | ✅ |
+| Request correlation ID (`[a1b2c3d4]`) — each request gets a short unique ID for log tracing | ✅ |
+| Status-aware log levels: `200` = Info, `4xx` = Warning, `5xx` = Error | ✅ |
+| Registered `AddHttpContextAccessor()` in DI — required by `CurrentUserService` | ✅ |
+| Registered `ICurrentUserService` / `CurrentUserService` in DI container | ✅ |
+| Registered both middleware in correct pipeline order in `Program.cs` | ✅ |
+| All 7 Postman + Swagger tests passing | ✅ |
+
+---
+
+#### 🔌 Endpoints after Day 10
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | Register new org + owner | Public |
+| `POST` | `/api/auth/login` | Login — returns JWT + refresh token | Public |
+| `POST` | `/api/auth/refresh` | Exchange refresh token for new token pair | Public |
+| `POST` | `/api/auth/revoke` | Logout — invalidate refresh token | 🔒 Bearer |
+| `GET` | `/api/users/me` | Current user profile from JWT claims | 🔒 Bearer |
+| `GET` | `/api/users/owner-only` | Owner-restricted endpoint | 🔒 Owner |
+| `GET` | `/api/users/admin-area` | Admin + Owner restricted endpoint | 🔒 Owner/Admin |
+| `GET` | `/health` | Database health check | Public |
+| `GET` | `/swagger` | API documentation | Public |
+
+---
+
+#### 🏗️ Middleware Pipeline
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                     INCOMING HTTP REQUEST                           │
+└───────────────────────────────┬─────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  1. GlobalExceptionMiddleware                                        │
+│     Wraps the entire pipeline in try/catch                          │
+│     Any unhandled exception → ApiResponse<T>.Fail() → 500          │
+│     Dev: exposes message  |  Production: safe generic message       │
+└───────────────────────────────┬─────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  2. RequestLoggingMiddleware                                         │
+│     Assigns correlation ID  [a1b2c3d4]                              │
+│     Logs: → METHOD /path                                            │
+│     Logs: ← STATUS METHOD /path (Xms)                              │
+│     200 = Info  |  4xx = Warning  |  5xx = Error                   │
+└───────────────────────────────┬─────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  3. UseHttpsRedirection                                              │
+│     Redirects HTTP → HTTPS in production                            │
+└───────────────────────────────┬─────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  4. UseAuthentication   ← JWT Bearer Middleware                      │
+│     Reads Authorization: Bearer {token} header                      │
+│     Validates: Issuer · Audience · Signature · Expiry               │
+│     ClockSkew = 0 — expired = rejected immediately                  │
+│     On success: populates HttpContext.User with JWT claims           │
+│     On failure: triggers OnChallenge → 401 ApiResponse<T>           │
+└───────────────────────────────┬─────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  5. UseAuthorization                                                 │
+│     Checks [Authorize] attributes on controllers/actions            │
+│     [Authorize]              → any authenticated user               │
+│     [Authorize(Roles="Owner")]→ Owner only                          │
+│     [AllowAnonymous]          → bypasses auth entirely              │
+│     On role fail: triggers OnForbidden → 403 ApiResponse<T>         │
+└───────────────────────────────┬─────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  6. MapControllers → Route to correct controller action             │
+└───────────────────────────────┬─────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  7. ICurrentUserService   (injected into controller/service)        │
+│     UserId          ← ClaimTypes.NameIdentifier                     │
+│     Email           ← ClaimTypes.Email                              │
+│     Role            ← ClaimTypes.Role                               │
+│     OrganizationId  ← custom claim "org_id"                         │
+│     FullName        ← custom claim "full_name"                      │
+│     Zero DB queries — all data from JWT payload                     │
+└───────────────────────────────┬─────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                        HTTP RESPONSE                                │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+#### 🛡️ ICurrentUserService Contract
+
+| Property / Method | Source | Description |
+|---|---|---|
+| `UserId` | `ClaimTypes.NameIdentifier` | Authenticated user's GUID |
+| `Email` | `ClaimTypes.Email` | User's email address |
+| `Role` | `ClaimTypes.Role` | `Owner` / `Admin` / `Member` |
+| `OrganizationId` | `"org_id"` claim | User's organization GUID |
+| `FullName` | `"full_name"` claim | First + Last name combined |
+| `IsEmailVerified` | `"is_email_verified"` claim | Email verification status |
+| `IsAuthenticated` | `HttpContext.User.Identity` | True if valid JWT present |
+| `IsOwner` | Derived from `Role` | True if role == Owner |
+| `IsAdminOrOwner` | Derived from `Role` | True if role == Owner or Admin |
+
+> All values read directly from JWT claims — no database lookup required on authenticated requests.
+
+---
+
+#### 📬 Postman Test Suite — Auth Middleware
+
+**Base URL:** `http://localhost:5210/api/users`
+
+---
+
+##### ✅ Test 0 — Login First (Get Token)
+
+**`POST /api/auth/login`**
+
+**Response — `200 OK`** *(copy the accessToken)*
+```json
+{
+  "success": true,
+  "message": "Login successful.",
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...SPUenTSBCwjW1eqN-OnxIq7EKA3VfJx0O0AGuzSUC3I",
+    "refreshToken": "H9K0LA2mxQVgad+6K6t47koLM2fP6SghYhvFNFvTh7eOB...",
+    "expiresAt": "2026-06-04T09:34:37.1767207Z"
+  }
+}
+```
+
+---
+
+##### ✅ Test 1 — `GET /me` With Valid Token
+
+**Headers:** `Authorization: Bearer eyJhbGci...`
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Profile retrieved successfully.",
+  "data": {
+    "userId": "653db7e8-e055-4629-a3fe-5a26186b7ab5",
+    "email": "strongpass@worksphere.io",
+    "fullName": "Test User",
+    "role": "Owner",
+    "organizationId": "771d6dfd-33b6-4f8b-ba3c-2ca1b19758f6",
+    "isEmailVerified": false,
+    "isOwner": true,
+    "isAdminOrOwner": true
+  },
+  "errors": [],
+  "timestamp": "2026-06-04T09:21:21.3557534Z"
+}
+```
+
+> 🟢 All data read from JWT claims — zero database queries. Proven by console log: `Profile accessed by 653db7e8 (Owner)`
+
+---
+
+##### ❌ Test 2 — `GET /me` Without Token
+
+**Headers:** *(none)*
+
+**Response — `401 Unauthorized`:**
+```json
+{
+  "success": false,
+  "message": "Authentication required. Please provide a valid JWT token.",
+  "errors": ["Unauthorized"]
+}
+```
+
+---
+
+##### ❌ Test 3 — Expired Token
+
+**Response — `401 Unauthorized`:**
+```json
+{
+  "success": false,
+  "message": "Authentication required. Please provide a valid JWT token.",
+  "errors": ["Unauthorized"]
+}
+```
+
+> 🔴 `ClockSkew = TimeSpan.Zero` — zero grace period. 1 second past expiry = rejected.
+
+---
+
+##### ❌ Test 4 — Tampered Token (1 character changed)
+
+**Response — `401 Unauthorized`:**
+```json
+{
+  "success": false,
+  "message": "Authentication required. Please provide a valid JWT token.",
+  "errors": ["Unauthorized"]
+}
+```
+
+> 🔴 HMAC-SHA256 signature validation — any modification to the token invalidates it entirely.
+
+---
+
+##### ✅ Test 5 — Owner-Only Endpoint
+
+**`GET /api/users/owner-only`** with Owner token
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Owner access granted.",
+  "data": {
+    "message": "Welcome, Owner! You have full platform access."
+  },
+  "errors": [],
+  "timestamp": "2026-06-04T09:25:19.9652801Z"
+}
+```
+
+---
+
+##### ✅ Test 6 — Admin Area (Owner Passes Too)
+
+**`GET /api/users/admin-area`** with Owner token
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Admin access granted.",
+  "data": {
+    "message": "Welcome to the admin area, Test User!",
+    "yourRole": "Owner",
+    "organizationId": "771d6dfd-33b6-4f8b-ba3c-2ca1b19758f6"
+  },
+  "errors": [],
+  "timestamp": "2026-06-04T09:25:49.2364236Z"
+}
+```
+
+---
+
+##### ❌ Test 7 — Malformed Authorization Header
+
+**Headers:** `Authorization: InvalidTokenFormat`
+
+**Response — `401 Unauthorized`:**
+```json
+{
+  "success": false,
+  "message": "Authentication required. Please provide a valid JWT token.",
+  "errors": ["Unauthorized"]
+}
+```
+
+---
+
+#### 📊 Test Results Summary
+
+| Test | Action | HTTP | Result |
+|---|---|---|---|
+| 0 | Login — get JWT | `200` | ✅ Token issued |
+| 1 | `GET /me` with valid token | `200` | ✅ Claims read, zero DB queries |
+| 2 | `GET /me` no token | `401` | ✅ Blocked |
+| 3 | `GET /me` expired token | `401` | ✅ Blocked — ClockSkew = 0 |
+| 4 | `GET /me` tampered token | `401` | ✅ Signature invalid |
+| 5 | `GET /owner-only` Owner token | `200` | ✅ Role check passed |
+| 6 | `GET /admin-area` Owner token | `200` | ✅ Role check passed |
+| 7 | Malformed header format | `401` | ✅ Rejected |
+
+---
+
+#### 🖥️ Console Request Logs — Live Output
+
+```
+[cc0780ec] → POST /api/auth/login
+[cc0780ec] ← 200 POST /api/auth/login (4405ms)    ← BCrypt verify (expected)
+
+[e47b924d] → GET /api/users/me
+Profile accessed by user 653db7e8 (Owner)          ← Zero DB hit
+[e47b924d] ← 200 GET /api/users/me (19ms)
+
+[d8ac7c38] → GET /api/users/me
+[d8ac7c38] ← 401 GET /api/users/me (13ms)          ← No token
+
+[e131bb8c] → GET /api/users/owner-only
+[e131bb8c] ← 200 GET /api/users/owner-only (14ms)  ← Role: Owner ✅
+
+[5d0b9f3e] → GET /api/users/admin-area
+[5d0b9f3e] ← 401 GET /api/users/admin-area (0ms)   ← No token
+```
+
+> Each request gets a unique 8-character correlation ID for log tracing across distributed systems.
+
+---
+
+**Migration History after Day 10:**
+```
+✔  20260419_InitialCreate                      [Applied]
+✔  20260420_AddOrganizationAndUserTables        [Applied]
+✔  20260421_UpgradeModelsDay5                   [Applied]
+```
+
+> No new migration required on Day 10 — no schema changes, only middleware and service layer additions.
+
+---
+
 ## 🛣️ Product Roadmap
 
 | Phase | Days     | Milestone                                              | Status      |
