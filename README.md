@@ -1635,6 +1635,7 @@ Profile accessed by user 653db7e8 (Owner)          ← Zero DB hit
 
 This project is **proprietary software**. All rights reserved.
 Unauthorized copying, distribution, or commercial use without explicit written permission is prohibited.
+Abdullah Mohammed Abdul Matin
 
 ---
 
