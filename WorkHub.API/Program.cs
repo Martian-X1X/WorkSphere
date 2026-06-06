@@ -7,6 +7,8 @@ using WorkHub.API.Interfaces;
 using WorkHub.API.Services;
 using WorkHub.API.Middleware;
 using WorkHub.API.Settings;
+using WorkHub.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -139,7 +141,81 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+// ─── Authorization with Permission Policies ───────────────────────
+builder.Services.AddAuthorization(options =>
+{
+    // ── Organization policies ─────────────────────────────────────
+    options.AddPolicy(PolicyNames.CanViewOrganization,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Organizations.View)));
+
+    options.AddPolicy(PolicyNames.CanManageOrganization,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Organizations.Update)));
+
+    options.AddPolicy(PolicyNames.CanViewBilling,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Organizations.ViewBilling)));
+
+    // ── Member policies ───────────────────────────────────────────
+    options.AddPolicy(PolicyNames.CanViewMembers,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Members.View)));
+
+    options.AddPolicy(PolicyNames.CanInviteMembers,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Members.Invite)));
+
+    options.AddPolicy(PolicyNames.CanRemoveMembers,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Members.Remove)));
+
+    options.AddPolicy(PolicyNames.CanChangeRoles,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Members.ChangeRole)));
+
+    // ── Project policies ──────────────────────────────────────────
+    options.AddPolicy(PolicyNames.CanViewProjects,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Projects.View)));
+
+    options.AddPolicy(PolicyNames.CanCreateProjects,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Projects.Create)));
+
+    options.AddPolicy(PolicyNames.CanManageProjects,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Projects.Update)));
+
+    options.AddPolicy(PolicyNames.CanDeleteProjects,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Projects.Delete)));
+
+    // ── Task policies ─────────────────────────────────────────────
+    options.AddPolicy(PolicyNames.CanViewTasks,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Tasks.View)));
+
+    options.AddPolicy(PolicyNames.CanCreateTasks,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Tasks.Create)));
+
+    options.AddPolicy(PolicyNames.CanManageTasks,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Tasks.Update)));
+
+    options.AddPolicy(PolicyNames.CanAssignTasks,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Tasks.Assign)));
+
+    options.AddPolicy(PolicyNames.CanUpdateOwnTasks,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Tasks.UpdateOwn)));
+
+    // ── Comment policies ──────────────────────────────────────────
+    options.AddPolicy(PolicyNames.CanViewComments,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Comments.View)));
+
+    options.AddPolicy(PolicyNames.CanCreateComments,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Comments.Create)));
+
+    options.AddPolicy(PolicyNames.CanDeleteComments,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Comments.Delete)));
+
+    // ── Report policies ───────────────────────────────────────────
+    options.AddPolicy(PolicyNames.CanViewReports,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Reports.View)));
+
+    options.AddPolicy(PolicyNames.CanExportReports,
+        p => p.AddRequirements(new PermissionRequirement(Permissions.Reports.Export)));
+});
+
+// Register the permission handler + service
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 
 // ─── Database ─────────────────────────────────────────────────────
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -167,6 +243,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
 
 // ─── Health Checks ────────────────────────────────────────────────
 builder.Services.AddHealthChecks()
