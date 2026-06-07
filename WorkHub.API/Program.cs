@@ -1,14 +1,14 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using WorkHub.API.Authorization;
 using WorkHub.API.Data;
 using WorkHub.API.Interfaces;
-using WorkHub.API.Services;
 using WorkHub.API.Middleware;
+using WorkHub.API.Services;
 using WorkHub.API.Settings;
-using WorkHub.API.Authorization;
-using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -244,6 +244,8 @@ builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IOrgContextService, OrgContextService>();
+builder.Services.AddScoped<OrgScopeGuard>();
 
 // ─── Health Checks ────────────────────────────────────────────────
 builder.Services.AddHealthChecks()
@@ -269,6 +271,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication(); // ← BEFORE Authorization
 app.UseAuthorization();  // ← AFTER Authentication
+app.UseTenantValidation();
 
 app.MapHealthChecks("/health");
 app.MapControllers();

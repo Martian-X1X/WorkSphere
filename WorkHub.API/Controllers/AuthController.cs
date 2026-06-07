@@ -4,6 +4,7 @@ using WorkHub.API.DTOs.Auth;
 using WorkHub.API.DTOs.Common;
 using WorkHub.API.Interfaces;
 
+
 namespace WorkHub.API.Controllers;
 
 [ApiController]
@@ -125,5 +126,43 @@ public class AuthController : ControllerBase
 
         var result = await _authService.RevokeTokenAsync(request.RefreshToken);
         return Ok(result);
+    }
+
+    /// <summary>
+    /// Get the full authorization context for the current request.
+    /// Shows user identity, org info, and all permissions.
+    /// Useful for frontend to build role-aware UIs.
+    /// </summary>
+    [HttpGet("context")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<AuthContextDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAuthContext(
+        [FromServices] IOrgContextService orgContext,
+        [FromServices] IPermissionService permissionService,
+        [FromServices] ICurrentUserService currentUser)
+    {
+        var org = await orgContext.GetCurrentOrgAsync();
+
+        var context = new AuthContextDto
+        {
+            UserId = currentUser.UserId,
+            Email = currentUser.Email,
+            FullName = currentUser.FullName,
+            Role = currentUser.Role,
+            OrganizationId = currentUser.OrganizationId,
+            OrganizationName = org?.Name ?? "Unknown",
+            IsEmailVerified = currentUser.IsEmailVerified,
+            IsOwner = currentUser.IsOwner,
+            IsAdminOrOwner = currentUser.IsAdminOrOwner,
+            OrgIsActive = org?.IsActive ?? false,
+            OrgPlan = org?.Plan ?? "Unknown",
+            Permissions = permissionService
+                .GetCurrentUserPermissions()
+                .OrderBy(p => p)
+                .ToList()
+        };
+
+        return Ok(ApiResponse<AuthContextDto>.Ok(context,
+            "Authorization context retrieved successfully."));
     }
 }
