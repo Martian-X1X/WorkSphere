@@ -1254,17 +1254,6 @@ Login          DB: RefreshToken = "TokenA"
 
 ---
 
-**Migration History after Day 9:**
-```
-✔  20260419_InitialCreate                      [Applied]
-✔  20260420_AddOrganizationAndUserTables        [Applied]
-✔  20260421_UpgradeModelsDay5                   [Applied]
-```
-
-> No new migration required on Days 8 or 9 — `RefreshToken` and `RefreshTokenExpiry` columns were added on Day 5.
-
----
-
 ### ✅ Day 10 — Auth Middleware & Request Pipeline
 
 > 🎯 **Goal:** Build `ICurrentUserService`, global exception handling, request logging, and protect routes with `[Authorize]` — completing the production-grade middleware pipeline
@@ -1591,14 +1580,366 @@ Profile accessed by user 653db7e8 (Owner)          ← Zero DB hit
 
 ---
 
-**Migration History after Day 10:**
+---
+
+### ✅ Day 11 — Role-Based Permission System
+
+> 🎯 **Goal:** Build a complete, extensible permission engine with a centralized matrix, named policies, custom authorization handlers, and a runtime permission service — replacing hardcoded role strings with a declarative, audit-friendly system
+
+| Task | Status |
+|---|---|
+| Created `Authorization/` folder — dedicated authorization layer | ✅ |
+| Created `Permissions.cs` — central permission registry (6 feature areas, 25 permissions) | ✅ |
+| Created `RolePermissions.cs` — permission matrix mapping Owner/Admin/Member to their allowed actions | ✅ |
+| Owner: 25 permissions — full platform control including billing, archive, export | ✅ |
+| Admin: 18 permissions — manage team and content, no billing/archive/export/role-change | ✅ |
+| Member: 7 permissions — view only + update own tasks + create/delete own comments | ✅ |
+| Created `PermissionRequirement.cs` — custom `IAuthorizationRequirement` | ✅ |
+| Created `PermissionHandler.cs` — reads role from JWT claim, checks against matrix | ✅ |
+| Created `PolicyNames.cs` — 22 named policy constants for use with `[Authorize(Policy)]` | ✅ |
+| Created `IPermissionService` interface — `CurrentUserHasPermission`, `CurrentUserOwns`, `GetCurrentUserPermissions` | ✅ |
+| Implemented `PermissionService` — service-level runtime permission checks | ✅ |
+| All 22 policies registered in `Program.cs` via `AddAuthorization()` | ✅ |
+| `PermissionHandler` registered as singleton in DI | ✅ |
+| `IPermissionService` registered as scoped in DI | ✅ |
+| `UsersController` upgraded — `IPermissionService` injected | ✅ |
+| Added `GET /api/users/me/permissions` — returns full permission list for current role | ✅ |
+| Added `GET /api/users/permission-check` — runtime matrix check via service | ✅ |
+| Added `GET /api/users/can-invite` — `[Authorize(Policy = PolicyNames.CanInviteMembers)]` | ✅ |
+| Added `GET /api/users/can-export` — `[Authorize(Policy = PolicyNames.CanExportReports)]` | ✅ |
+| Fixed `Program.cs` — added `using Microsoft.AspNetCore.Authorization` | ✅ |
+
+---
+
+#### 🗺️ Permission Matrix
+
 ```
-✔  20260419_InitialCreate                      [Applied]
-✔  20260420_AddOrganizationAndUserTables        [Applied]
-✔  20260421_UpgradeModelsDay5                   [Applied]
+┌────────────────────────────────┬────────┬───────┬────────┐
+│ Permission                     │ Owner  │ Admin │ Member │
+├────────────────────────────────┼────────┼───────┼────────┤
+│ organizations.view             │  ✅    │  ✅   │  ✅    │
+│ organizations.update           │  ✅    │  ❌   │  ❌    │
+│ organizations.delete           │  ✅    │  ❌   │  ❌    │
+│ organizations.billing.view     │  ✅    │  ❌   │  ❌    │
+├────────────────────────────────┼────────┼───────┼────────┤
+│ members.view                   │  ✅    │  ✅   │  ✅    │
+│ members.invite                 │  ✅    │  ✅   │  ❌    │
+│ members.remove                 │  ✅    │  ✅   │  ❌    │
+│ members.changerole             │  ✅    │  ❌   │  ❌    │
+├────────────────────────────────┼────────┼───────┼────────┤
+│ projects.view                  │  ✅    │  ✅   │  ✅    │
+│ projects.create                │  ✅    │  ✅   │  ❌    │
+│ projects.update                │  ✅    │  ✅   │  ❌    │
+│ projects.delete                │  ✅    │  ✅   │  ❌    │
+│ projects.archive               │  ✅    │  ❌   │  ❌    │
+├────────────────────────────────┼────────┼───────┼────────┤
+│ tasks.view                     │  ✅    │  ✅   │  ✅    │
+│ tasks.create                   │  ✅    │  ✅   │  ❌    │
+│ tasks.update                   │  ✅    │  ✅   │  ❌    │
+│ tasks.delete                   │  ✅    │  ✅   │  ❌    │
+│ tasks.assign                   │  ✅    │  ✅   │  ❌    │
+│ tasks.update.own               │  ✅    │  ✅   │  ✅    │
+├────────────────────────────────┼────────┼───────┼────────┤
+│ comments.view                  │  ✅    │  ✅   │  ✅    │
+│ comments.create                │  ✅    │  ✅   │  ✅    │
+│ comments.delete                │  ✅    │  ✅   │  ❌    │
+│ comments.delete.own            │  ✅    │  ✅   │  ✅    │
+├────────────────────────────────┼────────┼───────┼────────┤
+│ reports.view                   │  ✅    │  ✅   │  ❌    │
+│ reports.export                 │  ✅    │  ❌   │  ❌    │
+├────────────────────────────────┼────────┼───────┼────────┤
+│ Total permissions              │  25    │  18   │   7    │
+└────────────────────────────────┴────────┴───────┴────────┘
 ```
 
-> No new migration required on Day 10 — no schema changes, only middleware and service layer additions.
+---
+
+#### 🔌 Endpoints after Day 11
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | Register new org + owner | Public |
+| `POST` | `/api/auth/login` | Login — returns JWT + refresh token | Public |
+| `POST` | `/api/auth/refresh` | Exchange refresh token for new token pair | Public |
+| `POST` | `/api/auth/revoke` | Logout — invalidate refresh token | 🔒 Bearer |
+| `GET` | `/api/users/me` | Current user profile from JWT claims | 🔒 Bearer |
+| `GET` | `/api/users/me/permissions` | Full permission list for current role | 🔒 Bearer |
+| `GET` | `/api/users/permission-check` | Runtime permission matrix check | 🔒 Bearer |
+| `GET` | `/api/users/can-invite` | Policy: `CanInviteMembers` | 🔒 Owner/Admin |
+| `GET` | `/api/users/can-export` | Policy: `CanExportReports` | 🔒 Owner only |
+| `GET` | `/api/users/owner-only` | Role: Owner | 🔒 Owner |
+| `GET` | `/api/users/admin-area` | Role: Owner or Admin | 🔒 Owner/Admin |
+| `GET` | `/health` | Database health check | Public |
+| `GET` | `/swagger` | API documentation | Public |
+
+---
+
+#### 🔄 Authorization Decision Flow
+
+```
+[Authorize(Policy = "CanInviteMembers")]
+         │
+         ▼
+  AddAuthorization() looks up policy
+         │
+         └── PermissionRequirement("members.invite")
+                    │
+                    ▼
+         PermissionHandler.HandleRequirementAsync()
+                    │
+                    ├── Read ClaimTypes.Role from JWT → "Owner"
+                    │
+                    ├── RolePermissions.HasPermission("Owner", "members.invite")
+                    │         │
+                    │         └── Check _matrix["Owner"].Contains("members.invite")
+                    │                       → true ✅
+                    │
+                    └── context.Succeed(requirement) → request continues
+```
+
+---
+
+### ✅ Day 12 — Authorization Middleware & Tenant Isolation
+
+> 🎯 **Goal:** Build tenant isolation middleware, org context service, and IDOR-proof resource guards — completing the 5-layer production authorization architecture
+
+| Task | Status |
+|---|---|
+| Created `IOrgContextService` interface — `GetCurrentOrgAsync`, `BelongsToCurrentOrgAsync`, `ValidateCurrentUserContextAsync` | ✅ |
+| Implemented `OrgContextService` — request-scoped org cache, single DB hit per request | ✅ |
+| Real-time user status check — deactivated users blocked immediately (not after JWT expires) | ✅ |
+| Real-time org status check — suspended organizations blocked at middleware level | ✅ |
+| Created `TenantMiddleware` — validates user + org on every authenticated request | ✅ |
+| Exempt paths configured — public endpoints bypass tenant check entirely | ✅ |
+| `TenantMiddlewareExtensions` — clean `app.UseTenantValidation()` registration | ✅ |
+| Created `OrgScopeGuard` in `Authorization/` — prevents cross-tenant data access (IDOR) | ✅ |
+| `OrgScopeGuard.Check(orgId)` — ensures resource belongs to current user's org | ✅ |
+| `OrgScopeGuard.CheckOwnership(orgId, creatorId)` — resource ownership check | ✅ |
+| IDOR attempt logging — suspicious access logged with full user + org context | ✅ |
+| Generic "not found" returned on IDOR attempt — attacker learns nothing | ✅ |
+| Created `AuthContextDto` in `DTOs/Common/` — full auth context snapshot | ✅ |
+| Added `GET /api/auth/context` — returns user identity, org info, all permissions | ✅ |
+| `IOrgContextService` registered as scoped in `Program.cs` | ✅ |
+| `OrgScopeGuard` registered as scoped in `Program.cs` | ✅ |
+| `app.UseTenantValidation()` added after `UseAuthorization()` in pipeline | ✅ |
+| All 4 Postman tests passing | ✅ |
+
+---
+
+#### 🔌 Endpoints after Day 12
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| `GET` | `/api/auth/context` | Full auth context — identity + org + permissions | 🔒 Bearer |
+| `POST` | `/api/auth/register` | Register new org + owner | Public |
+| `POST` | `/api/auth/login` | Login — returns JWT + refresh token | Public |
+| `POST` | `/api/auth/refresh` | Exchange refresh token for new token pair | Public |
+| `POST` | `/api/auth/revoke` | Logout — invalidate refresh token | 🔒 Bearer |
+| `GET` | `/api/users/me` | Current user profile from JWT claims | 🔒 Bearer |
+| `GET` | `/api/users/me/permissions` | Full permission list for current role | 🔒 Bearer |
+| `GET` | `/api/users/permission-check` | Runtime permission matrix | 🔒 Bearer |
+| `GET` | `/api/users/can-invite` | Policy: `CanInviteMembers` | 🔒 Owner/Admin |
+| `GET` | `/api/users/can-export` | Policy: `CanExportReports` | 🔒 Owner only |
+| `GET` | `/api/users/owner-only` | Role: Owner | 🔒 Owner |
+| `GET` | `/api/users/admin-area` | Role: Owner or Admin | 🔒 Owner/Admin |
+| `GET` | `/health` | Database health check | Public |
+| `GET` | `/swagger` | API documentation | Public |
+
+---
+
+#### 🏗️ Complete 5-Layer Authorization Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│           WORKSPHERE — 5-LAYER AUTHORIZATION STACK                  │
+├──────┬──────────────────────────────────────────────────────────────┤
+│      │                                                              │
+│  L1  │  JWT Authentication                          [Day 8]        │
+│      │  Validates signature · issuer · audience · expiry            │
+│      │  Populates HttpContext.User with all claims                  │
+│      │  Failure → 401 Unauthorized                                 │
+│      │                                                              │
+├──────┼──────────────────────────────────────────────────────────────┤
+│      │                                                              │
+│  L2  │  Policy-Based Authorization                 [Day 11]        │
+│      │  [Authorize(Policy = "CanInviteMembers")]                   │
+│      │  PermissionHandler checks RolePermissions matrix            │
+│      │  Failure → 403 Forbidden                                    │
+│      │                                                              │
+├──────┼──────────────────────────────────────────────────────────────┤
+│      │                                                              │
+│  L3  │  Tenant Validation Middleware               [Day 12] ←NOW  │
+│      │  Is user still active in DB?                                │
+│      │  Is organization still active in DB?                        │
+│      │  Runs on every authenticated request                        │
+│      │  Failure → 403 Suspended/Deactivated                       │
+│      │                                                              │
+├──────┼──────────────────────────────────────────────────────────────┤
+│      │                                                              │
+│  L4  │  Org Scope Guard                            [Day 12] ←NOW  │
+│      │  OrgScopeGuard.Check(resource.OrganizationId)               │
+│      │  Does this resource belong to the current user's org?       │
+│      │  Failure → 404 "Resource not found" (hides existence)       │
+│      │                                                              │
+├──────┼──────────────────────────────────────────────────────────────┤
+│      │                                                              │
+│  L5  │  Ownership Check                            [Day 12] ←NOW  │
+│      │  OrgScopeGuard.CheckOwnership(orgId, creatorId)             │
+│      │  Did this user create the resource? (or are they Admin?)    │
+│      │  Failure → 403 "No permission to modify this resource"      │
+│      │                                                              │
+└──────┴──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+#### 🔒 Request Flow Through All 5 Layers
+
+```
+  GET /api/projects/abc123
+       │
+       ├─ L1: JWT valid?          No → 401
+       │         ↓ Yes
+       ├─ L2: Has permission?     No → 403
+       │         ↓ Yes
+       ├─ L3: User+Org active?    No → 403 Suspended
+       │         ↓ Yes
+       ├─ L4: Same org?           No → 404 Not Found
+       │         ↓ Yes
+       ├─ L5: Owns resource?      No → 403 Cannot Modify
+       │         ↓ Yes
+       └─ ✅ Data returned
+```
+
+---
+
+#### 🛡️ IDOR Protection — OrgScopeGuard
+
+```
+Without OrgScopeGuard:
+  User A (Org: Alpha) knows UUID of User B's task (Org: Beta)
+  GET /api/tasks/beta-task-uuid
+  ← 200 OK — Task data leaked! ❌
+
+With OrgScopeGuard:
+  OrgScopeGuard.Check(task.OrganizationId)
+  task.OrganizationId (Beta) ≠ currentUser.OrganizationId (Alpha)
+  Logs: "IDOR attempt: User {id} (Org Alpha) tried to access Org Beta resource"
+  ← 404 "Resource not found or you do not have access" ✅
+  Attacker learns nothing — resource existence is not confirmed
+```
+
+---
+
+#### 📬 Postman Test Suite — Day 12
+
+**Base URL:** `http://localhost:5210`
+**Headers:** `Content-Type: application/json`
+
+---
+
+##### ✅ Test 1 — Full Auth Context
+
+**`GET /api/auth/context`** with valid Owner token
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Authorization context retrieved successfully.",
+  "data": {
+    "userId": "653db7e8-e055-4629-a3fe-5a26186b7ab5",
+    "email": "strongpass@worksphere.io",
+    "fullName": "Test User",
+    "role": "Owner",
+    "organizationId": "771d6dfd-33b6-4f8b-ba3c-2ca1b19758f6",
+    "organizationName": "Strong Pass Corp",
+    "isEmailVerified": false,
+    "isOwner": true,
+    "isAdminOrOwner": true,
+    "orgIsActive": true,
+    "orgPlan": "Free",
+    "permissions": [
+      "comments.create", "comments.delete", "comments.delete.own",
+      "comments.view", "members.changerole", "members.invite",
+      "members.remove", "members.view", "organizations.billing.view",
+      "organizations.delete", "organizations.update", "organizations.view",
+      "projects.archive", "projects.create", "projects.delete",
+      "projects.update", "projects.view", "reports.export",
+      "reports.view", "tasks.assign", "tasks.create", "tasks.delete",
+      "tasks.update", "tasks.update.own", "tasks.view"
+    ]
+  },
+  "errors": [],
+  "timestamp": "2026-06-07T09:25:04.1293618Z"
+}
+```
+
+> 🟢 Full context: user identity + org status + all 25 permissions returned in one call. Frontend uses this to build role-aware UI.
+
+---
+
+##### ✅ Test 2 — Protected Route Passes Tenant Validation
+
+**`GET /api/users/me`** with valid token
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Profile retrieved successfully.",
+  "data": {
+    "userId": "653db7e8-e055-4629-a3fe-5a26186b7ab5",
+    "email": "strongpass@worksphere.io",
+    "fullName": "Test User",
+    "role": "Owner",
+    "organizationId": "771d6dfd-33b6-4f8b-ba3c-2ca1b19758f6",
+    "isEmailVerified": false,
+    "isOwner": true,
+    "isAdminOrOwner": true
+  },
+  "errors": [],
+  "timestamp": "2026-06-07T09:26:19.1335734Z"
+}
+```
+
+> 🟢 Tenant validation passed — user is active, org is active.
+
+---
+
+##### ❌ Test 3 — No Token → Blocked at Layer 1
+
+**`GET /api/auth/context`** — no Authorization header
+
+**Response — `401 Unauthorized`:**
+```json
+{
+  "success": false,
+  "message": "Authentication required. Please provide a valid JWT token.",
+  "errors": ["Unauthorized"]
+}
+```
+
+---
+
+##### ✅ Test 4 — Public Routes Bypass Tenant Validation
+
+**`GET /health`** — no token needed
+
+**Response:** `Healthy` ✅
+
+> Exempt paths (`/health`, `/api/auth/login`, `/api/auth/register`, `/swagger`) skip tenant validation entirely — no DB query made.
+
+---
+
+#### 📊 Test Results Summary
+
+| Test | Action | HTTP | Result |
+|---|---|---|---|
+| 1 | `GET /auth/context` — full context with 25 permissions | `200` | ✅ All data returned |
+| 2 | `GET /users/me` — passes tenant validation | `200` | ✅ User + org active |
+| 3 | No token → blocked at L1 | `401` | ✅ Rejected |
+| 4 | Public route — bypasses tenant check | `200` | ✅ No DB hit |
 
 ---
 
