@@ -246,6 +246,7 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IOrgContextService, OrgContextService>();
 builder.Services.AddScoped<OrgScopeGuard>();
+builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 
 // ─── Health Checks ────────────────────────────────────────────────
 builder.Services.AddHealthChecks()
