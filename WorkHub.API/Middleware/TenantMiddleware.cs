@@ -12,7 +12,7 @@ public class TenantMiddleware
     // ✅ These paths are exempt from tenant validation
     // Public endpoints that don't require an org context
     private static readonly HashSet<string> _exemptPaths = new(
-        StringComparer.OrdinalIgnoreCase)
+    StringComparer.OrdinalIgnoreCase)
     {
         "/api/auth/register",
         "/api/auth/login",
@@ -79,11 +79,13 @@ public class TenantMiddleware
 
     private static bool IsExemptPath(string path)
     {
-        // Check exact match first
         if (_exemptPaths.Contains(path)) return true;
+        if (path.StartsWith("/swagger", StringComparison.OrdinalIgnoreCase)) return true;
 
-        // Check prefix match for swagger
-        return path.StartsWith("/swagger", StringComparison.OrdinalIgnoreCase);
+        // ✅ Public invite routes — no auth needed to preview/accept
+        if (path.StartsWith("/api/invites/", StringComparison.OrdinalIgnoreCase)) return true;
+
+        return false;
     }
 }
 

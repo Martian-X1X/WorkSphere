@@ -11,6 +11,7 @@ public class AppDbContext : DbContext
 
     public DbSet<Organization> Organizations { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<OrganizationInvite> OrganizationInvites { get; set; }
 
     // ✅ Auto-update timestamps + handle soft delete
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -51,6 +52,7 @@ public class AppDbContext : DbContext
         // from ALL queries without needing to manually add .Where(x => !x.IsDeleted)
         modelBuilder.Entity<Organization>().HasQueryFilter(o => !o.IsDeleted);
         modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
+        modelBuilder.Entity<OrganizationInvite>().HasQueryFilter(i => !i.IsDeleted);
 
         // Organization configuration
         modelBuilder.Entity<Organization>(entity =>
@@ -79,6 +81,30 @@ public class AppDbContext : DbContext
                   .WithMany(o => o.Users)
                   .HasForeignKey(e => e.OrganizationId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ✅ OrganizationInvite config
+        modelBuilder.Entity<OrganizationInvite>(entity =>
+        {
+            entity.Property(e => e.InviteeEmail).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Role).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Token).IsRequired();
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+
+            // Unique index on token — each invite has a unique token
+            entity.HasIndex(e => e.Token).IsUnique();
+
+            // FK to Organization
+            entity.HasOne(e => e.Organization)
+                  .WithMany()
+                  .HasForeignKey(e => e.OrganizationId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            // FK to inviting user
+            entity.HasOne(e => e.InvitedBy)
+                  .WithMany()
+                  .HasForeignKey(e => e.InvitedByUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
