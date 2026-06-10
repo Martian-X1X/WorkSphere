@@ -1976,7 +1976,7 @@ With OrgScopeGuard:
 
 This project is **proprietary software**. All rights reserved.
 Unauthorized copying, distribution, or commercial use without explicit written permission is prohibited.
-Abdullah Mohammed Abdul Matin
+Abdullah Mohammed Abdul Matin Software Engineer @ Martian Labs
 
 ---
 
