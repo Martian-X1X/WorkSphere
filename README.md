@@ -1943,6 +1943,681 @@ With OrgScopeGuard:
 
 ---
 
+### ✅ Day 13 — Organization Management API
+
+> 🎯 **Goal:** Build org profile retrieval, update, and paginated member listing — all tenant-isolated and permission-enforced
+
+| Task | Status |
+|---|---|
+| Upgraded `OrganizationDto` with full field set + `UpdateOrganizationDto` + `MemberDto` | ✅ |
+| Created `PagedResult<T>` — reusable pagination wrapper with metadata | ✅ |
+| Created `IOrganizationService` interface — 4 methods | ✅ |
+| Implemented `OrganizationService` — all queries scoped to `OrganizationId` | ✅ |
+| `GetMyOrganizationAsync` — loads org + live member count | ✅ |
+| `UpdateOrganizationAsync` — `OrgScopeGuard` enforced, `UpdatedAt` auto-refreshed | ✅ |
+| `GetMembersAsync` — paginated, ordered by name, EF Core global filter applies | ✅ |
+| `GetMemberByIdAsync` — `OrgScopeGuard.Check()` prevents cross-tenant member lookup | ✅ |
+| Created `OrganizationsController` — 4 endpoints with correct policy decorators | ✅ |
+| `GET /api/organizations/me` — `CanViewOrganization` policy | ✅ |
+| `PUT /api/organizations/me` — `CanManageOrganization` policy (Owner only) | ✅ |
+| `GET /api/organizations/me/members` — `CanViewMembers` policy + pagination params | ✅ |
+| `GET /api/organizations/me/members/{id}` — `CanViewMembers` + IDOR protection | ✅ |
+| `IOrganizationService` registered in `Program.cs` | ✅ |
+| All 8 Postman tests passing | ✅ |
+| pgAdmin verified — `Name`, `Description`, `LogoUrl`, `UpdatedAt` updated correctly | ✅ |
+
+---
+
+#### 🔌 Endpoints after Day 13
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| `GET` | `/api/organizations/me` | Get current org profile | 🔒 Any member |
+| `PUT` | `/api/organizations/me` | Update org — name, description, logo | 🔒 Owner only |
+| `GET` | `/api/organizations/me/members` | Paginated member list | 🔒 Any member |
+| `GET` | `/api/organizations/me/members/{id}` | Get specific member by ID | 🔒 Any member |
+| `GET` | `/api/auth/context` | Full auth context | 🔒 Bearer |
+| `POST` | `/api/auth/register` | Register new org + owner | Public |
+| `POST` | `/api/auth/login` | Login — JWT + refresh token | Public |
+| `POST` | `/api/auth/refresh` | Refresh token pair | Public |
+| `POST` | `/api/auth/revoke` | Logout | 🔒 Bearer |
+| `GET` | `/health` | Database health check | Public |
+
+---
+
+#### 🔄 Tenant-Isolated Query Flow
+
+```
+GET /api/organizations/me/members
+         │
+         ▼
+  OrganizationService.GetMembersAsync()
+         │
+         ├── _context.Users
+         │     .Where(u => u.OrganizationId == _currentUser.OrganizationId)
+         │     ↑ Tenant filter — Org A CANNOT see Org B's users
+         │
+         ├── EF Core Global Filter (from Day 5)
+         │     .Where(u => !u.IsDeleted)
+         │     ↑ Soft-deleted users never appear
+         │
+         ├── .OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
+         │
+         └── .Skip((page - 1) * pageSize).Take(pageSize)
+                   ↑ Pagination — never returns unbounded results
+```
+
+---
+
+#### 📬 Postman Test Suite — Organization Management
+
+**Base URL:** `http://localhost:5210/api/organizations`
+**Headers:** `Content-Type: application/json`, `Authorization: Bearer {token}`
+
+---
+
+##### ✅ Test 1 — Get Organization Profile
+
+**`GET /api/organizations/me`**
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Organization retrieved successfully.",
+  "data": {
+    "id": "771d6dfd-33b6-4f8b-ba3c-2ca1b19758f6",
+    "name": "Strong Pass Corp",
+    "slug": "strong-pass-corp",
+    "description": null,
+    "logoUrl": null,
+    "plan": "Free",
+    "isActive": true,
+    "memberCount": 1,
+    "createdAt": "2026-05-06T10:10:07.323802Z",
+    "updatedAt": "2026-05-06T10:10:07.323877Z"
+  },
+  "errors": [],
+  "timestamp": "2026-06-08T04:34:04.7182012Z"
+}
+```
+
+---
+
+##### ✅ Test 2 — Update Organization (Owner Only)
+
+**`PUT /api/organizations/me`**
+
+**Request Body:**
+```json
+{
+  "name": "Strong Pass Corporation",
+  "description": "Enterprise-grade project management for high-performance teams.",
+  "logoUrl": "https://cdn.worksphere.io/logos/strong-pass-corp.png"
+}
+```
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Organization updated successfully.",
+  "data": {
+    "id": "771d6dfd-33b6-4f8b-ba3c-2ca1b19758f6",
+    "name": "Strong Pass Corporation",
+    "slug": "strong-pass-corp",
+    "description": "Enterprise-grade project management for high-performance teams.",
+    "logoUrl": "https://cdn.worksphere.io/logos/strong-pass-corp.png",
+    "plan": "Free",
+    "isActive": true,
+    "memberCount": 1,
+    "createdAt": "2026-05-06T10:10:07.323802Z",
+    "updatedAt": "2026-06-08T04:36:51.4398801Z"
+  },
+  "errors": [],
+  "timestamp": "2026-06-08T04:36:51.4536024Z"
+}
+```
+
+> 🟢 `UpdatedAt` auto-refreshed via `AppDbContext.SaveChangesAsync` override. pgAdmin confirmed: `2026-06-08 10:36:51.43988+06`
+
+---
+
+##### ❌ Test 3 — Invalid Update Data
+
+**Request Body:** `{ "name": "", "logoUrl": "not-a-url" }`
+
+**Response — `400 Bad Request`:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "data": null,
+  "errors": [
+    "Organization name is required",
+    "Logo URL must be a valid URL"
+  ],
+  "timestamp": "2026-06-08T04:37:25.1447625Z"
+}
+```
+
+---
+
+##### ✅ Test 4 — Get Members (Paginated)
+
+**`GET /api/organizations/me/members?page=1&pageSize=20`**
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Members retrieved successfully.",
+  "data": {
+    "items": [
+      {
+        "id": "653db7e8-e055-4629-a3fe-5a26186b7ab5",
+        "firstName": "Test",
+        "lastName": "User",
+        "fullName": "Test User",
+        "email": "strongpass@worksphere.io",
+        "role": "Owner",
+        "isActive": true,
+        "isEmailVerified": false,
+        "profilePictureUrl": null,
+        "lastLoginAt": "2026-06-08T04:33:29.775067Z",
+        "joinedAt": "2026-05-06T10:10:07.323926Z"
+      }
+    ],
+    "totalCount": 1,
+    "page": 1,
+    "pageSize": 20,
+    "totalPages": 1,
+    "hasNextPage": false,
+    "hasPreviousPage": false
+  },
+  "errors": [],
+  "timestamp": "2026-06-08T04:37:59.7309993Z"
+}
+```
+
+---
+
+##### ✅ Test 5 — Get Specific Member by ID
+
+**`GET /api/organizations/me/members/653db7e8-e055-4629-a3fe-5a26186b7ab5`**
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Member retrieved successfully.",
+  "data": {
+    "id": "653db7e8-e055-4629-a3fe-5a26186b7ab5",
+    "fullName": "Test User",
+    "email": "strongpass@worksphere.io",
+    "role": "Owner",
+    "isActive": true,
+    "lastLoginAt": "2026-06-08T04:33:29.775067Z",
+    "joinedAt": "2026-05-06T10:10:07.323926Z"
+  },
+  "errors": [],
+  "timestamp": "2026-06-08T04:38:54.0684895Z"
+}
+```
+
+---
+
+##### ❌ Test 6 — IDOR Attack: Member from Different Org
+
+**`GET /api/organizations/me/members/00000000-0000-0000-0000-000000000001`**
+
+**Response — `404 Not Found`:**
+```json
+{
+  "success": false,
+  "message": "Member not found.",
+  "data": null,
+  "errors": ["Member not found."],
+  "timestamp": "2026-06-08T04:39:26.9322365Z"
+}
+```
+
+> 🔴 `OrgScopeGuard.Check()` blocked cross-org access. Attacker learns nothing — resource existence is not confirmed.
+
+---
+
+##### ❌ Test 7 — No Token
+
+**Response — `401 Unauthorized`:**
+```json
+{
+  "success": false,
+  "message": "Authentication required. Please provide a valid JWT token.",
+  "errors": ["Unauthorized"]
+}
+```
+
+---
+
+##### ❌ Test 8 — Name Too Long
+
+**Response — `400 Bad Request`:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "data": null,
+  "errors": ["Name cannot exceed 100 characters"],
+  "timestamp": "2026-06-08T04:40:43.3966059Z"
+}
+```
+
+---
+
+#### 📊 Test Results Summary
+
+| Test | Action | HTTP | Result |
+|---|---|---|---|
+| 1 | Get org profile | `200` | ✅ Name, plan, member count |
+| 2 | Update org — name + description + logo | `200` | ✅ UpdatedAt refreshed |
+| 3 | Invalid update — empty name + bad URL | `400` | ✅ Both errors returned |
+| 4 | Get members — paginated | `200` | ✅ Pagination metadata correct |
+| 5 | Get specific member by ID | `200` | ✅ Full member profile |
+| 6 | IDOR — member from different org | `404` | ✅ OrgScopeGuard blocked |
+| 7 | No token | `401` | ✅ Rejected |
+| 8 | Name exceeds 100 chars | `400` | ✅ Validation caught |
+
+---
+
+#### 🗄️ pgAdmin Verification — After Update
+
+| Field | Value |
+|---|---|
+| `Id` | `771d6dfd-33b6-4f8b-ba3c-2ca1b19758f6` |
+| `Name` | `Strong Pass Corporation` ← updated |
+| `Description` | `Enterprise-grade project management...` ← updated |
+| `LogoUrl` | `https://cdn.worksphere.io/logos/strong-pass-corp.png` ← updated |
+| `UpdatedAt` | `2026-06-08 10:36:51.43988+06` ← auto-refreshed ✅ |
+
+---
+
+**Migration History after Day 13:**
+```
+✔  20260419_InitialCreate                      [Applied]
+✔  20260420_AddOrganizationAndUserTables        [Applied]
+✔  20260421_UpgradeModelsDay5                   [Applied]
+```
+
+> No new migration required on Day 13 — no schema changes, only new service and controller layer.
+
+---
+
+### ✅ Day 14 — Join Organization Flow (Invite System)
+
+> 🎯 **Goal:** Build a complete invite lifecycle — create, preview, accept, cancel — allowing Owners and Admins to bring team members into the platform securely
+
+| Task | Status |
+|---|---|
+| Created `OrganizationInvite` model with all fields + `InviteStatus` constants | ✅ |
+| Added `OrganizationInvites` to `AppDbContext` — FK config, unique token index, global soft-delete filter | ✅ |
+| Ran migration `AddOrganizationInvites` — table verified in pgAdmin | ✅ |
+| Created `CreateInviteDto`, `InviteResponseDto`, `InvitePreviewDto`, `AcceptInviteDto` | ✅ |
+| Created `IInviteService` interface — 5 methods | ✅ |
+| Implemented `InviteService` — full invite lifecycle | ✅ |
+| Duplicate email check — cannot invite existing member | ✅ |
+| Duplicate pending invite check — cannot send second active invite to same email | ✅ |
+| Secure invite token — 32-byte cryptographic random, URL-safe base64 (256 bits) | ✅ |
+| Invite expires in 7 days — auto-detected on listing and preview | ✅ |
+| `AcceptInviteAsync` — validates password policy, creates user, marks invite `Accepted` atomically | ✅ |
+| Accept returns full JWT + refresh token — new member is immediately logged in | ✅ |
+| `CancelInviteAsync` — `OrgScopeGuard.Check()` prevents cross-org cancel | ✅ |
+| Created `InvitesController` — 5 endpoints | ✅ |
+| Public endpoints (`preview`, `accept`) exempt from auth + tenant middleware | ✅ |
+| `TenantMiddleware` updated — `/api/invites/` paths bypass tenant validation | ✅ |
+| `IInviteService` registered in `Program.cs` | ✅ |
+| All 11 Postman tests passing | ✅ |
+| pgAdmin verified — new user created with correct `OrganizationId` + role | ✅ |
+| pgAdmin verified — invite `Status = Accepted`, `AcceptedAt` set | ✅ |
+
+---
+
+#### 🗃️ New Table — OrganizationInvites
+
+| Column | Type | Notes |
+|---|---|---|
+| `Id` | `UUID` | PK |
+| `OrganizationId` | `UUID` | FK → Organizations.Id |
+| `InvitedByUserId` | `UUID` | FK → Users.Id |
+| `InviteeEmail` | `VARCHAR(100)` | Who the invite is for |
+| `Role` | `VARCHAR(20)` | Role they'll receive on join |
+| `Token` | `TEXT` | Unique — 32-byte URL-safe random |
+| `ExpiresAt` | `TIMESTAMP` | 7 days from creation |
+| `Status` | `VARCHAR(20)` | `Pending` / `Accepted` / `Expired` / `Cancelled` |
+| `AcceptedAt` | `TIMESTAMP?` | Set when accepted |
+| `AcceptedByUserId` | `UUID?` | Set when accepted |
+| `IsDeleted` | `BOOLEAN` | Soft delete |
+| `CreatedAt` | `TIMESTAMP` | Auto |
+| `UpdatedAt` | `TIMESTAMP` | Auto |
+
+---
+
+#### 🔌 Endpoints after Day 14
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| `POST` | `/api/organizations/me/invites` | Create invite — email + role | 🔒 Owner/Admin |
+| `GET` | `/api/organizations/me/invites` | List all org invites | 🔒 Owner/Admin |
+| `DELETE` | `/api/organizations/me/invites/{id}` | Cancel pending invite | 🔒 Owner/Admin |
+| `GET` | `/api/invites/{token}` | Preview invite before accepting | Public |
+| `POST` | `/api/invites/{token}/accept` | Accept — creates account + joins org | Public |
+| `GET` | `/api/organizations/me` | Get org profile | 🔒 Any member |
+| `PUT` | `/api/organizations/me` | Update org | 🔒 Owner |
+| `GET` | `/api/organizations/me/members` | List members | 🔒 Any member |
+| `GET` | `/api/organizations/me/members/{id}` | Get member by ID | 🔒 Any member |
+| `GET` | `/api/auth/context` | Full auth context | 🔒 Bearer |
+| `POST` | `/api/auth/register` | Register new org + owner | Public |
+| `POST` | `/api/auth/login` | Login | Public |
+| `POST` | `/api/auth/refresh` | Refresh tokens | Public |
+| `POST` | `/api/auth/revoke` | Logout | 🔒 Bearer |
+| `GET` | `/health` | Health check | Public |
+
+---
+
+#### 🔄 Invite Lifecycle Flow
+
+```
+Owner / Admin                API                       New Member
+      │                       │                             │
+      ├─ POST /invites ───────>│                             │
+      │  { email, role }      │── Generate 32-byte token     │
+      │                       │── Check duplicate member     │
+      │                       │── Check pending invite       │
+      │                       │── Save invite (Pending)      │
+      │<─ 201 { inviteLink } ─│                             │
+      │                       │                             │
+      │  (shares link)        │                             │
+      │                       │<─ GET /invites/{token} ─────│
+      │                       │── Load org + inviter        │
+      │                       │─> { orgName, role, expiry } >│
+      │                       │                             │
+      │                       │<─ POST /invites/{token}/accept
+      │                       │   { firstName, lastName, pwd }
+      │                       │── Validate token not expired │
+      │                       │── Validate password policy   │
+      │                       │── Create User (invited role) │
+      │                       │── Mark invite: Accepted      │
+      │                       │── Generate JWT + refresh     │
+      │                       │─> 201 { accessToken, user } >│
+      │                       │                  ✅ Logged in │
+```
+
+---
+
+#### 🔐 Invite Token Security
+
+```
+Token generation:
+  var tokenBytes = new byte[32];              // 32 bytes = 256 bits
+  RandomNumberGenerator.Fill(tokenBytes);    // OS entropy (CSPRNG)
+  var token = Convert.ToBase64String(bytes)
+      .Replace("+", "-")                     // URL-safe
+      .Replace("/", "_")                     // URL-safe
+      .Replace("=", "");                     // No padding
+
+Properties:
+  Length:    43 characters
+  Entropy:   256 bits — 1 in 115 quattuorvigintillion chance of guessing
+  Unique:    DB unique index on Token column
+  Expiry:    7 days from creation
+  One-time:  Marked Accepted after first use
+```
+
+---
+
+#### 📬 Postman Test Suite — Invite System
+
+**Base URL:** `http://localhost:5210/api`
+
+---
+
+##### ✅ Test 1 — Create Invite (Owner)
+
+**`POST /api/organizations/me/invites`** with Owner token
+
+**Request Body:**
+```json
+{ "email": "newmember@worksphere.io", "role": "Member" }
+```
+
+**Response — `201 Created`:**
+```json
+{
+  "success": true,
+  "message": "Invite created successfully. Share the invite link with your team member.",
+  "data": {
+    "id": "invite-uuid",
+    "inviteeEmail": "newmember@worksphere.io",
+    "role": "Member",
+    "status": "Pending",
+    "inviteLink": "https://worksphere.io/invite/{token}",
+    "expiresAt": "2026-06-15T10:00:00Z",
+    "invitedByName": "Test User"
+  }
+}
+```
+
+---
+
+##### ✅ Test 2 — List All Invites
+
+**`GET /api/organizations/me/invites`**
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "1 invite(s) found.",
+  "data": [
+    {
+      "inviteeEmail": "newmember@worksphere.io",
+      "role": "Member",
+      "status": "Pending",
+      "expiresAt": "2026-06-15T10:00:00Z",
+      "invitedByName": "Test User"
+    }
+  ]
+}
+```
+
+---
+
+##### ✅ Test 3 — Preview Invite (No Auth Required)
+
+**`GET /api/invites/{token}`** — no Authorization header
+
+**Response — `200 OK`:**
+```json
+{
+  "success": true,
+  "message": "Invite details retrieved.",
+  "data": {
+    "organizationName": "Strong Pass Corporation",
+    "organizationSlug": "strong-pass-corp",
+    "invitedByName": "Test User",
+    "role": "Member",
+    "expiresAt": "2026-06-15T10:00:00Z",
+    "isExpired": false,
+    "isAlreadyAccepted": false
+  }
+}
+```
+
+---
+
+##### ✅ Test 4 — Accept Invite (New Member Joins)
+
+**`POST /api/invites/{token}/accept`** — no Authorization header
+
+**Request Body:**
+```json
+{
+  "firstName": "New",
+  "lastName": "Member",
+  "password": "NewM3mb3r#2026"
+}
+```
+
+**Response — `201 Created`:**
+```json
+{
+  "success": true,
+  "message": "Welcome to Strong Pass Corporation! Your account has been created successfully.",
+  "data": {
+    "accessToken": "eyJhbGci...",
+    "refreshToken": "base64...",
+    "expiresAt": "2026-06-08T10:15:00Z",
+    "user": {
+      "firstName": "New",
+      "lastName": "Member",
+      "fullName": "New Member",
+      "email": "newmember@worksphere.io",
+      "role": "Member",
+      "organizationName": "Strong Pass Corporation"
+    }
+  }
+}
+```
+
+> 🟢 New member account created and immediately logged in with JWT + refresh token. Invite marked `Accepted`.
+
+---
+
+##### ✅ Test 5 — Invite Now Shows as Accepted
+
+**`GET /api/organizations/me/invites`** — Status = `Accepted` ✅
+
+---
+
+##### ❌ Test 6 — Accept Same Invite Again
+
+**`POST /api/invites/{sameToken}/accept`**
+
+**Response — `404 Not Found`:**
+```json
+{
+  "success": false,
+  "message": "This invite has already been accepted."
+}
+```
+
+---
+
+##### ✅ Test 7 — Create & Cancel a Second Invite
+
+**Create:** `{ "email": "another@worksphere.io", "role": "Admin" }` → `201` ✅
+
+**Cancel:** `DELETE /api/organizations/me/invites/{inviteId}` → `200 OK`:
+```json
+{ "success": true, "message": "Invite cancelled successfully." }
+```
+
+---
+
+##### ❌ Test 8 — Preview Cancelled Invite
+
+**`GET /api/invites/{cancelledToken}`**
+
+**Response — `200 OK`:**
+```json
+{
+  "data": { "isExpired": true, "isAlreadyAccepted": false }
+}
+```
+
+---
+
+##### ❌ Test 9 — Invite Existing Member
+
+**Request:** `{ "email": "strongpass@worksphere.io", "role": "Member" }`
+
+**Response — `400 Bad Request`:**
+```json
+{
+  "success": false,
+  "message": "This email address is already a member of your organization."
+}
+```
+
+---
+
+##### ❌ Test 10 — Invalid Role
+
+**Request:** `{ "email": "test@test.com", "role": "SuperAdmin" }`
+
+**Response — `400 Bad Request`:**
+```json
+{
+  "success": false,
+  "message": "Invalid role 'SuperAdmin'. Valid roles: Owner, Admin, Member."
+}
+```
+
+---
+
+##### ✅ Test 11 — pgAdmin Verified
+
+```sql
+SELECT "Email", "Role", "OrganizationId", "CreatedAt"
+FROM "Users" WHERE "Email" = 'newmember@worksphere.io';
+```
+
+| Field | Value |
+|---|---|
+| `Email` | `newmember@worksphere.io` |
+| `Role` | `Member` ← from invite |
+| `OrganizationId` | `771d6dfd-...` ← same as inviting org ✅ |
+
+```sql
+SELECT "Status", "AcceptedAt", "AcceptedByUserId"
+FROM "OrganizationInvites" WHERE "InviteeEmail" = 'newmember@worksphere.io';
+```
+
+| Field | Value |
+|---|---|
+| `Status` | `Accepted` ✅ |
+| `AcceptedAt` | `2026-06-08 10:xx:xx` ← timestamp set ✅ |
+| `AcceptedByUserId` | `new-user-uuid` ← linked to new user ✅ |
+
+---
+
+#### 📊 Test Results Summary
+
+| Test | Action | HTTP | Result |
+|---|---|---|---|
+| 1 | Create invite for new member | `201` | ✅ Token generated |
+| 2 | List org invites | `200` | ✅ 1 pending invite |
+| 3 | Preview invite (no auth) | `200` | ✅ Org + role shown |
+| 4 | Accept invite — new account created | `201` | ✅ JWT + user returned |
+| 5 | Invite shows `Accepted` | `200` | ✅ Status updated |
+| 6 | Accept same invite again | `404` | ✅ Blocked |
+| 7 | Create + cancel second invite | `200` | ✅ Cancelled |
+| 8 | Preview cancelled invite | `200` | ✅ `isExpired: true` |
+| 9 | Invite existing member | `400` | ✅ Duplicate blocked |
+| 10 | Invalid role | `400` | ✅ Validation caught |
+| 11 | pgAdmin — new user + invite DB state | — | ✅ All fields correct |
+
+---
+
+**Migration History after Day 14:**
+```
+✔  20260419_InitialCreate                      [Applied]
+✔  20260420_AddOrganizationAndUserTables        [Applied]
+✔  20260421_UpgradeModelsDay5                   [Applied]
+✔  20260608_AddOrganizationInvites             [Applied]
+```
+
+---
+
 ## 🛣️ Product Roadmap
 
 | Phase | Days     | Milestone                                              | Status      |
