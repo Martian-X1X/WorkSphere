@@ -2651,7 +2651,9 @@ FROM "OrganizationInvites" WHERE "InviteeEmail" = 'newmember@worksphere.io';
 
 This project is **proprietary software**. All rights reserved.
 Unauthorized copying, distribution, or commercial use without explicit written permission is prohibited.
-Abdullah Mohammed Abdul Matin Software Engineer @ Martian Labs
+Abdullah Mohammed Abdul Matin 
+Software Engineer @ Martian Labs
+abdullah.matin6920@gmail.com
 
 ---
 
