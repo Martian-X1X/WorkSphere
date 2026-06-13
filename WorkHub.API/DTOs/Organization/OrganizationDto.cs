@@ -59,3 +59,10 @@ public class PagedResult<T>
     public bool HasNextPage => Page < TotalPages;
     public bool HasPreviousPage => Page > 1;
 }
+
+/// <summary>Change a member's role — Owner only</summary>
+public class ChangeMemberRoleDto
+{
+    [Required(ErrorMessage = "Role is required")]
+    public string Role { get; set; } = string.Empty;
+}

@@ -16,4 +16,7 @@ public interface IOrganizationService
 
     /// <summary>Get a specific member by ID — must be in same org</summary>
     Task<ApiResponse<MemberDto>> GetMemberByIdAsync(Guid memberId);
+
+    Task<ApiResponse<MemberDto>> ChangeMemberRoleAsync(Guid memberId, string newRole);
+    Task<ApiResponse<object>> DeactivateMemberAsync(Guid memberId);
 }

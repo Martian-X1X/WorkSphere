@@ -105,4 +105,62 @@ public class OrganizationsController : ControllerBase
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Change a member's role.
+    /// Owner only — only Owners can assign/change roles.
+    /// </summary>
+    [HttpPatch("me/members/{memberId:guid}/role")]
+    [Authorize(Policy = PolicyNames.CanChangeRoles)]
+    [ProducesResponseType(typeof(ApiResponse<MemberDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<MemberDto>), 400)]
+    [ProducesResponseType(401), ProducesResponseType(403)]
+    public async Task<IActionResult> ChangeMemberRole(
+        Guid memberId,
+        [FromBody] ChangeMemberRoleDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+            return BadRequest(ApiResponse<MemberDto>.Fail(errors));
+        }
+
+        var result = await _orgService.ChangeMemberRoleAsync(memberId, dto.Role);
+
+        if (!result.Success)
+        {
+            if (result.Message.Contains("not found"))
+                return NotFound(result);
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Deactivate a member — removes their access immediately.
+    /// Owner and Admin can deactivate Members.
+    /// Owner can deactivate Admins.
+    /// </summary>
+    [HttpPatch("me/members/{memberId:guid}/deactivate")]
+    [Authorize(Policy = PolicyNames.CanRemoveMembers)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+    [ProducesResponseType(401), ProducesResponseType(403)]
+    public async Task<IActionResult> DeactivateMember(Guid memberId)
+    {
+        var result = await _orgService.DeactivateMemberAsync(memberId);
+
+        if (!result.Success)
+        {
+            if (result.Message.Contains("not found"))
+                return NotFound(result);
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
 }

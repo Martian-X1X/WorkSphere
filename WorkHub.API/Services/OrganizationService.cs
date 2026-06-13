@@ -4,6 +4,7 @@ using WorkHub.API.Data;
 using WorkHub.API.DTOs.Common;
 using WorkHub.API.DTOs.Organization;
 using WorkHub.API.Interfaces;
+using WorkHub.API.Models;
 
 namespace WorkHub.API.Services;
 
@@ -226,4 +227,116 @@ public class OrganizationService : IOrganizationService
         LastLoginAt = user.LastLoginAt,
         JoinedAt = user.CreatedAt
     };
+
+    // ════════════════════════════════════════════════════════════
+// CHANGE MEMBER ROLE
+// ════════════════════════════════════════════════════════════
+public async Task<ApiResponse<MemberDto>> ChangeMemberRoleAsync(
+    Guid memberId, string newRole)
+{
+    try
+    {
+        // ─── Validate role ─────────────────────────────────
+        if (!UserRole.IsValid(newRole))
+            return ApiResponse<MemberDto>.Fail(
+                $"Invalid role '{newRole}'. Valid roles: Owner, Admin, Member.");
+
+        var member = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == memberId);
+
+        if (member == null)
+            return ApiResponse<MemberDto>.Fail("Member not found.");
+
+        // ─── Org scope guard ───────────────────────────────
+        var guard = _orgScopeGuard.Check(member.OrganizationId);
+        if (!guard.Allowed)
+            return ApiResponse<MemberDto>.Fail(guard.Reason!);
+
+        // ─── Cannot change your own role ───────────────────
+        if (member.Id == _currentUser.UserId)
+            return ApiResponse<MemberDto>.Fail(
+                "You cannot change your own role.");
+
+        // ─── Cannot demote another Owner ───────────────────
+        // Only another Owner can change an Owner's role
+        // and you'd be creating a second Owner which breaks the model
+        if (member.Role == UserRole.Owner)
+            return ApiResponse<MemberDto>.Fail(
+                "Cannot change the role of the organization Owner.");
+
+        var oldRole = member.Role;
+        member.Role = newRole;
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "Member {MemberId} role changed from {OldRole} to {NewRole} by {UserId}",
+            memberId, oldRole, newRole, _currentUser.UserId);
+
+        return ApiResponse<MemberDto>.Ok(
+            MapToMemberDto(member),
+            $"Member role updated to {newRole} successfully.");
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error changing role for member {MemberId}", memberId);
+        return ApiResponse<MemberDto>.Fail("An unexpected error occurred.");
+    }
+}
+
+    // ════════════════════════════════════════════════════════════
+    // DEACTIVATE MEMBER
+    // ════════════════════════════════════════════════════════════
+    public async Task<ApiResponse<object>> DeactivateMemberAsync(Guid memberId)
+    {
+        try
+        {
+            var member = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == memberId);
+
+            if (member == null)
+                return ApiResponse<object>.Fail("Member not found.");
+
+            // ─── Org scope guard ───────────────────────────────
+            var guard = _orgScopeGuard.Check(member.OrganizationId);
+            if (!guard.Allowed)
+                return ApiResponse<object>.Fail(guard.Reason!);
+
+            // ─── Cannot deactivate yourself ────────────────────
+            if (member.Id == _currentUser.UserId)
+                return ApiResponse<object>.Fail(
+                    "You cannot deactivate your own account.");
+
+            // ─── Cannot deactivate the Owner ───────────────────
+            if (member.Role == UserRole.Owner)
+                return ApiResponse<object>.Fail(
+                    "Cannot deactivate the organization Owner.");
+
+            if (!member.IsActive)
+                return ApiResponse<object>.Fail(
+                    "This member is already deactivated.");
+
+            member.IsActive = false;
+
+            // ─── Invalidate their refresh token immediately ────
+            // They cannot silently re-auth — they get blocked at
+            // TenantMiddleware on their next request anyway,
+            // but this also prevents refresh token reuse
+            member.RefreshToken = null;
+            member.RefreshTokenExpiry = null;
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Member {MemberId} deactivated by {UserId} in org {OrgId}",
+                memberId, _currentUser.UserId, _currentUser.OrganizationId);
+
+            return ApiResponse<object>.Ok(null!,
+                "Member deactivated successfully. They can no longer access WorkSphere.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deactivating member {MemberId}", memberId);
+            return ApiResponse<object>.Fail("An unexpected error occurred.");
+        }
+    }
 }
