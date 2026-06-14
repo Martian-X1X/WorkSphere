@@ -9,6 +9,7 @@ using WorkHub.API.Interfaces;
 using WorkHub.API.Middleware;
 using WorkHub.API.Services;
 using WorkHub.API.Settings;
+using WorkHub.API.Data.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -248,6 +249,8 @@ builder.Services.AddScoped<IOrgContextService, OrgContextService>();
 builder.Services.AddScoped<OrgScopeGuard>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IInviteService, InviteService>();
+// ─── Seeder ───────────────────────────────────────────────────────
+builder.Services.AddScoped<DataSeeder>();
 
 // ─── Health Checks ────────────────────────────────────────────────
 builder.Services.AddHealthChecks()
@@ -255,6 +258,14 @@ builder.Services.AddHealthChecks()
 
 // ─── Build app ────────────────────────────────────────────────────
 var app = builder.Build();
+
+// ─── Run seeder on startup (Development only) ─────────────────────
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+    await seeder.SeedAsync();
+}
 
 // ─── Middleware pipeline — ORDER IS CRITICAL ──────────────────────
 app.UseGlobalExceptionHandler(); // ← FIRST — catches everything

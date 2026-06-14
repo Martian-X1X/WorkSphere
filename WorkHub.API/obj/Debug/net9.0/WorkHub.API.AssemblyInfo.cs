@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WorkHub.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a36fb251f0021a938ec180f1a721d31594880dbe")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ef5c0afd0c3d6bd2542fd8336722356ab9968858")]
 [assembly: System.Reflection.AssemblyProductAttribute("WorkHub.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WorkHub.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
