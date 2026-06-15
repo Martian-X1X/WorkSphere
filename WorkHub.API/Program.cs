@@ -259,10 +259,13 @@ builder.Services.AddHealthChecks()
 // ─── Build app ────────────────────────────────────────────────────
 var app = builder.Build();
 
-// ─── Run seeder on startup (Development only) ─────────────────────
+// ─── Apply migrations + run seeder on startup (Development only) ──
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await context.Database.MigrateAsync();
+
     var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
     await seeder.SeedAsync();
 }
