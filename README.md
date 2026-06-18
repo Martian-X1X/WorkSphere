@@ -2622,8 +2622,8 @@ FROM "OrganizationInvites" WHERE "InviteeEmail" = 'newmember@worksphere.io';
 
 | Phase | Days     | Milestone                                              | Status      |
 |-------|----------|--------------------------------------------------------|-------------|
-| 1     | 1 – 15   | Backend foundation: auth, JWT, roles, multi-tenancy    | 🟡 In Progress |
-| 2     | 16 – 30  | Project & task API: CRUD, filtering, pagination, logs  | 🔲 Upcoming |
+| 1     | 1 – 15   | Backend foundation: auth, JWT, roles, multi-tenancy    | ✅ Completed |
+| 2     | 16 – 30  | Project & task API: CRUD, filtering, pagination, logs  | 🟡 Upcoming |
 | 3     | 31 – 50  | React frontend: dashboard, kanban, drag & drop         | 🔲 Upcoming |
 | 4     | 51 – 65  | Fullstack: notifications, invites, search, permissions | 🔲 Upcoming |
 | 5     | 66 – 80  | Real-time: SignalR chat, presence, file uploads        | 🔲 Upcoming |
