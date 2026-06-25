@@ -57,4 +57,13 @@ public static class SeedReference
         public const string TechOwnerEmail    = "techstart.owner@worksphere.io";
         public const string TechOwnerPassword = "Tech@Owner#2026";
     }
+
+    // ── Project IDs ───────────────────────────────────────────
+    public static class ProjectIds
+    {
+        public static readonly Guid WebsiteRedesign    = Guid.Parse("00000000-0000-0000-0003-000000000001");
+        public static readonly Guid MobileAppV2        = Guid.Parse("00000000-0000-0000-0003-000000000002");
+        public static readonly Guid Q3Marketing        = Guid.Parse("00000000-0000-0000-0003-000000000003");
+        public static readonly Guid AcmeErpIntegration = Guid.Parse("00000000-0000-0000-0004-000000000004");
+    }
 }
