@@ -34,6 +34,7 @@ public class DataSeeder
             }
 
             await SeedOrganizationsAndUsersAsync();
+            await SeedProjectsAsync();
 
             _logger.LogInformation("✅ Database seeding completed successfully.");
         }
@@ -213,5 +214,70 @@ public class DataSeeder
 
         _logger.LogInformation(
             "Seeded: 3 organizations, 8 users");
+    }
+
+    private async Task SeedProjectsAsync()
+    {
+        var now = DateTime.UtcNow;
+
+        var projects = new List<Project>
+        {
+            // ── WorkSphere Demo: 3 projects ────────────────────
+            new()
+            {
+                Id                = SeedReference.ProjectIds.WebsiteRedesign,
+                Name              = "Website Redesign",
+                Description       = "Redesign the main company website with modern UI/UX.",
+                Status            = ProjectStatus.Active,
+                OrganizationId    = SeedReference.OrgIds.Demo,
+                CreatedByUserId   = SeedReference.UserIds.DemoOwner,
+                ProjectLeadUserId = SeedReference.UserIds.DemoAdmin,
+                StartDate         = now,
+                DueDate           = now.AddMonths(3)
+            },
+            new()
+            {
+                Id                = SeedReference.ProjectIds.MobileAppV2,
+                Name              = "Mobile App v2",
+                Description       = "Build the next version of the mobile application.",
+                Status            = ProjectStatus.Active,
+                OrganizationId    = SeedReference.OrgIds.Demo,
+                CreatedByUserId   = SeedReference.UserIds.DemoOwner,
+                ProjectLeadUserId = SeedReference.UserIds.DemoAdmin,
+                StartDate         = now.AddMonths(1),
+                DueDate           = now.AddMonths(6)
+            },
+            new()
+            {
+                Id                = SeedReference.ProjectIds.Q3Marketing,
+                Name              = "Q3 Marketing Campaign",
+                Description       = "Plan and execute marketing campaigns for Q3.",
+                Status            = ProjectStatus.OnHold,
+                OrganizationId    = SeedReference.OrgIds.Demo,
+                CreatedByUserId   = SeedReference.UserIds.DemoOwner,
+                ProjectLeadUserId = SeedReference.UserIds.DemoMember1,
+                StartDate         = now.AddMonths(2),
+                DueDate           = now.AddMonths(5)
+            },
+            // ── Acme Corporation: 1 project ────────────────────
+            new()
+            {
+                Id                = SeedReference.ProjectIds.AcmeErpIntegration,
+                Name              = "ERP Integration",
+                Description       = "Integrate with the corporate ERP system.",
+                Status            = ProjectStatus.Active,
+                OrganizationId    = SeedReference.OrgIds.Acme,
+                CreatedByUserId   = SeedReference.UserIds.AcmeOwner,
+                ProjectLeadUserId = SeedReference.UserIds.AcmeAdmin,
+                StartDate         = now,
+                DueDate           = now.AddMonths(4)
+            }
+        };
+
+        _context.Projects.AddRange(projects);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "Seeded: {Count} projects (Demo: 3, Acme: 1)", projects.Count);
     }
 }
