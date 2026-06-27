@@ -249,6 +249,7 @@ builder.Services.AddScoped<IOrgContextService, OrgContextService>();
 builder.Services.AddScoped<OrgScopeGuard>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IInviteService, InviteService>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
 // ─── Seeder ───────────────────────────────────────────────────────
 builder.Services.AddScoped<DataSeeder>();
 
