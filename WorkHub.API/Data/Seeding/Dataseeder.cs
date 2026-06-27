@@ -24,17 +24,15 @@ public class DataSeeder
         {
             _logger.LogInformation("Starting database seeding...");
 
-            // ✅ Idempotent check — if seed data already exists, skip
             if (await _context.Organizations.AnyAsync())
             {
-                _logger.LogInformation(
-                    "Database already seeded — skipping. " +
-                    "Delete all records to re-seed.");
+                _logger.LogInformation("Database already seeded — skipping.");
                 return;
             }
 
             await SeedOrganizationsAndUsersAsync();
             await SeedProjectsAsync();
+            await SeedTasksAsync(); // ← ADD
 
             _logger.LogInformation("✅ Database seeding completed successfully.");
         }
@@ -43,6 +41,187 @@ public class DataSeeder
             _logger.LogError(ex, "❌ Error during database seeding");
             throw;
         }
+    }
+    
+    private async Task SeedTasksAsync()
+    {
+        var now = DateTime.UtcNow;
+
+        var tasks = new List<WorkTask>
+        {
+            // ── Website Redesign Tasks ─────────────────────────────
+            new WorkTask
+            {
+                Id = SeedReference.TaskIds.DesignMockups,
+                Title = "Create UI mockups for homepage",
+                Description = "Design Figma mockups for the new homepage — desktop + mobile.",
+                Status = WorkTaskStatus.InProgress,
+                Priority = WorkTaskPriority.High,
+                ProjectId = SeedReference.ProjectIds.WebsiteRedesign,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                CreatedByUserId = SeedReference.UserIds.DemoOwner,
+                AssignedToUserId = SeedReference.UserIds.DemoAdmin,
+                DueDate = now.AddDays(7),
+                EstimatedMinutes = 480, // 8 hours
+                OrderIndex = 1
+            },
+            new WorkTask
+            {
+                Id = SeedReference.TaskIds.SetupCms,
+                Title = "Set up CMS platform",
+                Description = "Evaluate and configure CMS — Contentful or Sanity.",
+                Status = WorkTaskStatus.Todo,
+                Priority = WorkTaskPriority.High,
+                ProjectId = SeedReference.ProjectIds.WebsiteRedesign,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                CreatedByUserId = SeedReference.UserIds.DemoAdmin,
+                AssignedToUserId = SeedReference.UserIds.DemoMember1,
+                DueDate = now.AddDays(14),
+                EstimatedMinutes = 240,
+                OrderIndex = 2
+            },
+            new WorkTask
+            {
+                Id = SeedReference.TaskIds.WriteContent,
+                Title = "Write homepage copy",
+                Description = "Write all copy for the new homepage — hero, features, pricing, FAQ.",
+                Status = WorkTaskStatus.Todo,
+                Priority = WorkTaskPriority.Medium,
+                ProjectId = SeedReference.ProjectIds.WebsiteRedesign,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                CreatedByUserId = SeedReference.UserIds.DemoAdmin,
+                AssignedToUserId = SeedReference.UserIds.DemoMember2,
+                DueDate = now.AddDays(10),
+                EstimatedMinutes = 180,
+                OrderIndex = 3
+            },
+            new WorkTask
+            {
+                Id = SeedReference.TaskIds.SeoAudit,
+                Title = "Run SEO audit on current site",
+                Description = "Full SEO audit using Ahrefs — identify gaps before redesign.",
+                Status = WorkTaskStatus.Done,
+                Priority = WorkTaskPriority.Medium,
+                ProjectId = SeedReference.ProjectIds.WebsiteRedesign,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                CreatedByUserId = SeedReference.UserIds.DemoOwner,
+                AssignedToUserId = SeedReference.UserIds.DemoMember1,
+                DueDate = now.AddDays(-5),
+                CompletedAt = now.AddDays(-2),
+                EstimatedMinutes = 120,
+                ActualMinutes = 150,
+                OrderIndex = 4
+            },
+
+            // ── Mobile App v2 Tasks ────────────────────────────────
+            new WorkTask
+            {
+                Id = SeedReference.TaskIds.AppDesign,
+                Title = "Design new app UI kit",
+                Description = "Build a complete UI kit in Figma — typography, colors, components.",
+                Status = WorkTaskStatus.InProgress,
+                Priority = WorkTaskPriority.Urgent,
+                ProjectId = SeedReference.ProjectIds.MobileAppV2,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                CreatedByUserId = SeedReference.UserIds.DemoOwner,
+                AssignedToUserId = SeedReference.UserIds.DemoAdmin,
+                DueDate = now.AddDays(5),
+                EstimatedMinutes = 600,
+                OrderIndex = 1
+            },
+            new WorkTask
+            {
+                Id = SeedReference.TaskIds.AuthModule,
+                Title = "Build authentication module",
+                Description = "JWT auth, biometric login, refresh tokens for mobile.",
+                Status = WorkTaskStatus.Todo,
+                Priority = WorkTaskPriority.High,
+                ProjectId = SeedReference.ProjectIds.MobileAppV2,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                CreatedByUserId = SeedReference.UserIds.DemoOwner,
+                AssignedToUserId = SeedReference.UserIds.DemoMember1,
+                DueDate = now.AddDays(20),
+                EstimatedMinutes = 480,
+                OrderIndex = 2
+            },
+            new WorkTask
+            {
+                Id = SeedReference.TaskIds.PushNotifications,
+                Title = "Implement push notifications",
+                Description = "Firebase push notifications for iOS and Android.",
+                Status = WorkTaskStatus.Todo,
+                Priority = WorkTaskPriority.Medium,
+                ProjectId = SeedReference.ProjectIds.MobileAppV2,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                CreatedByUserId = SeedReference.UserIds.DemoAdmin,
+                DueDate = now.AddDays(30),
+                EstimatedMinutes = 360,
+                OrderIndex = 3
+            },
+
+            // ── Acme ERP Tasks ─────────────────────────────────────
+            new WorkTask
+            {
+                Id = SeedReference.TaskIds.ErpApiSetup,
+                Title = "Set up ERP API connections",
+                Description = "Map and connect all ERP API endpoints to existing systems.",
+                Status = WorkTaskStatus.InProgress,
+                Priority = WorkTaskPriority.Urgent,
+                ProjectId = SeedReference.ProjectIds.AcmeErpIntegration,
+                OrganizationId = SeedReference.OrgIds.Acme,
+                CreatedByUserId = SeedReference.UserIds.AcmeOwner,
+                AssignedToUserId = SeedReference.UserIds.AcmeAdmin,
+                DueDate = now.AddDays(15),
+                EstimatedMinutes = 720,
+                OrderIndex = 1
+            },
+            new WorkTask
+            {
+                Id = SeedReference.TaskIds.DataMigration,
+                Title = "Migrate legacy data to new ERP",
+                Description = "Clean and migrate 5 years of historical data to the new ERP.",
+                Status = WorkTaskStatus.Todo,
+                Priority = WorkTaskPriority.High,
+                ProjectId = SeedReference.ProjectIds.AcmeErpIntegration,
+                OrganizationId = SeedReference.OrgIds.Acme,
+                CreatedByUserId = SeedReference.UserIds.AcmeOwner,
+                AssignedToUserId = SeedReference.UserIds.AcmeMember,
+                DueDate = now.AddDays(45),
+                EstimatedMinutes = 1440,
+                OrderIndex = 2
+            }
+        };
+
+        _context.Tasks.AddRange(tasks);
+        await _context.SaveChangesAsync();
+
+        // ── Seed TaskAssignees (multi-assignee examples) ───────────
+        var taskAssignees = new List<TaskAssignee>
+        {
+            // Design Mockups — also assigned to Member1 as a reviewer
+            new TaskAssignee
+            {
+                TaskId = SeedReference.TaskIds.DesignMockups,
+                UserId = SeedReference.UserIds.DemoMember1,
+                AssignedByUserId = SeedReference.UserIds.DemoOwner,
+                AssignedAt = now
+            },
+            // Auth Module — also assigned to Member2
+            new TaskAssignee
+            {
+                TaskId = SeedReference.TaskIds.AuthModule,
+                UserId = SeedReference.UserIds.DemoMember2,
+                AssignedByUserId = SeedReference.UserIds.DemoOwner,
+                AssignedAt = now
+            }
+        };
+
+        _context.TaskAssignees.AddRange(taskAssignees);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "Seeded: {TaskCount} tasks, {AssigneeCount} task assignees",
+            tasks.Count, taskAssignees.Count);
     }
 
     private async Task SeedOrganizationsAndUsersAsync()

@@ -66,4 +66,23 @@ public static class SeedReference
         public static readonly Guid Q3Marketing        = Guid.Parse("00000000-0000-0000-0003-000000000003");
         public static readonly Guid AcmeErpIntegration = Guid.Parse("00000000-0000-0000-0004-000000000004");
     }
+
+    // ── Task IDs ──────────────────────────────────────────────
+    public static class TaskIds
+    {
+        // Website Redesign tasks
+        public static readonly Guid DesignMockups      = Guid.Parse("00000000-0000-0000-0004-000000000001");
+        public static readonly Guid SetupCms           = Guid.Parse("00000000-0000-0000-0004-000000000002");
+        public static readonly Guid WriteContent       = Guid.Parse("00000000-0000-0000-0004-000000000003");
+        public static readonly Guid SeoAudit           = Guid.Parse("00000000-0000-0000-0004-000000000004");
+
+        // Mobile App v2 tasks
+        public static readonly Guid AppDesign          = Guid.Parse("00000000-0000-0000-0004-000000000005");
+        public static readonly Guid AuthModule         = Guid.Parse("00000000-0000-0000-0004-000000000006");
+        public static readonly Guid PushNotifications  = Guid.Parse("00000000-0000-0000-0004-000000000007");
+
+        // Acme ERP tasks
+        public static readonly Guid ErpApiSetup        = Guid.Parse("00000000-0000-0000-0004-000000000008");
+        public static readonly Guid DataMigration      = Guid.Parse("00000000-0000-0000-0004-000000000009");
+    }
 }

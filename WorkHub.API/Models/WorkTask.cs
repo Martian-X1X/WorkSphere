@@ -4,6 +4,7 @@ namespace WorkHub.API.Models;
 
 public class WorkTask : BaseEntity
 {
+    // ── Core fields ────────────────────────────────────────────
     [Required]
     [MaxLength(500)]
     public string Title { get; set; } = string.Empty;
@@ -11,6 +12,7 @@ public class WorkTask : BaseEntity
     [MaxLength(4000)]
     public string? Description { get; set; }
 
+    // ── Status + Priority ──────────────────────────────────────
     [Required]
     [MaxLength(20)]
     public string Status { get; set; } = WorkTaskStatus.Todo;
@@ -19,12 +21,31 @@ public class WorkTask : BaseEntity
     [MaxLength(20)]
     public string Priority { get; set; } = WorkTaskPriority.Medium;
 
+    // ── Dates ──────────────────────────────────────────────────
     public DateTime? DueDate { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? CompletedAt { get; set; }
+
+    // ── Time tracking ──────────────────────────────────────────
+    // Stored in minutes for precision
+    public int? EstimatedMinutes { get; set; }
+    public int? ActualMinutes { get; set; }
+
+    // ── Ordering ───────────────────────────────────────────────
+    // Used for drag-and-drop kanban ordering
+    public int OrderIndex { get; set; } = 0;
+
+    // ── Subtask support ────────────────────────────────────────
+    // Nullable — if set, this task is a subtask of another task
+    public Guid? ParentTaskId { get; set; }
 
     // ── Foreign keys ───────────────────────────────────────────
     public Guid ProjectId { get; set; }
     public Guid OrganizationId { get; set; }
     public Guid CreatedByUserId { get; set; }
+
+    // Primary assignee — kept for simple single-assignee queries
+    // Full multi-assignee via TaskAssignees junction table
     public Guid? AssignedToUserId { get; set; }
 
     // ── Navigation properties ──────────────────────────────────
@@ -32,8 +53,12 @@ public class WorkTask : BaseEntity
     public Organization Organization { get; set; } = null!;
     public User CreatedBy { get; set; } = null!;
     public User? AssignedTo { get; set; }
+    public WorkTask? ParentTask { get; set; }
+    public ICollection<WorkTask> SubTasks { get; set; } = new List<WorkTask>();
+    public ICollection<TaskAssignee> TaskAssignees { get; set; } = new List<TaskAssignee>();
 }
 
+// ── Status constants ───────────────────────────────────────────────
 public static class WorkTaskStatus
 {
     public const string Todo       = "Todo";
@@ -49,6 +74,7 @@ public static class WorkTaskStatus
         { Todo, InProgress, InReview, Done, Cancelled };
 }
 
+// ── Priority constants ─────────────────────────────────────────────
 public static class WorkTaskPriority
 {
     public const string Low    = "Low";
