@@ -250,6 +250,7 @@ builder.Services.AddScoped<OrgScopeGuard>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IInviteService, InviteService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 // ─── Seeder ───────────────────────────────────────────────────────
 builder.Services.AddScoped<DataSeeder>();
 
