@@ -79,17 +79,36 @@ Built for **B2B commercial licensing**, WorkSphere is architected to serve multi
 ```
 WorkSphere/
 ├── WorkHub.API/
+│   ├── Authorization/            # Permission system — policies, handlers, guards
+│   │   ├── OrgScopeGuard.cs      # IDOR protection — cross-tenant access blocked
+│   │   ├── PermissionHandler.cs  # Custom IAuthorizationRequirement handler
+│   │   ├── PermissionRequirement.cs
+│   │   ├── Permissions.cs        # 25 permission constants across 6 areas
+│   │   ├── PolicyNames.cs        # 22 named policy constants
+│   │   └── RolePermissions.cs    # Owner/Admin/Member permission matrix
 │   ├── Controllers/              # API route handlers
 │   ├── Data/
-│   │   └── AppDbContext.cs       # EF Core DbContext + SaveChanges override
+│   │   ├── AppDbContext.cs       # EF Core DbContext + SaveChanges override
+│   │   └── Seeding/
+│   │       ├── DataSeeder.cs     # Idempotent seeder — 3 orgs, 8 users, 4 projects, 9 tasks
+│   │       └── SeedReference.cs  # Fixed UUIDs for all seed data
 │   ├── DTOs/                     # Request & response transfer objects
+│   ├── Middleware/
+│   │   ├── GlobalExceptionMiddleware.cs  # Unhandled exception → ApiResponse<T>
+│   │   ├── RequestLoggingMiddleware.cs   # Correlation ID + method/path/status/ms
+│   │   └── TenantMiddleware.cs           # Real-time user + org status check
 │   ├── Migrations/               # EF Core auto-generated migrations
 │   ├── Models/
-│   │   ├── BaseEntity.cs         # Abstract base: Id, CreatedAt, UpdatedAt
+│   │   ├── BaseEntity.cs         # Abstract base: Id, CreatedAt, UpdatedAt, soft delete
 │   │   ├── Organization.cs       # Tenant / organization model
+│   │   ├── OrganizationInvite.cs # Invite model with token + lifecycle
+│   │   ├── Project.cs            # Project container with status + lead
+│   │   ├── Task.cs               # WorkTask model with priority + time tracking
+│   │   ├── TaskAssignee.cs       # Junction table — many-to-many task assignments
 │   │   ├── User.cs               # Platform user model
 │   │   └── UserRole.cs           # Role constants: Owner, Admin, Member
 │   ├── Services/                 # Business logic layer
+│   ├── Settings/                 # Strongly-typed config classes
 │   ├── appsettings.json          # App configuration
 │   └── Program.cs                # Application entry point & DI setup
 ├── docs/                         # Architecture & ER diagrams
@@ -100,66 +119,133 @@ WorkSphere/
 ---
 
 ## 🗄️ Database Schema
-
+ 
 ### BaseEntity *(inherited by all models)*
-
-| Column      | Type        | Notes                        |
-|-------------|-------------|------------------------------|
-| `Id`        | `UUID`      | Primary key, auto-generated  |
-| `CreatedAt` | `TIMESTAMP` | Set automatically on insert  |
-| `UpdatedAt` | `TIMESTAMP` | Auto-updated on every save   |
-
-> All models inherit `BaseEntity`. `UpdatedAt` is automatically refreshed on every `SaveChangesAsync` call via the DbContext override — no manual tracking required.
-
+ 
+| Column      | Type        | Notes                              |
+|-------------|-------------|------------------------------------|
+| `Id`        | `UUID`      | Primary key, auto-generated        |
+| `CreatedAt` | `TIMESTAMP` | Set automatically on insert        |
+| `UpdatedAt` | `TIMESTAMP` | Auto-updated on every save         |
+| `IsDeleted` | `BOOLEAN`   | Soft delete flag — default `false` |
+| `DeletedAt` | `TIMESTAMP` | Set on soft delete — nullable      |
+ 
 ---
-
+ 
 ### Organizations
-
-| Column      | Type           | Constraints       |
-|-------------|----------------|-------------------|
-| `Id`        | `UUID`         | PK                |
-| `Name`      | `VARCHAR(100)` | Required          |
-| `Slug`      | `VARCHAR(100)` | Required, Unique  |
-| `CreatedAt` | `TIMESTAMP`    | Auto              |
-| `UpdatedAt` | `TIMESTAMP`    | Auto              |
-
+ 
+| Column        | Type           | Constraints      |
+|---------------|----------------|------------------|
+| `Id`          | `UUID`         | PK               |
+| `Name`        | `VARCHAR(100)` | Required         |
+| `Slug`        | `VARCHAR(100)` | Required, Unique |
+| `Description` | `VARCHAR(500)` | Nullable         |
+| `LogoUrl`     | `VARCHAR(255)` | Nullable         |
+| `Plan`        | `VARCHAR(20)`  | Default: `Free`  |
+| `IsActive`    | `BOOLEAN`      | Default: `true`  |
+ 
 ---
-
+ 
 ### Users
-
-| Column           | Type           | Constraints               |
-|------------------|----------------|---------------------------|
-| `Id`             | `UUID`         | PK                        |
-| `FirstName`      | `VARCHAR(50)`  | Required                  |
-| `LastName`       | `VARCHAR(50)`  | Required                  |
-| `Email`          | `VARCHAR(100)` | Required, Unique          |
-| `PasswordHash`   | `TEXT`         | BCrypt hashed             |
-| `OrganizationId` | `UUID`         | FK → Organizations.Id     |
-| `Role`           | `VARCHAR(20)`  | Owner / Admin / Member    |
-| `IsActive`       | `BOOLEAN`      | Default: true             |
-| `CreatedAt`      | `TIMESTAMP`    | Auto                      |
-| `UpdatedAt`      | `TIMESTAMP`    | Auto                      |
-
+ 
+| Column           | Type           | Constraints           |
+|------------------|----------------|-----------------------|
+| `Id`             | `UUID`         | PK                    |
+| `FirstName`      | `VARCHAR(50)`  | Required              |
+| `LastName`       | `VARCHAR(50)`  | Required              |
+| `Email`          | `VARCHAR(100)` | Required, Unique      |
+| `PasswordHash`   | `TEXT`         | BCrypt hashed         |
+| `OrganizationId` | `UUID`         | FK → Organizations.Id |
+| `Role`           | `VARCHAR(20)`  | Owner / Admin / Member|
+| `IsActive`       | `BOOLEAN`      | Default: `true`       |
+| `RefreshToken`   | `TEXT`         | Nullable              |
+ 
 ---
-
+ 
+### Projects
+ 
+| Column             | Type           | Constraints           |
+|--------------------|----------------|-----------------------|
+| `Id`               | `UUID`         | PK                    |
+| `Name`             | `VARCHAR(200)` | Required              |
+| `Description`      | `TEXT`         | Nullable              |
+| `Status`           | `VARCHAR(20)`  | Active / OnHold / Completed / Archived |
+| `OrganizationId`   | `UUID`         | FK → Organizations.Id (Cascade) |
+| `CreatedByUserId`  | `UUID`         | FK → Users.Id (Restrict) |
+| `ProjectLeadUserId`| `UUID`         | FK → Users.Id (Restrict, nullable) |
+| `StartDate`        | `TIMESTAMP`    | Nullable              |
+| `DueDate`          | `TIMESTAMP`    | Nullable              |
+ 
+---
+ 
+### Tasks
+ 
+| Column              | Type           | Constraints              |
+|---------------------|----------------|--------------------------|
+| `Id`                | `UUID`         | PK                       |
+| `Title`             | `VARCHAR(500)` | Required                 |
+| `Description`       | `TEXT`         | Nullable                 |
+| `Status`            | `VARCHAR(20)`  | Todo / InProgress / InReview / Done / Cancelled |
+| `Priority`          | `VARCHAR(20)`  | Low / Medium / High / Urgent |
+| `ProjectId`         | `UUID`         | FK → Projects.Id (Cascade) |
+| `OrganizationId`    | `UUID`         | FK → Organizations.Id    |
+| `CreatedByUserId`   | `UUID`         | FK → Users.Id (Restrict) |
+| `AssignedToUserId`  | `UUID`         | FK → Users.Id (Restrict, nullable) |
+| `ParentTaskId`      | `UUID`         | Self-ref FK (subtasks, nullable) |
+| `EstimatedMinutes`  | `INT`          | Nullable                 |
+| `ActualMinutes`     | `INT`          | Nullable                 |
+| `OrderIndex`        | `INT`          | Kanban ordering, default 0 |
+| `CompletedAt`       | `TIMESTAMP`    | Nullable — set when Done |
+ 
+---
+ 
+### TaskAssignees *(junction table)*
+ 
+| Column            | Type        | Constraints              |
+|-------------------|-------------|--------------------------|
+| `TaskId`          | `UUID`      | PK (composite) + FK → Tasks.Id (Cascade) |
+| `UserId`          | `UUID`      | PK (composite) + FK → Users.Id (Cascade) |
+| `AssignedByUserId`| `UUID`      | FK → Users.Id (Restrict) |
+| `AssignedAt`      | `TIMESTAMP` | Auto                     |
+ 
+---
+ 
+### OrganizationInvites
+ 
+| Column             | Type           | Notes                    |
+|--------------------|----------------|--------------------------|
+| `Id`               | `UUID`         | PK                       |
+| `OrganizationId`   | `UUID`         | FK → Organizations       |
+| `InvitedByUserId`  | `UUID`         | FK → Users               |
+| `InviteeEmail`     | `VARCHAR(100)` | Who the invite is for    |
+| `Role`             | `VARCHAR(20)`  | Role on join             |
+| `Token`            | `TEXT`         | Unique, 32-byte CSPRNG   |
+| `ExpiresAt`        | `TIMESTAMP`    | 7 days from creation     |
+| `Status`           | `VARCHAR(20)`  | Pending/Accepted/Expired/Cancelled |
+ 
+---
+ 
 ### Role Permissions
-
-| Role     | Capabilities                                         |
-|----------|------------------------------------------------------|
-| `Owner`  | Full platform control — billing, settings, all data  |
-| `Admin`  | Manage members, projects, tasks within the org       |
-| `Member` | Create and update tasks assigned to them             |
-
+ 
+| Role     | Permissions | Capabilities                                        |
+|----------|-------------|-----------------------------------------------------|
+| `Owner`  | 25          | Full platform control — billing, archive, export    |
+| `Admin`  | 18          | Manage team and content, no billing/archive/export  |
+| `Member` | 8           | View all + update own tasks + create/delete own comments |
+ 
 ---
-
+ 
 ### Entity Relationships
-
+ 
 ```
-Organizations (1) ──────────────── (many) Users
-     │
-     └── All data is isolated per OrganizationId (multi-tenancy)
+Organizations (1) ────────── (many) Users
+      │                              │
+      │                              │
+      └── (many) Projects ─── (many) Tasks ─── (many) TaskAssignees
+                                     │
+                                     └── (many) SubTasks (self-ref)
 ```
-
+ 
 ---
 
 ## ⚙️ Local Development Setup
@@ -2617,19 +2703,441 @@ FROM "OrganizationInvites" WHERE "InviteeEmail" = 'newmember@worksphere.io';
 ```
 
 ---
-
+### ✅ Day 15 — Multi-Tenancy Hardening
+ 
+> 🎯 **Goal:** Prove the tenant isolation system is bulletproof with a second real organization and 16 penetration + feature tests
+ 
+| Task | Status |
+|---|---|
+| Second organization (`Acme Corporation`) created for penetration testing | ✅ |
+| Added `ChangeMemberRoleAsync` — Owner-only, validates against Owner self-change | ✅ |
+| Added `DeactivateMemberAsync` — clears `RefreshToken` immediately on deactivation | ✅ |
+| `PATCH /me/members/{id}/role` — `CanChangeRoles` policy | ✅ |
+| `PATCH /me/members/{id}/deactivate` — `CanRemoveMembers` policy | ✅ |
+| Deactivated user blocked at `TenantMiddleware` — even with valid JWT | ✅ |
+| All 7 penetration tests passing — cross-org access blocked in every scenario | ✅ |
+| All 9 feature tests passing | ✅ |
+ 
+---
+ 
+#### 🔴 Penetration Tests — All 7 Blocked
+ 
+```
+Acme Owner (Org B) tries to attack WorkSphere Demo (Org A):
+ 
+P1 → GET  /me/members              → sees only Acme's 3 members  ✅
+P2 → GET  /me/members/{demoUserId} → 404 (Demo user invisible)   ✅
+P3 → GET  /me                      → returns Acme's org only     ✅
+P4 → PUT  /me                      → updates Acme's org only     ✅
+P5 → POST /me/invites              → invite goes to Acme         ✅
+P6 → DELETE /me/invites/{demoInviteId} → 404 (not found)        ✅
+P7 → PATCH /me/members/{demoUserId}/role → 404 (not found)      ✅
+```
+ 
+---
+ 
+#### ✅ Feature Tests — All 9 Passing
+ 
+| Test | Action | HTTP | Result |
+|---|---|---|---|
+| F1 | Change Alice role → Admin | `200` | ✅ Role updated |
+| F2 | Change Alice back → Member | `200` | ✅ Reverted |
+| F3 | Cannot change own role | `400` | ✅ Blocked |
+| F4 | Invalid role value | `400` | ✅ Validation caught |
+| F5 | Get Alice's JWT before deactivation | `200` | ✅ Token obtained |
+| F6 | Deactivate Alice | `200` | ✅ `IsActive = false`, tokens cleared |
+| F7 | Alice's old token blocked | `403` | ✅ TenantMiddleware blocked |
+| F8 | Cannot deactivate self | `400` | ✅ Blocked |
+| F9 | Cannot deactivate already inactive | `400` | ✅ Blocked |
+ 
+---
+ 
+#### 🔒 Deactivation Security Model
+ 
+```
+Owner deactivates Alice:
+  DB: IsActive = false
+      RefreshToken = NULL         ← immediate invalidation
+      RefreshTokenExpiry = NULL   ← can no longer rotate
+ 
+Alice tries to use her still-valid JWT:
+  TenantMiddleware.ValidateCurrentUserContextAsync()
+    └── DB check: user.IsActive = false
+        └── 403 "Your account has been deactivated"
+ 
+Result: Blocked within milliseconds — no 15-min JWT window ✅
+```
+ 
+---
+ 
+### ✅ Day 16 — Seed Test Data
+ 
+> 🎯 **Goal:** Create a realistic, idempotent seeder with fixed UUIDs for deterministic testing
+ 
+| Task | Status |
+|---|---|
+| `DataSeeder.cs` created — idempotent check on startup | ✅ |
+| `SeedReference.cs` — static class with all fixed UUIDs + credentials | ✅ |
+| 3 organizations seeded with fixed UUIDs | ✅ |
+| 8 users seeded — Owner, Admin, 2 Members per org (TechStart: Owner only) | ✅ |
+| BCrypt work factor 10 for seed data (fast startup, still secure) | ✅ |
+| Seeder registered in `Program.cs` DI + called after `app.Build()` | ✅ |
+ 
+---
+ 
+#### 🌱 Seed Data Summary
+ 
+```
+WorkSphere Demo (00000000-0000-0000-0001-000000000001)
+  ├── Demo Owner   (00000000-0000-0000-0002-000000000001)
+  ├── Demo Admin   (00000000-0000-0000-0002-000000000002)
+  ├── Alice Johnson — Member (00000000-0000-0000-0002-000000000003)
+  └── Bob Smith — Member    (00000000-0000-0000-0002-000000000004)
+ 
+Acme Corporation (00000000-0000-0000-0001-000000000002)
+  ├── Acme Owner   (00000000-0000-0000-0002-000000000005)
+  ├── Acme Admin   (00000000-0000-0000-0002-000000000006)
+  └── Carol White — Member (00000000-0000-0000-0002-000000000007)
+ 
+TechStart Ltd (00000000-0000-0000-0001-000000000003)
+  └── Tech Founder  (00000000-0000-0000-0002-000000000008)
+```
+ 
+---
+ 
+### ✅ Day 17 — Full API Test Collection
+ 
+> 🎯 **Goal:** Build and run a Postman collection covering all Phase 1 endpoints
+ 
+| Task | Status |
+|---|---|
+| Postman environment `WorkSphere Local` created — all variables configured | ✅ |
+| 9-folder collection built — Health, Register, Login, Tokens, Users, Orgs, Members, Invites, Security | ✅ |
+| Login requests auto-save tokens via Test scripts | ✅ |
+| All Phase 1 endpoints manually verified | ✅ |
+ 
+**Phase 1 Endpoint Registry:**
+ 
+| Method | Endpoint | Auth |
+|---|---|---|
+| `POST` | `/api/auth/register` | Public |
+| `POST` | `/api/auth/login` | Public |
+| `POST` | `/api/auth/refresh` | Public |
+| `POST` | `/api/auth/revoke` | 🔒 Bearer |
+| `GET` | `/api/auth/context` | 🔒 Bearer |
+| `GET` | `/api/users/me` | 🔒 Bearer |
+| `GET` | `/api/users/me/permissions` | 🔒 Bearer |
+| `GET` | `/api/users/permission-check` | 🔒 Bearer |
+| `GET` | `/api/users/can-invite` | 🔒 Owner/Admin |
+| `GET` | `/api/users/can-export` | 🔒 Owner |
+| `GET` | `/api/organizations/me` | 🔒 Any |
+| `PUT` | `/api/organizations/me` | 🔒 Owner |
+| `GET` | `/api/organizations/me/members` | 🔒 Any |
+| `GET` | `/api/organizations/me/members/{id}` | 🔒 Any |
+| `PATCH` | `/api/organizations/me/members/{id}/role` | 🔒 Owner |
+| `PATCH` | `/api/organizations/me/members/{id}/deactivate` | 🔒 Owner/Admin |
+| `POST` | `/api/organizations/me/invites` | 🔒 Owner/Admin |
+| `GET` | `/api/organizations/me/invites` | 🔒 Owner/Admin |
+| `DELETE` | `/api/organizations/me/invites/{id}` | 🔒 Owner/Admin |
+| `GET` | `/api/invites/{token}` | Public |
+| `POST` | `/api/invites/{token}/accept` | Public |
+| `GET` | `/health` | Public |
+ 
+---
+ 
+### ✅ Day 18 — Project Entity
+ 
+> 🎯 **Goal:** Build the `Project` model, `WorkTask` stub, migration, EF Core config, and seed 4 projects
+ 
+| Task | Status |
+|---|---|
+| `Project.cs` model — Name, Description, Status, OrganizationId, CreatedByUserId, ProjectLeadUserId, StartDate, DueDate | ✅ |
+| `WorkTask.cs` stub — Title, Description, Status, Priority, all FKs | ✅ |
+| `ProjectStatus` constants — Active, OnHold, Completed, Archived | ✅ |
+| `WorkTaskStatus` + `WorkTaskPriority` constants | ✅ |
+| Renamed `Task` → `WorkTask` to avoid `System.Threading.Tasks.Task` conflict | ✅ |
+| `AppDbContext` updated — `DbSet<Project>`, `DbSet<WorkTask>`, global filters, FK config | ✅ |
+| Composite indexes — `(OrganizationId, Status)`, `(ProjectId, Status)` | ✅ |
+| Migration `AddProjectAndTaskEntities` — applied ✅ | ✅ |
+| `DataSeeder` updated with `SeedProjectsAsync()` — 4 projects with fixed UUIDs | ✅ |
+| `SeedReference.ProjectIds` added | ✅ |
+ 
+---
+ 
+#### 🗃️ Seeded Projects
+ 
+| ID Suffix | Name | Status | Org |
+|---|---|---|---|
+| `...0003-000000000001` | Website Redesign | Active | WorkSphere Demo |
+| `...0003-000000000002` | Mobile App v2 | Active | WorkSphere Demo |
+| `...0003-000000000003` | Q3 Marketing Campaign | OnHold | WorkSphere Demo |
+| `...0004-000000000004` | ERP Integration | Active | Acme Corporation |
+ 
+---
+ 
+### ✅ Day 19 — Task Entity (Full Implementation)
+ 
+> 🎯 **Goal:** Enhance `WorkTask` with full fields, add `TaskAssignee` junction table, seed 9 tasks
+ 
+| Task | Status |
+|---|---|
+| `WorkTask` enhanced — `StartDate`, `CompletedAt`, `EstimatedMinutes`, `ActualMinutes`, `OrderIndex`, `ParentTaskId` | ✅ |
+| `TaskAssignee` junction model — composite PK `(TaskId, UserId)` | ✅ |
+| Self-referencing FK — `ParentTaskId → Tasks.Id` (subtask support) | ✅ |
+| `AppDbContext` updated — `DbSet<TaskAssignee>`, full entity config with all FKs | ✅ |
+| 12 indexes across Tasks + TaskAssignees | ✅ |
+| Migration `EnhanceTaskEntityAndAddTaskAssignee` — applied ✅ | ✅ |
+| `SeedReference.TaskIds` — 9 fixed UUIDs | ✅ |
+| `DataSeeder.SeedTasksAsync()` — 9 tasks + 2 junction records | ✅ |
+ 
+---
+ 
+#### 🗃️ Seeded Tasks
+ 
+| Project | Task | Status | Priority | Assignee |
+|---|---|---|---|---|
+| Website Redesign | Create UI mockups | InProgress | High | Demo Admin |
+| Website Redesign | Set up CMS platform | Todo | High | Alice Johnson |
+| Website Redesign | Write homepage copy | Todo | Medium | Bob Smith |
+| Website Redesign | Run SEO audit | Done | Medium | Alice Johnson |
+| Mobile App v2 | Design new app UI kit | InProgress | Urgent | Demo Admin |
+| Mobile App v2 | Build auth module | Todo | High | Alice Johnson |
+| Mobile App v2 | Implement push notifications | Todo | Medium | Unassigned |
+| ERP Integration | Set up ERP API connections | InProgress | Urgent | Acme Admin |
+| ERP Integration | Migrate legacy data | Todo | High | Carol White |
+ 
+---
+ 
+#### 🔗 FK Constraints Verified
+ 
+```
+TaskAssignees.AssignedByUserId → Users    (RESTRICT)  ✅
+TaskAssignees.TaskId           → Tasks    (CASCADE)   ✅
+TaskAssignees.UserId           → Users    (CASCADE)   ✅
+Tasks.AssignedToUserId         → Users    (RESTRICT)  ✅
+Tasks.CreatedByUserId          → Users    (RESTRICT)  ✅
+Tasks.OrganizationId           → Organizations (RESTRICT) ✅
+Tasks.ParentTaskId             → Tasks    (RESTRICT)  ✅
+Tasks.ProjectId                → Projects (CASCADE)   ✅
+```
+ 
+---
+ 
+**Migration History after Day 19:**
+```
+✔  20260419_InitialCreate
+✔  20260420_AddOrganizationAndUserTables
+✔  20260421_UpgradeModelsDay5
+✔  20260608_AddOrganizationInvites
+✔  AddProjectAndTaskEntities
+✔  EnhanceTaskEntityAndAddTaskAssignee
+```
+ 
+---
+ 
+### ✅ Day 20 — Project CRUD APIs
+ 
+> 🎯 **Goal:** Full project management API with filtering, pagination, status transitions, soft delete, and IDOR protection
+ 
+| Task | Status |
+|---|---|
+| `ProjectDto`, `CreateProjectDto`, `UpdateProjectDto`, `ChangeProjectStatusDto`, `ProjectQueryDto`, `TaskSummaryDto` | ✅ |
+| `IProjectService` — 6 methods | ✅ |
+| `ProjectService` — all queries scoped to `OrganizationId`, `OrgScopeGuard` on every mutation | ✅ |
+| Date validation — due date cannot be before start date | ✅ |
+| Project lead validation — must be active member of same org | ✅ |
+| Archiving requires `projects.archive` permission — Owner only | ✅ |
+| Soft delete cascades to all tasks in the project | ✅ |
+| `ProjectsController` — 6 endpoints with correct policy decorators | ✅ |
+| `IProjectService` registered in `Program.cs` | ✅ |
+| All 16 Postman tests passing | ✅ |
+ 
+---
+ 
+#### 🔌 Project Endpoints
+ 
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| `GET` | `/api/projects` | List all projects — filter, search, sort, paginate | 🔒 Any |
+| `GET` | `/api/projects/{id}` | Single project with task summary | 🔒 Any |
+| `POST` | `/api/projects` | Create project — always starts Active | 🔒 Owner/Admin |
+| `PUT` | `/api/projects/{id}` | Update name, description, lead, dates | 🔒 Owner/Admin |
+| `PATCH` | `/api/projects/{id}/status` | Change status — Archive requires Owner | 🔒 Owner/Admin |
+| `DELETE` | `/api/projects/{id}` | Soft delete + cascade tasks | 🔒 Owner/Admin |
+ 
+---
+ 
+#### 📊 Task Summary in Project Response
+ 
+```json
+{
+  "taskSummary": {
+    "total": 4,
+    "todo": 2,
+    "inProgress": 1,
+    "inReview": 0,
+    "done": 1,
+    "cancelled": 0,
+    "completionPercentage": 25
+  }
+}
+```
+ 
+---
+ 
+#### 📬 Postman Test Results — Day 20
+ 
+| Test | Action | HTTP | Result |
+|---|---|---|---|
+| 1 | List projects — 3 Demo projects | `200` | ✅ Acme's project invisible |
+| 2 | Filter by status=Active | `200` | ✅ 2 projects returned |
+| 3 | Search by name "mobile" | `200` | ✅ 1 project returned |
+| 4 | Get single project with task summary | `200` | ✅ 25% completion |
+| 5 | Create project | `201` | ✅ Status = Active |
+| 6 | Update project | `200` | ✅ Name + lead updated |
+| 7 | Change status → OnHold | `200` | ✅ Status changed |
+| 8 | Archive (Owner) | `200` | ✅ Owner has archive permission |
+| 9 | Admin cannot archive | `400` | ✅ Permission denied |
+| 10 | Member cannot create | `403` | ✅ Policy blocked |
+| 11 | Invalid status value | `400` | ✅ Validation error |
+| 12 | Due date before start date | `400` | ✅ Date validation |
+| 13 | Cross-org access (Acme → Demo project) | `404` | ✅ OrgScopeGuard blocked |
+| 14 | Delete project | `200` | ✅ Tasks cascade deleted |
+| 15 | Get deleted project | `404` | ✅ Global filter applied |
+| 16 | Pagination — page=1&pageSize=2 | `200` | ✅ totalPages=2, hasNextPage=true |
+ 
+---
+ 
+### ✅ Day 21 — Task CRUD APIs
+ 
+> 🎯 **Goal:** Full task management API with member ownership rules, multi-assignee support, status transitions, and 21 tests
+ 
+| Task | Status |
+|---|---|
+| `TaskDto`, `CreateTaskDto`, `UpdateTaskDto`, `ChangeTaskStatusDto`, `AssignTaskDto`, `TaskQueryDto`, `TaskAssigneeDto` | ✅ |
+| `ITaskService` — 7 methods | ✅ |
+| `TaskService` — all queries scoped to project + org, OrgScopeGuard on every mutation | ✅ |
+| Member ownership check — Member can ONLY update/change status of tasks assigned to them | ✅ |
+| `CompletedAt` auto-set when status → Done, cleared when status reopened | ✅ |
+| Assignee validation — must be active member of same org | ✅ |
+| Parent task validation — must exist within same project | ✅ |
+| Soft delete cascades to subtasks | ✅ |
+| `TasksController` — 7 endpoints with correct policies | ✅ |
+| `ITaskService` registered in `Program.cs` | ✅ |
+| All 21 Postman tests passing | ✅ |
+ 
+---
+ 
+#### 🔌 Task Endpoints
+ 
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| `GET` | `/api/projects/{id}/tasks` | List tasks — filter, search, sort, paginate | 🔒 Any |
+| `GET` | `/api/tasks/{id}` | Single task with additional assignees | 🔒 Any |
+| `POST` | `/api/projects/{id}/tasks` | Create task — always starts Todo | 🔒 Owner/Admin |
+| `PUT` | `/api/tasks/{id}` | Update task — Member: own tasks only | 🔒 Any |
+| `PATCH` | `/api/tasks/{id}/status` | Change status — Member: own tasks only | 🔒 Any |
+| `PATCH` | `/api/tasks/{id}/assign` | Assign / unassign primary assignee | 🔒 Owner/Admin |
+| `DELETE` | `/api/tasks/{id}` | Soft delete + cascade subtasks | 🔒 Owner/Admin |
+ 
+---
+ 
+#### 🛡️ Member Ownership Rules
+ 
+```
+Owner / Admin:
+  ✅ Create tasks in any project
+  ✅ Update any task (title, description, priority, dates)
+  ✅ Change status of any task
+  ✅ Assign/unassign tasks to anyone
+  ✅ Delete any task
+ 
+Member:
+  ✅ View all tasks in their org's projects
+  ✅ Update tasks assigned to THEM only
+  ✅ Change status of tasks assigned to THEM only
+  ❌ Cannot create tasks (403)
+  ❌ Cannot delete tasks (403)
+  ❌ Cannot assign tasks to others (403)
+  ❌ Cannot update tasks assigned to someone else (400)
+```
+ 
+---
+ 
+#### 🔄 Status Transition with CompletedAt
+ 
+```
+Todo → InProgress → InReview → Done
+                                 │
+                                 └── CompletedAt = DateTime.UtcNow
+                                     ActualMinutes = dto.ActualMinutes (optional)
+ 
+Done → InProgress (reopen)
+  └── CompletedAt = null ← cleared automatically
+```
+ 
+---
+ 
+#### 📬 Postman Test Results — Day 21
+ 
+| Test | Action | HTTP | Result |
+|---|---|---|---|
+| 1 | List tasks in Website Redesign | `200` | ✅ 4 tasks returned |
+| 2 | Filter by status=Done | `200` | ✅ 1 task (SEO Audit) |
+| 3 | Filter by priority=High | `200` | ✅ 2 tasks |
+| 4 | Search "cms" | `200` | ✅ 1 task |
+| 5 | Get single task with additional assignees | `200` | ✅ Multi-assignee shown |
+| 6 | Create task (Owner) | `201` | ✅ Status = Todo |
+| 7 | Update task (Owner) | `200` | ✅ Fields updated |
+| 8 | Change status → InProgress | `200` | ✅ Status changed |
+| 9 | Mark Done with actualMinutes | `200` | ✅ CompletedAt set |
+| 10 | Reopen Done → InProgress | `200` | ✅ CompletedAt = null |
+| 11 | Assign task to Alice | `200` | ✅ AssignedToName updated |
+| 12 | Unassign task (userId: null) | `200` | ✅ AssignedToName = null |
+| 13 | Member updates own task | `200` | ✅ Ownership allowed |
+| 14 | Member updates someone else's task | `400` | ✅ Ownership blocked |
+| 15 | Member cannot create task | `403` | ✅ Policy blocked |
+| 16 | Member cannot delete task | `403` | ✅ Policy blocked |
+| 17 | Invalid priority value | `400` | ✅ Validation error |
+| 18 | Due date before start date | `400` | ✅ Date validation |
+| 19 | Cross-org task access (Acme → Demo) | `404` | ✅ OrgScopeGuard blocked |
+| 20 | Delete task | `200` | ✅ Subtasks cascade deleted |
+| 21 | Get deleted task | `404` | ✅ Global filter applied |
+ 
+---
+ 
+#### 🔌 Complete Phase 2 Endpoint Registry (after Day 21)
+ 
+| Method | Endpoint | Auth |
+|---|---|---|
+| `GET` | `/api/projects` | 🔒 Any |
+| `GET` | `/api/projects/{id}` | 🔒 Any |
+| `POST` | `/api/projects` | 🔒 Owner/Admin |
+| `PUT` | `/api/projects/{id}` | 🔒 Owner/Admin |
+| `PATCH` | `/api/projects/{id}/status` | 🔒 Owner/Admin |
+| `DELETE` | `/api/projects/{id}` | 🔒 Owner/Admin |
+| `GET` | `/api/projects/{id}/tasks` | 🔒 Any |
+| `GET` | `/api/tasks/{id}` | 🔒 Any |
+| `POST` | `/api/projects/{id}/tasks` | 🔒 Owner/Admin |
+| `PUT` | `/api/tasks/{id}` | 🔒 Any (ownership checked) |
+| `PATCH` | `/api/tasks/{id}/status` | 🔒 Any (ownership checked) |
+| `PATCH` | `/api/tasks/{id}/assign` | 🔒 Owner/Admin |
+| `DELETE` | `/api/tasks/{id}` | 🔒 Owner/Admin |
+ 
+---
+ 
 ## 🛣️ Product Roadmap
-
+ 
 | Phase | Days     | Milestone                                              | Status       |
 |-------|----------|--------------------------------------------------------|--------------|
-| 1     | 1 – 15   | Backend foundation: auth, JWT, roles, multi-tenancy    | ✅ Completed |
-| 2     | 16 – 30  | Project & task API: CRUD, filtering, pagination, logs  | 🟡 Upcoming  |
+| 1     | 1 – 17   | Backend foundation: auth, JWT, roles, multi-tenancy    | ✅ Complete  |
+| 2     | 18 – 30  | Project & task API: CRUD, filtering, pagination, logs  | 🟡 In Progress|
 | 3     | 31 – 50  | React frontend: dashboard, kanban, drag & drop         | 🔲 Upcoming  |
 | 4     | 51 – 65  | Fullstack: notifications, invites, search, permissions | 🔲 Upcoming  |
 | 5     | 66 – 80  | Real-time: SignalR chat, presence, file uploads        | 🔲 Upcoming  |
 | 6     | 81 – 90  | DevOps: Docker, CI/CD, cloud deployment                | 🔲 Upcoming  |
 | 7     | 91 – 100 | Production hardening, security audit, launch           | 🔲 Upcoming  |
-
+ 
 ---
 
 ## 🔑 Key Milestones
