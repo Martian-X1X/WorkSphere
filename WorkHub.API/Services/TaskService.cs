@@ -748,36 +748,52 @@ public class TaskService : ITaskService
             query.PageSize = Math.Clamp(query.PageSize, 1, 100);
 
             var userId = _currentUser.UserId;
+            var orgId = _currentUser.OrganizationId;
             var now = DateTime.UtcNow;
 
-            // ── Tasks where I'm the PRIMARY assignee ────────────────
-            var primaryTasksQuery = _context.Tasks
+            // ── Run both queries separately ────────────────────────
+            // Query 1: tasks where I'm the PRIMARY assignee
+            var primaryTasks = await _context.Tasks
                 .Include(t => t.Project)
                 .Where(t =>
-                    t.OrganizationId == _currentUser.OrganizationId &&
+                    t.OrganizationId == orgId &&
                     t.AssignedToUserId == userId)
-                .Select(t => new MyTaskDto
-                {
-                    Id = t.Id,
-                    Title = t.Title,
-                    Status = t.Status,
-                    Priority = t.Priority,
-                    DueDate = t.DueDate,
-                    IsOverdue = t.DueDate.HasValue &&
-                                t.DueDate.Value < now &&
-                                t.Status != WorkTaskStatus.Done &&
-                                t.Status != WorkTaskStatus.Cancelled,
-                    AssignmentType = "Primary",
-                    ProjectId = t.ProjectId,
-                    ProjectName = t.Project.Name
-                });
+                .ToListAsync();
 
-            // ── Tasks where I'm a COLLABORATOR ───────────────────────
-            var collaboratorTasksQuery = _context.TaskAssignees
+            // Query 2: task IDs where I'm a COLLABORATOR
+            var collaboratorTaskIds = await _context.TaskAssignees
                 .Where(ta => ta.UserId == userId)
-                .Select(ta => ta.Task)
+                .Select(ta => ta.TaskId)
+                .ToListAsync();
+
+            // Load those tasks separately
+            var collaboratorTasks = await _context.Tasks
                 .Include(t => t.Project)
-                .Where(t => t.OrganizationId == _currentUser.OrganizationId)
+                .Where(t =>
+                    t.OrganizationId == orgId &&
+                    collaboratorTaskIds.Contains(t.Id))
+                .ToListAsync();
+
+            // ── Map to MyTaskDto ───────────────────────────────────
+            var primaryDtos = primaryTasks.Select(t => new MyTaskDto
+            {
+                Id = t.Id,
+                Title = t.Title,
+                Status = t.Status,
+                Priority = t.Priority,
+                DueDate = t.DueDate,
+                IsOverdue = t.DueDate.HasValue &&
+                            t.DueDate.Value < now &&
+                            t.Status != WorkTaskStatus.Done &&
+                            t.Status != WorkTaskStatus.Cancelled,
+                AssignmentType = "Primary",
+                ProjectId = t.ProjectId,
+                ProjectName = t.Project?.Name ?? string.Empty
+            }).ToList();
+
+            var collaboratorDtos = collaboratorTasks
+                // Exclude tasks already in primary list (user is both primary + collaborator)
+                .Where(t => t.AssignedToUserId != userId)
                 .Select(t => new MyTaskDto
                 {
                     Id = t.Id,
@@ -791,31 +807,28 @@ public class TaskService : ITaskService
                                 t.Status != WorkTaskStatus.Cancelled,
                     AssignmentType = "Collaborator",
                     ProjectId = t.ProjectId,
-                    ProjectName = t.Project.Name
-                });
+                    ProjectName = t.Project?.Name ?? string.Empty
+                }).ToList();
 
-            // ── Combine both, de-duplicate (in case both apply) ─────
-            var allTasks = await primaryTasksQuery
-                .Union(collaboratorTasksQuery)
-                .ToListAsync();
-
-            var filtered = allTasks.AsEnumerable();
+            // ── Merge + filter ─────────────────────────────────────
+            var allTasks = primaryDtos.Concat(collaboratorDtos).ToList();
 
             if (!string.IsNullOrWhiteSpace(query.Status))
-                filtered = filtered.Where(t => t.Status == query.Status);
+                allTasks = allTasks.Where(t => t.Status == query.Status).ToList();
 
             if (!string.IsNullOrWhiteSpace(query.Priority))
-                filtered = filtered.Where(t => t.Priority == query.Priority);
+                allTasks = allTasks.Where(t => t.Priority == query.Priority).ToList();
 
             if (query.Overdue == true)
-                filtered = filtered.Where(t => t.IsOverdue);
+                allTasks = allTasks.Where(t => t.IsOverdue).ToList();
 
-            var orderedList = filtered
+            // ── Sort by due date (nulls last) ──────────────────────
+            var ordered = allTasks
                 .OrderBy(t => t.DueDate ?? DateTime.MaxValue)
                 .ToList();
 
-            var totalCount = orderedList.Count;
-            var paged = orderedList
+            var totalCount = ordered.Count;
+            var paged = ordered
                 .Skip((query.Page - 1) * query.PageSize)
                 .Take(query.PageSize)
                 .ToList();
