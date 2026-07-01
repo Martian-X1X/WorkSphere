@@ -55,4 +55,22 @@ public interface ITaskService
     /// Owner/Admin only.
     /// </summary>
     Task<ApiResponse<object>> DeleteTaskAsync(Guid taskId);
+
+    /// <summary>Get primary assignee + all collaborators for a task.</summary>
+    Task<ApiResponse<TaskAssigneeListDto>> GetTaskAssigneesAsync(Guid taskId);
+
+    /// <summary>Add a collaborator to a task. Owner/Admin only.</summary>
+    Task<ApiResponse<TaskAssigneeListDto>> AddAssigneeAsync(
+        Guid taskId, AddAssigneeDto dto);
+
+    /// <summary>Remove a collaborator from a task. Owner/Admin only.</summary>
+    Task<ApiResponse<TaskAssigneeListDto>> RemoveAssigneeAsync(
+        Guid taskId, Guid userId);
+
+    /// <summary>
+    /// Get all tasks assigned to the current user (primary OR collaborator)
+    /// across every project in their organization.
+    /// </summary>
+    Task<ApiResponse<PagedResult<MyTaskDto>>> GetMyTasksAsync(
+        MyTasksQueryDto query);
 }

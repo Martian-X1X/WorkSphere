@@ -572,6 +572,275 @@ public class TaskService : ITaskService
     }
 
     // ════════════════════════════════════════════════════════════
+    // GET TASK ASSIGNEES (primary + collaborators)
+    // ════════════════════════════════════════════════════════════
+    public async Task<ApiResponse<TaskAssigneeListDto>> GetTaskAssigneesAsync(
+        Guid taskId)
+    {
+        try
+        {
+            var task = await _context.Tasks
+                .Include(t => t.AssignedTo)
+                .Include(t => t.TaskAssignees)
+                    .ThenInclude(ta => ta.User)
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+
+            if (task == null)
+                return ApiResponse<TaskAssigneeListDto>.Fail("Task not found.");
+
+            var guard = _orgScopeGuard.Check(task.OrganizationId);
+            if (!guard.Allowed)
+                return ApiResponse<TaskAssigneeListDto>.Fail(guard.Reason!);
+
+            var result = new TaskAssigneeListDto
+            {
+                TaskId = task.Id,
+                TaskTitle = task.Title,
+                PrimaryAssignee = task.AssignedTo != null
+                    ? new PrimaryAssigneeDto
+                    {
+                        UserId = task.AssignedTo.Id,
+                        FullName = task.AssignedTo.FullName,
+                        Email = task.AssignedTo.Email
+                    }
+                    : null,
+                Collaborators = task.TaskAssignees.Select(ta => new TaskAssigneeDto
+                {
+                    UserId = ta.UserId,
+                    FullName = ta.User.FullName,
+                    Email = ta.User.Email,
+                    AssignedAt = ta.AssignedAt
+                }).ToList()
+            };
+
+            return ApiResponse<TaskAssigneeListDto>.Ok(result,
+                "Assignees retrieved successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting assignees for task {TaskId}", taskId);
+            return ApiResponse<TaskAssigneeListDto>.Fail(
+                "An unexpected error occurred.");
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // ADD ASSIGNEE (collaborator)
+    // ════════════════════════════════════════════════════════════
+    public async Task<ApiResponse<TaskAssigneeListDto>> AddAssigneeAsync(
+        Guid taskId, AddAssigneeDto dto)
+    {
+        try
+        {
+            var task = await _context.Tasks
+                .Include(t => t.AssignedTo)
+                .Include(t => t.TaskAssignees).ThenInclude(ta => ta.User)
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+
+            if (task == null)
+                return ApiResponse<TaskAssigneeListDto>.Fail("Task not found.");
+
+            var guard = _orgScopeGuard.Check(task.OrganizationId);
+            if (!guard.Allowed)
+                return ApiResponse<TaskAssigneeListDto>.Fail(guard.Reason!);
+
+            // ── Validate user exists + active + in same org ────────
+            var userExists = await _context.Users.AnyAsync(u =>
+                u.Id == dto.UserId &&
+                u.OrganizationId == _currentUser.OrganizationId &&
+                u.IsActive);
+
+            if (!userExists)
+                return ApiResponse<TaskAssigneeListDto>.Fail(
+                    "User must be an active member of your organization.");
+
+            // ── Cannot add as collaborator if already primary assignee ─
+            if (task.AssignedToUserId == dto.UserId)
+                return ApiResponse<TaskAssigneeListDto>.Fail(
+                    "This user is already the primary assignee.");
+
+            // ── Cannot add the same collaborator twice ──────────────
+            var alreadyAssigned = task.TaskAssignees
+                .Any(ta => ta.UserId == dto.UserId);
+
+            if (alreadyAssigned)
+                return ApiResponse<TaskAssigneeListDto>.Fail(
+                    "This user is already a collaborator on this task.");
+
+            var assignee = new TaskAssignee
+            {
+                TaskId = taskId,
+                UserId = dto.UserId,
+                AssignedByUserId = _currentUser.UserId,
+                AssignedAt = DateTime.UtcNow
+            };
+
+            _context.TaskAssignees.Add(assignee);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Collaborator {NewUserId} added to task {TaskId} by {UserId}",
+                dto.UserId, taskId, _currentUser.UserId);
+
+            // Reload to get updated list
+            return await GetTaskAssigneesAsync(taskId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error adding assignee to task {TaskId}", taskId);
+            return ApiResponse<TaskAssigneeListDto>.Fail(
+                "An unexpected error occurred.");
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // REMOVE ASSIGNEE (collaborator)
+    // ════════════════════════════════════════════════════════════
+    public async Task<ApiResponse<TaskAssigneeListDto>> RemoveAssigneeAsync(
+        Guid taskId, Guid userId)
+    {
+        try
+        {
+            var task = await _context.Tasks
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+
+            if (task == null)
+                return ApiResponse<TaskAssigneeListDto>.Fail("Task not found.");
+
+            var guard = _orgScopeGuard.Check(task.OrganizationId);
+            if (!guard.Allowed)
+                return ApiResponse<TaskAssigneeListDto>.Fail(guard.Reason!);
+
+            var assignee = await _context.TaskAssignees
+                .FirstOrDefaultAsync(ta =>
+                    ta.TaskId == taskId && ta.UserId == userId);
+
+            if (assignee == null)
+                return ApiResponse<TaskAssigneeListDto>.Fail(
+                    "This user is not a collaborator on this task.");
+
+            _context.TaskAssignees.Remove(assignee);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Collaborator {RemovedUserId} removed from task {TaskId} by {UserId}",
+                userId, taskId, _currentUser.UserId);
+
+            return await GetTaskAssigneesAsync(taskId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error removing assignee from task {TaskId}", taskId);
+            return ApiResponse<TaskAssigneeListDto>.Fail(
+                "An unexpected error occurred.");
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // GET MY TASKS (across all projects)
+    // ════════════════════════════════════════════════════════════
+    public async Task<ApiResponse<PagedResult<MyTaskDto>>> GetMyTasksAsync(
+        MyTasksQueryDto query)
+    {
+        try
+        {
+            query.Page = Math.Max(1, query.Page);
+            query.PageSize = Math.Clamp(query.PageSize, 1, 100);
+
+            var userId = _currentUser.UserId;
+            var now = DateTime.UtcNow;
+
+            // ── Tasks where I'm the PRIMARY assignee ────────────────
+            var primaryTasksQuery = _context.Tasks
+                .Include(t => t.Project)
+                .Where(t =>
+                    t.OrganizationId == _currentUser.OrganizationId &&
+                    t.AssignedToUserId == userId)
+                .Select(t => new MyTaskDto
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    Status = t.Status,
+                    Priority = t.Priority,
+                    DueDate = t.DueDate,
+                    IsOverdue = t.DueDate.HasValue &&
+                                t.DueDate.Value < now &&
+                                t.Status != WorkTaskStatus.Done &&
+                                t.Status != WorkTaskStatus.Cancelled,
+                    AssignmentType = "Primary",
+                    ProjectId = t.ProjectId,
+                    ProjectName = t.Project.Name
+                });
+
+            // ── Tasks where I'm a COLLABORATOR ───────────────────────
+            var collaboratorTasksQuery = _context.TaskAssignees
+                .Where(ta => ta.UserId == userId)
+                .Select(ta => ta.Task)
+                .Include(t => t.Project)
+                .Where(t => t.OrganizationId == _currentUser.OrganizationId)
+                .Select(t => new MyTaskDto
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    Status = t.Status,
+                    Priority = t.Priority,
+                    DueDate = t.DueDate,
+                    IsOverdue = t.DueDate.HasValue &&
+                                t.DueDate.Value < now &&
+                                t.Status != WorkTaskStatus.Done &&
+                                t.Status != WorkTaskStatus.Cancelled,
+                    AssignmentType = "Collaborator",
+                    ProjectId = t.ProjectId,
+                    ProjectName = t.Project.Name
+                });
+
+            // ── Combine both, de-duplicate (in case both apply) ─────
+            var allTasks = await primaryTasksQuery
+                .Union(collaboratorTasksQuery)
+                .ToListAsync();
+
+            var filtered = allTasks.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(query.Status))
+                filtered = filtered.Where(t => t.Status == query.Status);
+
+            if (!string.IsNullOrWhiteSpace(query.Priority))
+                filtered = filtered.Where(t => t.Priority == query.Priority);
+
+            if (query.Overdue == true)
+                filtered = filtered.Where(t => t.IsOverdue);
+
+            var orderedList = filtered
+                .OrderBy(t => t.DueDate ?? DateTime.MaxValue)
+                .ToList();
+
+            var totalCount = orderedList.Count;
+            var paged = orderedList
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToList();
+
+            var result = new PagedResult<MyTaskDto>
+            {
+                Items = paged,
+                TotalCount = totalCount,
+                Page = query.Page,
+                PageSize = query.PageSize
+            };
+
+            return ApiResponse<PagedResult<MyTaskDto>>.Ok(result,
+                $"{totalCount} task(s) assigned to you.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting my tasks for user {UserId}",
+                _currentUser.UserId);
+            return ApiResponse<PagedResult<MyTaskDto>>.Fail(
+                "An unexpected error occurred.");
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
     // PRIVATE MAPPER
     // ════════════════════════════════════════════════════════════
     private static TaskDto MapToDto(WorkTask task) => new()

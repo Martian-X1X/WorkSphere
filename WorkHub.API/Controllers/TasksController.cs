@@ -215,4 +215,98 @@ public class TasksController : ControllerBase
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Get primary assignee + all collaborators for a task.
+    /// </summary>
+    [HttpGet("api/tasks/{taskId:guid}/assignees")]
+    [Authorize(Policy = PolicyNames.CanViewTasks)]
+    [ProducesResponseType(typeof(ApiResponse<TaskAssigneeListDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<TaskAssigneeListDto>), 404)]
+    [ProducesResponseType(401), ProducesResponseType(403)]
+    public async Task<IActionResult> GetTaskAssignees(Guid taskId)
+    {
+        var result = await _taskService.GetTaskAssigneesAsync(taskId);
+
+        if (!result.Success)
+        {
+            if (result.Message.Contains("not found"))
+                return NotFound(result);
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Add a collaborator to a task. Owner and Admin only.
+    /// </summary>
+    [HttpPost("api/tasks/{taskId:guid}/assignees")]
+    [Authorize(Policy = PolicyNames.CanAssignTasks)]
+    [ProducesResponseType(typeof(ApiResponse<TaskAssigneeListDto>), 201)]
+    [ProducesResponseType(typeof(ApiResponse<TaskAssigneeListDto>), 400)]
+    [ProducesResponseType(typeof(ApiResponse<TaskAssigneeListDto>), 404)]
+    [ProducesResponseType(401), ProducesResponseType(403)]
+    public async Task<IActionResult> AddAssignee(
+        Guid taskId,
+        [FromBody] AddAssigneeDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+            return BadRequest(ApiResponse<TaskAssigneeListDto>.Fail(errors));
+        }
+
+        var result = await _taskService.AddAssigneeAsync(taskId, dto);
+
+        if (!result.Success)
+        {
+            if (result.Message.Contains("not found"))
+                return NotFound(result);
+            return BadRequest(result);
+        }
+
+        return StatusCode(201, result);
+    }
+
+    /// <summary>
+    /// Remove a collaborator from a task. Owner and Admin only.
+    /// </summary>
+    [HttpDelete("api/tasks/{taskId:guid}/assignees/{userId:guid}")]
+    [Authorize(Policy = PolicyNames.CanAssignTasks)]
+    [ProducesResponseType(typeof(ApiResponse<TaskAssigneeListDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<TaskAssigneeListDto>), 400)]
+    [ProducesResponseType(typeof(ApiResponse<TaskAssigneeListDto>), 404)]
+    [ProducesResponseType(401), ProducesResponseType(403)]
+    public async Task<IActionResult> RemoveAssignee(Guid taskId, Guid userId)
+    {
+        var result = await _taskService.RemoveAssigneeAsync(taskId, userId);
+
+        if (!result.Success)
+        {
+            if (result.Message.Contains("not found") ||
+                result.Message.Contains("not a collaborator"))
+                return NotFound(result);
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get all tasks assigned to the current user — primary or collaborator —
+    /// across every project in their organization.
+    /// </summary>
+    [HttpGet("api/users/me/tasks")]
+    [Authorize(Policy = PolicyNames.CanViewTasks)]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<MyTaskDto>>), 200)]
+    [ProducesResponseType(401), ProducesResponseType(403)]
+    public async Task<IActionResult> GetMyTasks([FromQuery] MyTasksQueryDto query)
+    {
+        var result = await _taskService.GetMyTasksAsync(query);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
 }
