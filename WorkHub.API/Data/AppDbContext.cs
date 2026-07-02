@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
       public DbSet<Project> Projects { get; set; }
       public DbSet<WorkTask> Tasks { get; set; }
       public DbSet<TaskAssignee> TaskAssignees { get; set; }
+      public DbSet<Comment> Comments { get; set; }
 
       // ✅ Auto-update timestamps + handle soft delete
       public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -56,10 +57,10 @@ public class AppDbContext : DbContext
             modelBuilder.Entity<Organization>().HasQueryFilter(o => !o.IsDeleted);
             modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
             modelBuilder.Entity<OrganizationInvite>().HasQueryFilter(i => !i.IsDeleted);
-            modelBuilder.Entity<Project>()
-                .HasQueryFilter(p => !p.IsDeleted);   // ← ADD
-            modelBuilder.Entity<WorkTask>()
-        .HasQueryFilter(t => !t.IsDeleted); // <-- ADD
+            modelBuilder.Entity<Project>().HasQueryFilter(p => !p.IsDeleted);
+            modelBuilder.Entity<WorkTask>().HasQueryFilter(t => !t.IsDeleted);
+            modelBuilder.Entity<Comment>().HasQueryFilter(c => !c.IsDeleted);
+
 
             // Organization configuration
             modelBuilder.Entity<Organization>(entity =>
@@ -228,5 +229,36 @@ public class AppDbContext : DbContext
                   entity.HasIndex(e => e.UserId);
                   entity.HasIndex(e => e.TaskId);
             });
+
+            // ── Comment ────────────────────────────────────────────────
+            modelBuilder.Entity<Comment>(entity =>
+            {
+                  entity.Property(e => e.Content)
+            .IsRequired().HasMaxLength(4000);
+
+                  // ── Indexes for fast lookups ───────────────────────────
+                  entity.HasIndex(e => e.TaskId);
+                  entity.HasIndex(e => e.CreatedByUserId);
+                  entity.HasIndex(e => new { e.TaskId, e.CreatedAt });
+
+                  // ── FK → WorkTask (cascade — delete task = delete comments)
+                  entity.HasOne(e => e.Task)
+            .WithMany()
+            .HasForeignKey(e => e.TaskId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+                  // ── FK → Organization ─────────────────────────────────
+                  entity.HasOne(e => e.Organization)
+            .WithMany()
+            .HasForeignKey(e => e.OrganizationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+                  // ── FK → User (creator — restrict) ────────────────────
+                  entity.HasOne(e => e.CreatedBy)
+            .WithMany()
+            .HasForeignKey(e => e.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+            });
+
       }
 }
