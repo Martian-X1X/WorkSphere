@@ -16,6 +16,7 @@ public class AppDbContext : DbContext
       public DbSet<WorkTask> Tasks { get; set; }
       public DbSet<TaskAssignee> TaskAssignees { get; set; }
       public DbSet<Comment> Comments { get; set; }
+      public DbSet<ActivityLog> ActivityLogs { get; set; }
 
       // ✅ Auto-update timestamps + handle soft delete
       public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -258,6 +259,39 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(e => e.CreatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ── ActivityLog ────────────────────────────────────────────────
+            modelBuilder.Entity<ActivityLog>(entity =>
+            {
+                  entity.HasKey(e => e.Id);
+
+                  entity.Property(e => e.Action)
+            .IsRequired().HasMaxLength(50);
+                  entity.Property(e => e.EntityType)
+            .IsRequired().HasMaxLength(50);
+                  entity.Property(e => e.UserName)
+            .IsRequired().HasMaxLength(200);
+
+                  // ── Indexes for fast querying ──────────────────────────
+                  // Most common query: get all activity for an org, newest first
+                  entity.HasIndex(e => new { e.OrganizationId, e.CreatedAt });
+
+                  // Get all activity for a specific project
+                  entity.HasIndex(e => new { e.ProjectId, e.CreatedAt });
+
+                  // Get all activity for a specific entity
+                  entity.HasIndex(e => new { e.EntityType, e.EntityId });
+
+                  // ── FK → Organization ─────────────────────────────────
+                  entity.HasOne(e => e.Organization)
+            .WithMany()
+            .HasForeignKey(e => e.OrganizationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+                  // Note: No FK to User — we store userName as a snapshot.
+                  // If user is deleted, activity logs remain intact.
+                  // This is the correct pattern for audit trails.
             });
 
       }

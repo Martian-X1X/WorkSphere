@@ -15,6 +15,7 @@ public class CommentService : ICommentService
     private readonly ICurrentUserService _currentUser;
     private readonly IPermissionService _permissionService;
     private readonly OrgScopeGuard _orgScopeGuard;
+    private readonly IActivityService _activityService;
     private readonly ILogger<CommentService> _logger;
 
     public CommentService(
@@ -22,12 +23,14 @@ public class CommentService : ICommentService
         ICurrentUserService currentUser,
         IPermissionService permissionService,
         OrgScopeGuard orgScopeGuard,
+        IActivityService activityService,
         ILogger<CommentService> logger)
     {
         _context = context;
         _currentUser = currentUser;
         _permissionService = permissionService;
         _orgScopeGuard = orgScopeGuard;
+        _activityService = activityService;
         _logger = logger;
     }
 
@@ -122,6 +125,19 @@ public class CommentService : ICommentService
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
 
+            // Get task title for the log
+            var taskTitle = await _context.Tasks
+                .Where(t => t.Id == taskId)
+                .Select(t => t.Title)
+                .FirstOrDefaultAsync();
+
+            await _activityService.LogAsync(
+                ActivityAction.CommentAdded,
+                ActivityEntityType.Comment,
+                comment.Id,
+                entityName: taskTitle,
+                projectId: taskId); // store taskId in ProjectId for easy task-level querying
+
             // ── Reload with navigation props ───────────────────
             var created = await _context.Comments
                 .Include(c => c.CreatedBy)
@@ -173,6 +189,18 @@ public class CommentService : ICommentService
             comment.EditedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+
+            var taskTitle = await _context.Tasks
+                .Where(t => t.Id == comment.TaskId)
+                .Select(t => t.Title)
+                .FirstOrDefaultAsync();
+
+            await _activityService.LogAsync(
+                ActivityAction.CommentEdited,
+                ActivityEntityType.Comment,
+                commentId,
+                entityName: taskTitle,
+                projectId: comment.TaskId);
 
             _logger.LogInformation(
                 "Comment {CommentId} edited by {UserId}",
@@ -228,9 +256,21 @@ public class CommentService : ICommentService
                         "You can only delete your own comments.");
             }
 
-            // ✅ Soft delete
+            var taskId = comment.TaskId;
+            var taskTitle = await _context.Tasks
+                .Where(t => t.Id == taskId)
+                .Select(t => t.Title)
+                .FirstOrDefaultAsync();
+
             _context.Comments.Remove(comment);
             await _context.SaveChangesAsync();
+
+            await _activityService.LogAsync(
+                ActivityAction.CommentDeleted,
+                ActivityEntityType.Comment,
+                commentId,
+                entityName: taskTitle,
+                projectId: taskId);
 
             _logger.LogInformation(
                 "Comment {CommentId} deleted by {UserId}",

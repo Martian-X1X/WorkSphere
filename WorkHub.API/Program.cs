@@ -252,6 +252,7 @@ builder.Services.AddScoped<IInviteService, InviteService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
 // ─── Seeder ───────────────────────────────────────────────────────
 builder.Services.AddScoped<DataSeeder>();
 

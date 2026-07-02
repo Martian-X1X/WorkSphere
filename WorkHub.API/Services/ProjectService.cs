@@ -16,18 +16,21 @@ public class ProjectService : IProjectService
     private readonly IPermissionService _permissionService;
     private readonly OrgScopeGuard _orgScopeGuard;
     private readonly ILogger<ProjectService> _logger;
+    private readonly IActivityService _activityService;
 
     public ProjectService(
         AppDbContext context,
         ICurrentUserService currentUser,
         IPermissionService permissionService,
         OrgScopeGuard orgScopeGuard,
+        IActivityService activityService,
         ILogger<ProjectService> logger)
     {
         _context = context;
         _currentUser = currentUser;
         _permissionService = permissionService;
         _orgScopeGuard = orgScopeGuard;
+        _activityService = activityService;
         _logger = logger;
     }
 
@@ -193,6 +196,12 @@ public class ProjectService : IProjectService
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
 
+            await _activityService.LogAsync(
+            ActivityAction.ProjectCreated,
+            ActivityEntityType.Project,
+            project.Id,
+            entityName: project.Name);
+
             // ── Reload with navigation props for response ──────
             var created = await _context.Projects
                 .Include(p => p.CreatedBy)
@@ -274,6 +283,12 @@ public class ProjectService : IProjectService
 
             await _context.SaveChangesAsync();
 
+            await _activityService.LogAsync(
+                ActivityAction.ProjectUpdated,
+                ActivityEntityType.Project,
+                project.Id,
+                entityName: project.Name);
+
             // Reload navigation props after save
             await _context.Entry(project)
                 .Reference(p => p.ProjectLead)
@@ -332,6 +347,13 @@ public class ProjectService : IProjectService
             project.Status = newStatus;
             await _context.SaveChangesAsync();
 
+            await _activityService.LogAsync(
+                ActivityAction.ProjectStatusChanged,
+                ActivityEntityType.Project,
+                project.Id,
+                entityName: project.Name,
+                metadata: new { from = oldStatus, to = newStatus });
+
             _logger.LogInformation(
                 "Project {ProjectId} status changed from {Old} to {New} by {UserId}",
                 projectId, oldStatus, newStatus, _currentUser.UserId);
@@ -378,6 +400,12 @@ public class ProjectService : IProjectService
 
             _context.Projects.Remove(project); // → intercepted → IsDeleted = true
             await _context.SaveChangesAsync();
+
+            await _activityService.LogAsync(
+                ActivityAction.ProjectDeleted,
+                ActivityEntityType.Project,
+                projectId,
+                entityName: project.Name);
 
             _logger.LogInformation(
                 "Project {ProjectId} deleted by {UserId} — {TaskCount} tasks also deleted",

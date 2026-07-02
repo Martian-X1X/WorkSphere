@@ -15,6 +15,7 @@ public class TaskService : ITaskService
     private readonly ICurrentUserService _currentUser;
     private readonly IPermissionService _permissionService;
     private readonly OrgScopeGuard _orgScopeGuard;
+    private readonly IActivityService _activityService;
     private readonly ILogger<TaskService> _logger;
 
     public TaskService(
@@ -22,12 +23,14 @@ public class TaskService : ITaskService
         ICurrentUserService currentUser,
         IPermissionService permissionService,
         OrgScopeGuard orgScopeGuard,
+        IActivityService activityService,
         ILogger<TaskService> logger)
     {
         _context = context;
         _currentUser = currentUser;
         _permissionService = permissionService;
         _orgScopeGuard = orgScopeGuard;
+        _activityService = activityService;
         _logger = logger;
     }
 
@@ -253,6 +256,13 @@ public class TaskService : ITaskService
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
 
+            await _activityService.LogAsync(
+                ActivityAction.TaskCreated,
+                ActivityEntityType.Task,
+                task.Id,
+                entityName: task.Title,
+                projectId: projectId);
+
             // ── Reload with navigation props ───────────────────
             var created = await _context.Tasks
                 .Include(t => t.CreatedBy)
@@ -366,6 +376,13 @@ public class TaskService : ITaskService
 
             await _context.SaveChangesAsync();
 
+            await _activityService.LogAsync(
+                ActivityAction.TaskUpdated,
+                ActivityEntityType.Task,
+                taskId,
+                entityName: task.Title,
+                projectId: task.ProjectId);
+
             // Reload assignee nav prop
             if (task.AssignedToUserId.HasValue)
                 await _context.Entry(task)
@@ -449,6 +466,14 @@ public class TaskService : ITaskService
 
             await _context.SaveChangesAsync();
 
+            await _activityService.LogAsync(
+                ActivityAction.TaskStatusChanged,
+                ActivityEntityType.Task,
+                taskId,
+                entityName: task.Title,
+                projectId: task.ProjectId,
+                metadata: new { from = oldStatus, to = dto.Status });
+
             _logger.LogInformation(
                 "Task {TaskId} status changed {Old} → {New} by {UserId}",
                 taskId, oldStatus, dto.Status, _currentUser.UserId);
@@ -505,6 +530,20 @@ public class TaskService : ITaskService
             task.AssignedToUserId = dto.UserId;
             await _context.SaveChangesAsync();
 
+            var action = dto.UserId.HasValue
+                ? ActivityAction.TaskAssigned
+                : ActivityAction.TaskUnassigned;
+
+            await _activityService.LogAsync(
+                action,
+                ActivityEntityType.Task,
+                taskId,
+                entityName: task.Title,
+                projectId: task.ProjectId,
+                metadata: dto.UserId.HasValue
+                    ? new { assignedTo = task.AssignedTo?.FullName }
+                    : null);
+
             if (task.AssignedToUserId.HasValue)
                 await _context.Entry(task)
                     .Reference(t => t.AssignedTo).LoadAsync();
@@ -553,6 +592,13 @@ public class TaskService : ITaskService
 
             _context.Tasks.Remove(task);
             await _context.SaveChangesAsync();
+
+            await _activityService.LogAsync(
+                ActivityAction.TaskDeleted,
+                ActivityEntityType.Task,
+                taskId,
+                entityName: task.Title,
+                projectId: task.ProjectId);
 
             _logger.LogInformation(
                 "Task {TaskId} deleted by {UserId} — {SubCount} subtasks also removed",
@@ -678,6 +724,17 @@ public class TaskService : ITaskService
             _context.TaskAssignees.Add(assignee);
             await _context.SaveChangesAsync();
 
+            // Get the user's name for the log
+            var addedUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == dto.UserId);
+
+            await _activityService.LogAsync(
+                ActivityAction.CollaboratorAdded,
+                ActivityEntityType.Task,
+                taskId,
+                entityName: addedUser?.FullName,
+                projectId: task.ProjectId);
+
             _logger.LogInformation(
                 "Collaborator {NewUserId} added to task {TaskId} by {UserId}",
                 dto.UserId, taskId, _currentUser.UserId);
@@ -719,8 +776,19 @@ public class TaskService : ITaskService
                 return ApiResponse<TaskAssigneeListDto>.Fail(
                     "This user is not a collaborator on this task.");
 
-            _context.TaskAssignees.Remove(assignee);
-            await _context.SaveChangesAsync();
+            // Get user name before removing
+                var removedUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                _context.TaskAssignees.Remove(assignee);
+                await _context.SaveChangesAsync();
+
+                await _activityService.LogAsync(
+                    ActivityAction.CollaboratorRemoved,
+                    ActivityEntityType.Task,
+                    taskId,
+                    entityName: removedUser?.FullName,
+                    projectId: task.ProjectId);
 
             _logger.LogInformation(
                 "Collaborator {RemovedUserId} removed from task {TaskId} by {UserId}",
