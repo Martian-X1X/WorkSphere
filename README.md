@@ -3131,8 +3131,8 @@ Done → InProgress (reopen)
 | Phase | Days     | Milestone                                              | Status       |
 |-------|----------|--------------------------------------------------------|--------------|
 | 1     | 1 – 17   | Backend foundation: auth, JWT, roles, multi-tenancy    | ✅ Complete  |
-| 2     | 18 – 30  | Project & task API: CRUD, filtering, pagination, logs  | 🟡 In Progress|
-| 3     | 31 – 50  | React frontend: dashboard, kanban, drag & drop         | 🔲 Upcoming  |
+| 2     | 18 – 30  | Project & task API: CRUD, filtering, pagination, logs  | ✅ Complete  |
+| 3     | 31 – 50  | React frontend: dashboard, kanban, drag & drop         | 🟡 InProgress|
 | 4     | 51 – 65  | Fullstack: notifications, invites, search, permissions | 🔲 Upcoming  |
 | 5     | 66 – 80  | Real-time: SignalR chat, presence, file uploads        | 🔲 Upcoming  |
 | 6     | 81 – 90  | DevOps: Docker, CI/CD, cloud deployment                | 🔲 Upcoming  |
