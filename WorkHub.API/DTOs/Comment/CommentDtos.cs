@@ -26,18 +26,11 @@ public class CommentDto
 // ── Create request ─────────────────────────────────────────────────
 public class CreateCommentDto
 {
-    [Required(ErrorMessage = "Comment content is required")]
-    [MaxLength(4000, ErrorMessage = "Comment cannot exceed 4000 characters")]
-    [MinLength(1, ErrorMessage = "Comment cannot be empty")]
     public string Content { get; set; } = string.Empty;
 }
 
-// ── Update (edit) request ──────────────────────────────────────────
 public class UpdateCommentDto
 {
-    [Required(ErrorMessage = "Comment content is required")]
-    [MaxLength(4000, ErrorMessage = "Comment cannot exceed 4000 characters")]
-    [MinLength(1, ErrorMessage = "Comment cannot be empty")]
     public string Content { get; set; } = string.Empty;
 }
 

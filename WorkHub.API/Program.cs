@@ -10,6 +10,9 @@ using WorkHub.API.Middleware;
 using WorkHub.API.Services;
 using WorkHub.API.Settings;
 using WorkHub.API.Data.Seeding;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using WorkHub.API.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,8 +20,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
     {
+        // ✅ We suppress the default ASP.NET validation response
+        // and use our own ApiResponse<T> format via the pipeline
         options.SuppressModelStateInvalidFilter = true;
     });
+
+// ── FluentValidation ──────────────────────────────────────────
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+
+// Register all validators from the Validators assembly
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 
 builder.Services.AddEndpointsApiExplorer();
 

@@ -162,12 +162,6 @@ public class ProjectService : IProjectService
     {
         try
         {
-            // ── Validate date logic ────────────────────────────
-            if (dto.StartDate.HasValue && dto.DueDate.HasValue &&
-                dto.DueDate < dto.StartDate)
-                return ApiResponse<ProjectDto>.Fail(
-                    "Due date cannot be before start date.");
-
             // ── Validate project lead is in same org ───────────
             if (dto.ProjectLeadUserId.HasValue)
             {
@@ -254,12 +248,6 @@ public class ProjectService : IProjectService
                 project.CreatedByUserId);
             if (!ownerGuard.Allowed)
                 return ApiResponse<ProjectDto>.Fail(ownerGuard.Reason!);
-
-            // ── Validate dates ─────────────────────────────────
-            if (dto.StartDate.HasValue && dto.DueDate.HasValue &&
-                dto.DueDate < dto.StartDate)
-                return ApiResponse<ProjectDto>.Fail(
-                    "Due date cannot be before start date.");
 
             // ── Validate project lead ──────────────────────────
             if (dto.ProjectLeadUserId.HasValue)

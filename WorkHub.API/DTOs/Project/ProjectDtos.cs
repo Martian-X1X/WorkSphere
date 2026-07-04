@@ -41,41 +41,26 @@ public class TaskSummaryDto
 // ── Create request ─────────────────────────────────────────────────
 public class CreateProjectDto
 {
-    [Required(ErrorMessage = "Project name is required")]
-    [MaxLength(200, ErrorMessage = "Name cannot exceed 200 characters")]
     public string Name { get; set; } = string.Empty;
-
-    [MaxLength(2000, ErrorMessage = "Description cannot exceed 2000 characters")]
     public string? Description { get; set; }
-
     public Guid? ProjectLeadUserId { get; set; }
-
     public DateTime? StartDate { get; set; }
-
     public DateTime? DueDate { get; set; }
 }
 
 // ── Update request ─────────────────────────────────────────────────
 public class UpdateProjectDto
 {
-    [Required(ErrorMessage = "Project name is required")]
-    [MaxLength(200, ErrorMessage = "Name cannot exceed 200 characters")]
     public string Name { get; set; } = string.Empty;
-
-    [MaxLength(2000, ErrorMessage = "Description cannot exceed 2000 characters")]
     public string? Description { get; set; }
-
     public Guid? ProjectLeadUserId { get; set; }
-
     public DateTime? StartDate { get; set; }
-
     public DateTime? DueDate { get; set; }
 }
 
 // ── Status change request ──────────────────────────────────────────
 public class ChangeProjectStatusDto
 {
-    [Required(ErrorMessage = "Status is required")]
     public string Status { get; set; } = string.Empty;
 }
 

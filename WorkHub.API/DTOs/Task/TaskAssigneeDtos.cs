@@ -5,7 +5,6 @@ namespace WorkHub.API.DTOs.Task;
 // ── Add assignee request ───────────────────────────────────────────
 public class AddAssigneeDto
 {
-    [Required(ErrorMessage = "User ID is required")]
     public Guid UserId { get; set; }
 }
 

@@ -61,57 +61,35 @@ public class TaskAssigneeDto
 // ── Create task request ────────────────────────────────────────────
 public class CreateTaskDto
 {
-    [Required(ErrorMessage = "Task title is required")]
-    [MaxLength(500, ErrorMessage = "Title cannot exceed 500 characters")]
     public string Title { get; set; } = string.Empty;
-
-    [MaxLength(4000, ErrorMessage = "Description cannot exceed 4000 characters")]
     public string? Description { get; set; }
-
     public string Priority { get; set; } = "Medium";
-
     public DateTime? StartDate { get; set; }
     public DateTime? DueDate { get; set; }
-
     public int? EstimatedMinutes { get; set; }
-
     public Guid? AssignedToUserId { get; set; }
-
     public Guid? ParentTaskId { get; set; }
-
     public int OrderIndex { get; set; } = 0;
 }
 
 // ── Update task request ────────────────────────────────────────────
 public class UpdateTaskDto
 {
-    [Required(ErrorMessage = "Task title is required")]
-    [MaxLength(500, ErrorMessage = "Title cannot exceed 500 characters")]
     public string Title { get; set; } = string.Empty;
-
-    [MaxLength(4000, ErrorMessage = "Description cannot exceed 4000 characters")]
     public string? Description { get; set; }
-
     public string Priority { get; set; } = "Medium";
-
     public DateTime? StartDate { get; set; }
     public DateTime? DueDate { get; set; }
-
     public int? EstimatedMinutes { get; set; }
     public int? ActualMinutes { get; set; }
-
     public Guid? AssignedToUserId { get; set; }
-
     public int OrderIndex { get; set; } = 0;
 }
 
 // ── Status change request ──────────────────────────────────────────
 public class ChangeTaskStatusDto
 {
-    [Required(ErrorMessage = "Status is required")]
     public string Status { get; set; } = string.Empty;
-
-    // Optional — actual minutes when marking Done
     public int? ActualMinutes { get; set; }
 }
 

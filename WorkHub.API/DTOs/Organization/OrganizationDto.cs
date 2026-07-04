@@ -20,15 +20,8 @@ public class OrganizationDto
 /// <summary>Update organization details — Owner only</summary>
 public class UpdateOrganizationDto
 {
-    [Required(ErrorMessage = "Organization name is required")]
-    [MaxLength(100, ErrorMessage = "Name cannot exceed 100 characters")]
     public string Name { get; set; } = string.Empty;
-
-    [MaxLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
     public string? Description { get; set; }
-
-    [MaxLength(255, ErrorMessage = "Logo URL cannot exceed 255 characters")]
-    [Url(ErrorMessage = "Logo URL must be a valid URL")]
     public string? LogoUrl { get; set; }
 }
 
@@ -63,6 +56,5 @@ public class PagedResult<T>
 /// <summary>Change a member's role — Owner only</summary>
 public class ChangeMemberRoleDto
 {
-    [Required(ErrorMessage = "Role is required")]
     public string Role { get; set; } = string.Empty;
 }

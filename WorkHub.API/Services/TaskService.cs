@@ -188,12 +188,6 @@ public class TaskService : ITaskService
     {
         try
         {
-            // ── Validate priority ──────────────────────────────
-            if (!WorkTaskPriority.IsValid(dto.Priority))
-                return ApiResponse<TaskDto>.Fail(
-                    $"Invalid priority '{dto.Priority}'. " +
-                    $"Valid: {string.Join(", ", WorkTaskPriority.All)}");
-
             // ── Verify project exists + in current org ─────────
             var project = await _context.Projects
                 .FirstOrDefaultAsync(p => p.Id == projectId);
@@ -204,12 +198,6 @@ public class TaskService : ITaskService
             var projectGuard = _orgScopeGuard.Check(project.OrganizationId);
             if (!projectGuard.Allowed)
                 return ApiResponse<TaskDto>.Fail(projectGuard.Reason!);
-
-            // ── Validate date logic ────────────────────────────
-            if (dto.StartDate.HasValue && dto.DueDate.HasValue &&
-                dto.DueDate < dto.StartDate)
-                return ApiResponse<TaskDto>.Fail(
-                    "Due date cannot be before start date.");
 
             // ── Validate assignee is in same org ───────────────
             if (dto.AssignedToUserId.HasValue)
@@ -335,12 +323,6 @@ public class TaskService : ITaskService
                     return ApiResponse<TaskDto>.Fail(
                         "You can only update tasks assigned to you.");
             }
-
-            // ── Validate dates ─────────────────────────────────
-            if (dto.StartDate.HasValue && dto.DueDate.HasValue &&
-                dto.DueDate < dto.StartDate)
-                return ApiResponse<TaskDto>.Fail(
-                    "Due date cannot be before start date.");
 
             // ── Validate assignee ──────────────────────────────
             if (dto.AssignedToUserId.HasValue)
