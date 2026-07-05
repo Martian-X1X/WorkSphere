@@ -1,48 +1,36 @@
 using System.Diagnostics;
+using Serilog.Context;
 
 namespace WorkHub.API.Middleware;
 
+/// <summary>
+/// Adds a correlation ID to every request for distributed tracing.
+/// Serilog handles the actual request logging via UseSerilogRequestLogging().
+/// </summary>
 public class RequestLoggingMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<RequestLoggingMiddleware> _logger;
 
-    public RequestLoggingMiddleware(
-        RequestDelegate next,
-        ILogger<RequestLoggingMiddleware> logger)
+    public RequestLoggingMiddleware(RequestDelegate next)
     {
         _next = next;
-        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var stopwatch = Stopwatch.StartNew();
-        var requestId = Guid.NewGuid().ToString()[..8]; // Short ID for log correlation
+        // ✅ Generate or read correlation ID from request header
+        var correlationId = context.Request.Headers["X-Correlation-ID"]
+            .FirstOrDefault() ?? Guid.NewGuid().ToString()[..8];
 
-        _logger.LogInformation(
-            "[{RequestId}] → {Method} {Path}",
-            requestId,
-            context.Request.Method,
-            context.Request.Path);
+        context.Response.Headers["X-Correlation-ID"] = correlationId;
 
-        await _next(context);
-
-        stopwatch.Stop();
-
-        var level = context.Response.StatusCode >= 500
-            ? LogLevel.Error
-            : context.Response.StatusCode >= 400
-                ? LogLevel.Warning
-                : LogLevel.Information;
-
-        _logger.Log(level,
-            "[{RequestId}] ← {StatusCode} {Method} {Path} ({ElapsedMs}ms)",
-            requestId,
-            context.Response.StatusCode,
-            context.Request.Method,
-            context.Request.Path,
-            stopwatch.ElapsedMilliseconds);
+        // ✅ Push correlation ID into Serilog's log context
+        // All log entries within this request will include CorrelationId
+        using (LogContext.PushProperty("CorrelationId", correlationId))
+        using (LogContext.PushProperty("RequestId", correlationId))
+        {
+            await _next(context);
+        }
     }
 }
 

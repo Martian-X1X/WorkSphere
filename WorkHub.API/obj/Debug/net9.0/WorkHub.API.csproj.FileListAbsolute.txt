@@ -27,9 +27,7 @@ C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsof
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Relational.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.Caching.Abstractions.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.Caching.Memory.dll
-C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.Configuration.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.Configuration.Abstractions.dll
-C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.Configuration.Binder.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsoft.Extensions.DependencyModel.dll
@@ -71,11 +69,7 @@ C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\System.C
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\System.Composition.Hosting.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\System.Composition.Runtime.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\System.Composition.TypedParts.dll
-C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\System.Diagnostics.DiagnosticSource.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
-C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\System.IO.Pipelines.dll
-C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\System.Text.Encodings.Web.dll
-C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\System.Text.Json.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.resources.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.resources.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.resources.dll
@@ -141,8 +135,6 @@ C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\ru\Micro
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
-C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
-C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\runtimes\win\lib\net9.0\System.Text.Encodings.Web.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\WorkHub.API.csproj.AssemblyReference.cache
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\rpswa.dswa.cache.json
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\WorkHub.API.GeneratedMSBuildEditorConfig.editorconfig
@@ -334,3 +326,6 @@ C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\refin
 C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\WorkHub.API.pdb
 C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\WorkHub.API.genruntimeconfig.cache
 C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\ref\WorkHub.API.dll
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Serilog.Enrichers.Environment.dll
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Serilog.Enrichers.Process.dll
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Serilog.Enrichers.Thread.dll

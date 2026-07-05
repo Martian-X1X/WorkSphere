@@ -457,7 +457,7 @@ public class TaskService : ITaskService
                 metadata: new { from = oldStatus, to = dto.Status });
 
             _logger.LogInformation(
-                "Task {TaskId} status changed {Old} → {New} by {UserId}",
+                "Task {TaskId} status {OldStatus} → {NewStatus} by {UserId}",
                 taskId, oldStatus, dto.Status, _currentUser.UserId);
 
             return ApiResponse<TaskDto>.Ok(
@@ -759,18 +759,18 @@ public class TaskService : ITaskService
                     "This user is not a collaborator on this task.");
 
             // Get user name before removing
-                var removedUser = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Id == userId);
+            var removedUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == userId);
 
-                _context.TaskAssignees.Remove(assignee);
-                await _context.SaveChangesAsync();
+            _context.TaskAssignees.Remove(assignee);
+            await _context.SaveChangesAsync();
 
-                await _activityService.LogAsync(
-                    ActivityAction.CollaboratorRemoved,
-                    ActivityEntityType.Task,
-                    taskId,
-                    entityName: removedUser?.FullName,
-                    projectId: task.ProjectId);
+            await _activityService.LogAsync(
+                ActivityAction.CollaboratorRemoved,
+                ActivityEntityType.Task,
+                taskId,
+                entityName: removedUser?.FullName,
+                projectId: task.ProjectId);
 
             _logger.LogInformation(
                 "Collaborator {RemovedUserId} removed from task {TaskId} by {UserId}",

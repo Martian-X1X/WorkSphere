@@ -343,7 +343,7 @@ public class ProjectService : IProjectService
                 metadata: new { from = oldStatus, to = newStatus });
 
             _logger.LogInformation(
-                "Project {ProjectId} status changed from {Old} to {New} by {UserId}",
+                "Project {ProjectId} status changed {OldStatus} → {NewStatus} by {UserId}",
                 projectId, oldStatus, newStatus, _currentUser.UserId);
 
             return ApiResponse<ProjectDto>.Ok(
@@ -396,7 +396,7 @@ public class ProjectService : IProjectService
                 entityName: project.Name);
 
             _logger.LogInformation(
-                "Project {ProjectId} deleted by {UserId} — {TaskCount} tasks also deleted",
+                "Project {ProjectId} deleted by {UserId} — {TaskCount} tasks removed",
                 projectId, _currentUser.UserId, taskCount);
 
             return ApiResponse<object>.Ok(null!,
