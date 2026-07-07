@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Serilog;
-using WorkHub.API.DTOs.Common;
+using WorkHub.Application.DTOs.Common;
 
 namespace WorkHub.API.Middleware;
 

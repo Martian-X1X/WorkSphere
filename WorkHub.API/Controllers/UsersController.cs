@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkHub.API.Authorization;
-using WorkHub.API.DTOs.Common;
-using WorkHub.API.Interfaces;
+using WorkHub.Application.Authorization;
+using WorkHub.Application.DTOs.Common;
+using WorkHub.Application.Interfaces;
 
 namespace WorkHub.API.Controllers;
 

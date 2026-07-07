@@ -34,4 +34,9 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WorkHub.Application\WorkHub.Application.csproj" />
+    <ProjectReference Include="..\WorkHub.Infrastructure\WorkHub.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

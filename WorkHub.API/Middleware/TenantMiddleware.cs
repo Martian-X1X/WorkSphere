@@ -1,6 +1,6 @@
 using System.Text.Json;
-using WorkHub.API.DTOs.Common;
-using WorkHub.API.Interfaces;
+using WorkHub.Application.DTOs.Common;
+using WorkHub.Application.Interfaces;
 
 namespace WorkHub.API.Middleware;
 

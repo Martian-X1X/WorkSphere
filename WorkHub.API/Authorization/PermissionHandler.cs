@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
-using WorkHub.API.Interfaces;
+using WorkHub.Application.Authorization;
+using WorkHub.Application.Interfaces;
 
 namespace WorkHub.API.Authorization;
 

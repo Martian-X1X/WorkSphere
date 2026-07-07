@@ -329,3 +329,9 @@ C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.API\obj\Debug\net9.0\ref\W
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Serilog.Enrichers.Environment.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Serilog.Enrichers.Process.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Serilog.Enrichers.Thread.dll
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\WorkHub.Application.dll
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\WorkHub.Domain.dll
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\WorkHub.Infrastructure.dll
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\WorkHub.Application.pdb
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\WorkHub.Infrastructure.pdb
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\WorkHub.Domain.pdb

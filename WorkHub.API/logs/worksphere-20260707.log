@@ -1,0 +1,323 @@
+2026-07-07 12:44:55.545 +06:00 [WRN] [] Entity 'Organization' has a global query filter defined and is the required end of a relationship with the entity 'ActivityLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-07 12:44:55.571 +06:00 [WRN] [] Entity 'User' has a global query filter defined and is the required end of a relationship with the entity 'TaskAssignee'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-07 12:44:55.577 +06:00 [WRN] [] Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data; this mode should only be enabled during development.
+2026-07-07 12:44:55.956 +06:00 [INF] [] Executed DbCommand (18ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-07-07 12:44:56.313 +06:00 [INF] [] Executed DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2026-07-07 12:44:56.331 +06:00 [INF] [] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2026-07-07 12:44:56.334 +06:00 [INF] [] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-07-07 12:44:56.389 +06:00 [ERR] [] Failed executing DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Organizations" (
+    "Id" uuid NOT NULL,
+    "Name" character varying(100) NOT NULL,
+    "Slug" character varying(100) NOT NULL,
+    "Description" character varying(500),
+    "LogoUrl" character varying(255),
+    "Plan" character varying(20) NOT NULL DEFAULT 'Free',
+    "IsActive" boolean NOT NULL,
+    "CreatedAt" timestamp with time zone NOT NULL,
+    "UpdatedAt" timestamp with time zone NOT NULL,
+    "IsDeleted" boolean NOT NULL,
+    "DeletedAt" timestamp with time zone,
+    CONSTRAINT "PK_Organizations" PRIMARY KEY ("Id")
+);
+2026-07-07 12:44:56.404 +06:00 [FTL] [] WorkSphere API failed to start
+Npgsql.PostgresException (0x80004005): 42P07: relation "Organizations" already exists
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteNonQuery(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteNonQueryAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteNonQueryAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteNonQueryAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.MigrationCommandExecutor.ExecuteAsync(IReadOnlyList`1 migrationCommands, IRelationalConnection connection, MigrationExecutionState executionState, Boolean beginTransaction, Boolean commitTransaction, Nullable`1 isolationLevel, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.MigrationCommandExecutor.ExecuteAsync(IReadOnlyList`1 migrationCommands, IRelationalConnection connection, MigrationExecutionState executionState, Boolean beginTransaction, Boolean commitTransaction, Nullable`1 isolationLevel, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.MigrationCommandExecutor.ExecuteNonQueryAsync(IReadOnlyList`1 migrationCommands, IRelationalConnection connection, MigrationExecutionState executionState, Boolean commitTransaction, Nullable`1 isolationLevel, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.MigrateImplementationAsync(DbContext context, String targetMigration, MigrationExecutionState state, Boolean useTransaction, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.MigrateImplementationAsync(DbContext context, String targetMigration, MigrationExecutionState state, Boolean useTransaction, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.<>c.<<MigrateAsync>b__22_1>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.MigrateAsync(String targetMigration, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.MigrateAsync(String targetMigration, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Migrations.Internal.NpgsqlMigrator.MigrateAsync(String targetMigration, CancellationToken cancellationToken)
+   at Program.<Main>$(String[] args) in C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\Program.cs:line 342
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P07
+    MessageText: relation "Organizations" already exists
+    File: heap.c
+    Line: 1179
+    Routine: heap_create_with_catalog
+2026-07-07 12:46:27.507 +06:00 [WRN] [] Entity 'Organization' has a global query filter defined and is the required end of a relationship with the entity 'ActivityLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-07 12:46:27.526 +06:00 [WRN] [] Entity 'User' has a global query filter defined and is the required end of a relationship with the entity 'TaskAssignee'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-07 12:46:27.532 +06:00 [WRN] [] Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data; this mode should only be enabled during development.
+2026-07-07 12:46:27.883 +06:00 [INF] [] Executed DbCommand (14ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-07-07 12:46:28.180 +06:00 [INF] [] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2026-07-07 12:46:28.194 +06:00 [INF] [] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2026-07-07 12:46:28.197 +06:00 [INF] [] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-07-07 12:46:28.239 +06:00 [ERR] [] Failed executing DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Organizations" (
+    "Id" uuid NOT NULL,
+    "Name" character varying(100) NOT NULL,
+    "Slug" character varying(100) NOT NULL,
+    "Description" character varying(500),
+    "LogoUrl" character varying(255),
+    "Plan" character varying(20) NOT NULL DEFAULT 'Free',
+    "IsActive" boolean NOT NULL,
+    "CreatedAt" timestamp with time zone NOT NULL,
+    "UpdatedAt" timestamp with time zone NOT NULL,
+    "IsDeleted" boolean NOT NULL,
+    "DeletedAt" timestamp with time zone,
+    CONSTRAINT "PK_Organizations" PRIMARY KEY ("Id")
+);
+2026-07-07 12:46:28.251 +06:00 [FTL] [] WorkSphere API failed to start
+Npgsql.PostgresException (0x80004005): 42P07: relation "Organizations" already exists
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteNonQuery(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteNonQueryAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteNonQueryAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteNonQueryAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.MigrationCommandExecutor.ExecuteAsync(IReadOnlyList`1 migrationCommands, IRelationalConnection connection, MigrationExecutionState executionState, Boolean beginTransaction, Boolean commitTransaction, Nullable`1 isolationLevel, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.MigrationCommandExecutor.ExecuteAsync(IReadOnlyList`1 migrationCommands, IRelationalConnection connection, MigrationExecutionState executionState, Boolean beginTransaction, Boolean commitTransaction, Nullable`1 isolationLevel, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.MigrationCommandExecutor.ExecuteNonQueryAsync(IReadOnlyList`1 migrationCommands, IRelationalConnection connection, MigrationExecutionState executionState, Boolean commitTransaction, Nullable`1 isolationLevel, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.MigrateImplementationAsync(DbContext context, String targetMigration, MigrationExecutionState state, Boolean useTransaction, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.MigrateImplementationAsync(DbContext context, String targetMigration, MigrationExecutionState state, Boolean useTransaction, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.<>c.<<MigrateAsync>b__22_1>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.MigrateAsync(String targetMigration, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.MigrateAsync(String targetMigration, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Migrations.Internal.NpgsqlMigrator.MigrateAsync(String targetMigration, CancellationToken cancellationToken)
+   at Program.<Main>$(String[] args) in C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\Program.cs:line 342
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P07
+    MessageText: relation "Organizations" already exists
+    File: heap.c
+    Line: 1179
+    Routine: heap_create_with_catalog
+2026-07-07 12:48:43.665 +06:00 [WRN] [] Entity 'Organization' has a global query filter defined and is the required end of a relationship with the entity 'ActivityLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-07 12:48:43.688 +06:00 [WRN] [] Entity 'User' has a global query filter defined and is the required end of a relationship with the entity 'TaskAssignee'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-07 12:48:43.694 +06:00 [WRN] [] Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data; this mode should only be enabled during development.
+2026-07-07 12:48:44.015 +06:00 [ERR] [] Failed executing DbCommand (21ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-07-07 12:48:44.415 +06:00 [ERR] [] Failed executing DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "OrganizationInvites" (
+    "Id" uuid NOT NULL,
+    "OrganizationId" uuid NOT NULL,
+    "InvitedByUserId" uuid NOT NULL,
+    "InviteeEmail" character varying(100) NOT NULL,
+    "Role" character varying(20) NOT NULL,
+    "Token" text NOT NULL,
+    "ExpiresAt" timestamp with time zone NOT NULL,
+    "Status" character varying(20) NOT NULL,
+    "AcceptedAt" timestamp with time zone,
+    "AcceptedByUserId" uuid,
+    "CreatedAt" timestamp with time zone NOT NULL,
+    "UpdatedAt" timestamp with time zone NOT NULL,
+    "IsDeleted" boolean NOT NULL,
+    "DeletedAt" timestamp with time zone,
+    CONSTRAINT "PK_OrganizationInvites" PRIMARY KEY ("Id"),
+    CONSTRAINT "FK_OrganizationInvites_Organizations_OrganizationId" FOREIGN KEY ("OrganizationId") REFERENCES "Organizations" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_OrganizationInvites_Users_InvitedByUserId" FOREIGN KEY ("InvitedByUserId") REFERENCES "Users" ("Id") ON DELETE RESTRICT
+);
+2026-07-07 12:48:44.427 +06:00 [FTL] [] WorkSphere API failed to start
+Npgsql.PostgresException (0x80004005): 42P07: relation "OrganizationInvites" already exists
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteNonQuery(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteNonQueryAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteNonQueryAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteNonQueryAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.MigrationCommandExecutor.ExecuteAsync(IReadOnlyList`1 migrationCommands, IRelationalConnection connection, MigrationExecutionState executionState, Boolean beginTransaction, Boolean commitTransaction, Nullable`1 isolationLevel, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.MigrationCommandExecutor.ExecuteAsync(IReadOnlyList`1 migrationCommands, IRelationalConnection connection, MigrationExecutionState executionState, Boolean beginTransaction, Boolean commitTransaction, Nullable`1 isolationLevel, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.MigrationCommandExecutor.ExecuteNonQueryAsync(IReadOnlyList`1 migrationCommands, IRelationalConnection connection, MigrationExecutionState executionState, Boolean commitTransaction, Nullable`1 isolationLevel, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.MigrateImplementationAsync(DbContext context, String targetMigration, MigrationExecutionState state, Boolean useTransaction, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.MigrateImplementationAsync(DbContext context, String targetMigration, MigrationExecutionState state, Boolean useTransaction, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.<>c.<<MigrateAsync>b__22_1>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.MigrateAsync(String targetMigration, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.Migrator.MigrateAsync(String targetMigration, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Migrations.Internal.NpgsqlMigrator.MigrateAsync(String targetMigration, CancellationToken cancellationToken)
+   at Program.<Main>$(String[] args) in C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\Program.cs:line 342
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P07
+    MessageText: relation "OrganizationInvites" already exists
+    File: heap.c
+    Line: 1179
+    Routine: heap_create_with_catalog
+2026-07-07 12:48:57.037 +06:00 [WRN] [] Entity 'Organization' has a global query filter defined and is the required end of a relationship with the entity 'ActivityLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-07 12:48:57.056 +06:00 [WRN] [] Entity 'User' has a global query filter defined and is the required end of a relationship with the entity 'TaskAssignee'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-07 12:48:57.062 +06:00 [WRN] [] Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data; this mode should only be enabled during development.
+2026-07-07 12:48:57.316 +06:00 [ERR] [] Failed executing DbCommand (17ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-07-07 12:48:57.708 +06:00 [INF] [] Starting database seeding...
+2026-07-07 12:48:58.728 +06:00 [INF] [] Executed DbCommand (20ms) [Parameters=[@p0='00000000-0000-0000-0001-000000000001', @p1='2026-07-07T06:48:58.6568398Z' (DbType = DateTime), @p2=NULL (DbType = DateTime), @p3='Primary demo organization for development testing.', @p4='True', @p5='False', @p6=NULL, @p7='WorkSphere Demo' (Nullable = false), @p8='Free' (Nullable = false), @p9='worksphere-demo' (Nullable = false), @p10='2026-07-07T06:48:58.6568716Z' (DbType = DateTime), @p11='00000000-0000-0000-0001-000000000002', @p12='2026-07-07T06:48:58.6568906Z' (DbType = DateTime), @p13=NULL (DbType = DateTime), @p14='Second tenant for cross-tenant isolation testing.', @p15='True', @p16='False', @p17=NULL, @p18='Acme Corporation' (Nullable = false), @p19='Free' (Nullable = false), @p20='acme-corporation' (Nullable = false), @p21='2026-07-07T06:48:58.6568907Z' (DbType = DateTime), @p22='00000000-0000-0000-0001-000000000003', @p23='2026-07-07T06:48:58.6568909Z' (DbType = DateTime), @p24=NULL (DbType = DateTime), @p25='Third tenant for edge case testing.', @p26='True', @p27='False', @p28=NULL, @p29='TechStart Ltd' (Nullable = false), @p30='Free' (Nullable = false), @p31='techstart-ltd' (Nullable = false), @p32='2026-07-07T06:48:58.6568910Z' (DbType = DateTime), @p33='00000000-0000-0000-0002-000000000001', @p34='2026-07-07T06:48:58.6568913Z' (DbType = DateTime), @p35=NULL (DbType = DateTime), @p36='demo.owner@worksphere.io' (Nullable = false), @p37=NULL (DbType = DateTime), @p38=NULL, @p39='Demo' (Nullable = false), @p40='True', @p41='False', @p42='True', @p43=NULL (DbType = DateTime), @p44='Owner' (Nullable = false), @p45='00000000-0000-0000-0001-000000000001', @p46='$2a$10$JLAEFCE4BgZ.v7Ke3n8hxuPedLjVSEYVjv1fMKVwPrpHJl8u/CrV2' (Nullable = false), @p47=NULL (DbType = DateTime), @p48=NULL, @p49=NULL, @p50=NULL, @p51=NULL (DbType = DateTime), @p52='Owner' (Nullable = false), @p53='2026-07-07T06:48:58.6568914Z' (DbType = DateTime), @p54='00000000-0000-0000-0002-000000000002', @p55='2026-07-07T06:48:58.6568916Z' (DbType = DateTime), @p56=NULL (DbType = DateTime), @p57='demo.admin@worksphere.io' (Nullable = false), @p58=NULL (DbType = DateTime), @p59=NULL, @p60='Demo' (Nullable = false), @p61='True', @p62='False', @p63='True', @p64=NULL (DbType = DateTime), @p65='Admin' (Nullable = false), @p66='00000000-0000-0000-0001-000000000001', @p67='$2a$10$u.Jui6dQknx74wdGdwXnF.xHymoUnR8ouprTmg15w/F3r.gCyw9Y6' (Nullable = false), @p68=NULL (DbType = DateTime), @p69=NULL, @p70=NULL, @p71=NULL, @p72=NULL (DbType = DateTime), @p73='Admin' (Nullable = false), @p74='2026-07-07T06:48:58.6568916Z' (DbType = DateTime), @p75='00000000-0000-0000-0002-000000000003', @p76='2026-07-07T06:48:58.6568918Z' (DbType = DateTime), @p77=NULL (DbType = DateTime), @p78='demo.member1@worksphere.io' (Nullable = false), @p79=NULL (DbType = DateTime), @p80=NULL, @p81='Alice' (Nullable = false), @p82='True', @p83='False', @p84='True', @p85=NULL (DbType = DateTime), @p86='Johnson' (Nullable = false), @p87='00000000-0000-0000-0001-000000000001', @p88='$2a$10$XBmok7YldVd7IRReoksddebeB8LAimXfC4A94SImE/1Pq.1KWl8YW' (Nullable = false), @p89=NULL (DbType = DateTime), @p90=NULL, @p91=NULL, @p92=NULL, @p93=NULL (DbType = DateTime), @p94='Member' (Nullable = false), @p95='2026-07-07T06:48:58.6568926Z' (DbType = DateTime), @p96='00000000-0000-0000-0002-000000000004', @p97='2026-07-07T06:48:58.6568929Z' (DbType = DateTime), @p98=NULL (DbType = DateTime), @p99='demo.member2@worksphere.io' (Nullable = false), @p100=NULL (DbType = DateTime), @p101=NULL, @p102='Bob' (Nullable = false), @p103='True', @p104='False', @p105='False', @p106=NULL (DbType = DateTime), @p107='Smith' (Nullable = false), @p108='00000000-0000-0000-0001-000000000001', @p109='$2a$10$3RafR4x4j4ZvZmacyZdL9OQIJK9nCBLBfJQRZaQhVKNh9/47Bphcu' (Nullable = false), @p110=NULL (DbType = DateTime), @p111=NULL, @p112=NULL, @p113=NULL, @p114=NULL (DbType = DateTime), @p115='Member' (Nullable = false), @p116='2026-07-07T06:48:58.6568929Z' (DbType = DateTime), @p117='00000000-0000-0000-0002-000000000005', @p118='2026-07-07T06:48:58.6568932Z' (DbType = DateTime), @p119=NULL (DbType = DateTime), @p120='acme.owner@worksphere.io' (Nullable = false), @p121=NULL (DbType = DateTime), @p122=NULL, @p123='Acme' (Nullable = false), @p124='True', @p125='False', @p126='True', @p127=NULL (DbType = DateTime), @p128='Owner' (Nullable = false), @p129='00000000-0000-0000-0001-000000000002', @p130='$2a$10$euYaQvetR8xcLeUbaMeIOuv0bVmfCa8m360nWaoYF770dateRsXSe' (Nullable = false), @p131=NULL (DbType = DateTime), @p132=NULL, @p133=NULL, @p134=NULL, @p135=NULL (DbType = DateTime), @p136='Owner' (Nullable = false), @p137='2026-07-07T06:48:58.6568932Z' (DbType = DateTime), @p138='00000000-0000-0000-0002-000000000006', @p139='2026-07-07T06:48:58.6568935Z' (DbType = DateTime), @p140=NULL (DbType = DateTime), @p141='acme.admin@worksphere.io' (Nullable = false), @p142=NULL (DbType = DateTime), @p143=NULL, @p144='Acme' (Nullable = false), @p145='True', @p146='False', @p147='True', @p148=NULL (DbType = DateTime), @p149='Admin' (Nullable = false), @p150='00000000-0000-0000-0001-000000000002', @p151='$2a$10$nX1YIEuUKpH/53fdZMbkuOOZfjpDqp0xy6YL27n9xfZ3I6HhEDgf2' (Nullable = false), @p152=NULL (DbType = DateTime), @p153=NULL, @p154=NULL, @p155=NULL, @p156=NULL (DbType = DateTime), @p157='Admin' (Nullable = false), @p158='2026-07-07T06:48:58.6568935Z' (DbType = DateTime), @p159='00000000-0000-0000-0002-000000000007', @p160='2026-07-07T06:48:58.6569065Z' (DbType = DateTime), @p161=NULL (DbType = DateTime), @p162='acme.member@worksphere.io' (Nullable = false), @p163=NULL (DbType = DateTime), @p164=NULL, @p165='Carol' (Nullable = false), @p166='True', @p167='False', @p168='True', @p169=NULL (DbType = DateTime), @p170='White' (Nullable = false), @p171='00000000-0000-0000-0001-000000000002', @p172='$2a$10$ryVaN.4RZsVyng72pZzpo.zWhZamCMzxt4zkuRm0kPAdfLVa5yAYe' (Nullable = false), @p173=NULL (DbType = DateTime), @p174=NULL, @p175=NULL, @p176=NULL, @p177=NULL (DbType = DateTime), @p178='Member' (Nullable = false), @p179='2026-07-07T06:48:58.6569065Z' (DbType = DateTime), @p180='00000000-0000-0000-0002-000000000008', @p181='2026-07-07T06:48:58.6569069Z' (DbType = DateTime), @p182=NULL (DbType = DateTime), @p183='techstart.owner@worksphere.io' (Nullable = false), @p184=NULL (DbType = DateTime), @p185=NULL, @p186='Tech' (Nullable = false), @p187='True', @p188='False', @p189='True', @p190=NULL (DbType = DateTime), @p191='Founder' (Nullable = false), @p192='00000000-0000-0000-0001-000000000003', @p193='$2a$10$UbHc4C4r/PkDthyRemSkQOabtPDXgXqDFhT2asyZmazAZl7LBf/9K' (Nullable = false), @p194=NULL (DbType = DateTime), @p195=NULL, @p196=NULL, @p197=NULL, @p198=NULL (DbType = DateTime), @p199='Owner' (Nullable = false), @p200='2026-07-07T06:48:58.6569069Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Organizations" ("Id", "CreatedAt", "DeletedAt", "Description", "IsActive", "IsDeleted", "LogoUrl", "Name", "Plan", "Slug", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10);
+INSERT INTO "Organizations" ("Id", "CreatedAt", "DeletedAt", "Description", "IsActive", "IsDeleted", "LogoUrl", "Name", "Plan", "Slug", "UpdatedAt")
+VALUES (@p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21);
+INSERT INTO "Organizations" ("Id", "CreatedAt", "DeletedAt", "Description", "IsActive", "IsDeleted", "LogoUrl", "Name", "Plan", "Slug", "UpdatedAt")
+VALUES (@p22, @p23, @p24, @p25, @p26, @p27, @p28, @p29, @p30, @p31, @p32);
+INSERT INTO "Users" ("Id", "CreatedAt", "DeletedAt", "Email", "EmailVerificationExpiry", "EmailVerificationToken", "FirstName", "IsActive", "IsDeleted", "IsEmailVerified", "LastLoginAt", "LastName", "OrganizationId", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "ProfilePictureUrl", "RefreshToken", "RefreshTokenExpiry", "Role", "UpdatedAt")
+VALUES (@p33, @p34, @p35, @p36, @p37, @p38, @p39, @p40, @p41, @p42, @p43, @p44, @p45, @p46, @p47, @p48, @p49, @p50, @p51, @p52, @p53);
+INSERT INTO "Users" ("Id", "CreatedAt", "DeletedAt", "Email", "EmailVerificationExpiry", "EmailVerificationToken", "FirstName", "IsActive", "IsDeleted", "IsEmailVerified", "LastLoginAt", "LastName", "OrganizationId", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "ProfilePictureUrl", "RefreshToken", "RefreshTokenExpiry", "Role", "UpdatedAt")
+VALUES (@p54, @p55, @p56, @p57, @p58, @p59, @p60, @p61, @p62, @p63, @p64, @p65, @p66, @p67, @p68, @p69, @p70, @p71, @p72, @p73, @p74);
+INSERT INTO "Users" ("Id", "CreatedAt", "DeletedAt", "Email", "EmailVerificationExpiry", "EmailVerificationToken", "FirstName", "IsActive", "IsDeleted", "IsEmailVerified", "LastLoginAt", "LastName", "OrganizationId", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "ProfilePictureUrl", "RefreshToken", "RefreshTokenExpiry", "Role", "UpdatedAt")
+VALUES (@p75, @p76, @p77, @p78, @p79, @p80, @p81, @p82, @p83, @p84, @p85, @p86, @p87, @p88, @p89, @p90, @p91, @p92, @p93, @p94, @p95);
+INSERT INTO "Users" ("Id", "CreatedAt", "DeletedAt", "Email", "EmailVerificationExpiry", "EmailVerificationToken", "FirstName", "IsActive", "IsDeleted", "IsEmailVerified", "LastLoginAt", "LastName", "OrganizationId", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "ProfilePictureUrl", "RefreshToken", "RefreshTokenExpiry", "Role", "UpdatedAt")
+VALUES (@p96, @p97, @p98, @p99, @p100, @p101, @p102, @p103, @p104, @p105, @p106, @p107, @p108, @p109, @p110, @p111, @p112, @p113, @p114, @p115, @p116);
+INSERT INTO "Users" ("Id", "CreatedAt", "DeletedAt", "Email", "EmailVerificationExpiry", "EmailVerificationToken", "FirstName", "IsActive", "IsDeleted", "IsEmailVerified", "LastLoginAt", "LastName", "OrganizationId", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "ProfilePictureUrl", "RefreshToken", "RefreshTokenExpiry", "Role", "UpdatedAt")
+VALUES (@p117, @p118, @p119, @p120, @p121, @p122, @p123, @p124, @p125, @p126, @p127, @p128, @p129, @p130, @p131, @p132, @p133, @p134, @p135, @p136, @p137);
+INSERT INTO "Users" ("Id", "CreatedAt", "DeletedAt", "Email", "EmailVerificationExpiry", "EmailVerificationToken", "FirstName", "IsActive", "IsDeleted", "IsEmailVerified", "LastLoginAt", "LastName", "OrganizationId", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "ProfilePictureUrl", "RefreshToken", "RefreshTokenExpiry", "Role", "UpdatedAt")
+VALUES (@p138, @p139, @p140, @p141, @p142, @p143, @p144, @p145, @p146, @p147, @p148, @p149, @p150, @p151, @p152, @p153, @p154, @p155, @p156, @p157, @p158);
+INSERT INTO "Users" ("Id", "CreatedAt", "DeletedAt", "Email", "EmailVerificationExpiry", "EmailVerificationToken", "FirstName", "IsActive", "IsDeleted", "IsEmailVerified", "LastLoginAt", "LastName", "OrganizationId", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "ProfilePictureUrl", "RefreshToken", "RefreshTokenExpiry", "Role", "UpdatedAt")
+VALUES (@p159, @p160, @p161, @p162, @p163, @p164, @p165, @p166, @p167, @p168, @p169, @p170, @p171, @p172, @p173, @p174, @p175, @p176, @p177, @p178, @p179);
+INSERT INTO "Users" ("Id", "CreatedAt", "DeletedAt", "Email", "EmailVerificationExpiry", "EmailVerificationToken", "FirstName", "IsActive", "IsDeleted", "IsEmailVerified", "LastLoginAt", "LastName", "OrganizationId", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "ProfilePictureUrl", "RefreshToken", "RefreshTokenExpiry", "Role", "UpdatedAt")
+VALUES (@p180, @p181, @p182, @p183, @p184, @p185, @p186, @p187, @p188, @p189, @p190, @p191, @p192, @p193, @p194, @p195, @p196, @p197, @p198, @p199, @p200);
+2026-07-07 12:48:58.736 +06:00 [INF] [] Seeded: 3 organizations, 8 users
+2026-07-07 12:48:58.789 +06:00 [INF] [] Executed DbCommand (7ms) [Parameters=[@p0='00000000-0000-0000-0003-000000000001', @p1='2026-07-07T06:48:58.7804891Z' (DbType = DateTime), @p2='00000000-0000-0000-0002-000000000001', @p3=NULL (DbType = DateTime), @p4='Redesign the main company website with modern UI/UX.', @p5='2026-10-07T06:48:58.7377609Z' (Nullable = true) (DbType = DateTime), @p6='False', @p7='Website Redesign' (Nullable = false), @p8='00000000-0000-0000-0001-000000000001', @p9='00000000-0000-0000-0002-000000000002' (Nullable = true), @p10='2026-07-07T06:48:58.7377609Z' (Nullable = true) (DbType = DateTime), @p11='Active' (Nullable = false), @p12='2026-07-07T06:48:58.7804891Z' (DbType = DateTime), @p13='00000000-0000-0000-0003-000000000002', @p14='2026-07-07T06:48:58.7804889Z' (DbType = DateTime), @p15='00000000-0000-0000-0002-000000000001', @p16=NULL (DbType = DateTime), @p17='Build the next version of the mobile application.', @p18='2027-01-07T06:48:58.7377609Z' (Nullable = true) (DbType = DateTime), @p19='False', @p20='Mobile App v2' (Nullable = false), @p21='00000000-0000-0000-0001-000000000001', @p22='00000000-0000-0000-0002-000000000002' (Nullable = true), @p23='2026-08-07T06:48:58.7377609Z' (Nullable = true) (DbType = DateTime), @p24='Active' (Nullable = false), @p25='2026-07-07T06:48:58.7804890Z' (DbType = DateTime), @p26='00000000-0000-0000-0003-000000000003', @p27='2026-07-07T06:48:58.7804888Z' (DbType = DateTime), @p28='00000000-0000-0000-0002-000000000001', @p29=NULL (DbType = DateTime), @p30='Plan and execute marketing campaigns for Q3.', @p31='2026-12-07T06:48:58.7377609Z' (Nullable = true) (DbType = DateTime), @p32='False', @p33='Q3 Marketing Campaign' (Nullable = false), @p34='00000000-0000-0000-0001-000000000001', @p35='00000000-0000-0000-0002-000000000003' (Nullable = true), @p36='2026-09-07T06:48:58.7377609Z' (Nullable = true) (DbType = DateTime), @p37='OnHold' (Nullable = false), @p38='2026-07-07T06:48:58.7804888Z' (DbType = DateTime), @p39='00000000-0000-0000-0004-000000000004', @p40='2026-07-07T06:48:58.7804882Z' (DbType = DateTime), @p41='00000000-0000-0000-0002-000000000005', @p42=NULL (DbType = DateTime), @p43='Integrate with the corporate ERP system.', @p44='2026-11-07T06:48:58.7377609Z' (Nullable = true) (DbType = DateTime), @p45='False', @p46='ERP Integration' (Nullable = false), @p47='00000000-0000-0000-0001-000000000002', @p48='00000000-0000-0000-0002-000000000006' (Nullable = true), @p49='2026-07-07T06:48:58.7377609Z' (Nullable = true) (DbType = DateTime), @p50='Active' (Nullable = false), @p51='2026-07-07T06:48:58.7804885Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Projects" ("Id", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "IsDeleted", "Name", "OrganizationId", "ProjectLeadUserId", "StartDate", "Status", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12);
+INSERT INTO "Projects" ("Id", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "IsDeleted", "Name", "OrganizationId", "ProjectLeadUserId", "StartDate", "Status", "UpdatedAt")
+VALUES (@p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25);
+INSERT INTO "Projects" ("Id", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "IsDeleted", "Name", "OrganizationId", "ProjectLeadUserId", "StartDate", "Status", "UpdatedAt")
+VALUES (@p26, @p27, @p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38);
+INSERT INTO "Projects" ("Id", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "IsDeleted", "Name", "OrganizationId", "ProjectLeadUserId", "StartDate", "Status", "UpdatedAt")
+VALUES (@p39, @p40, @p41, @p42, @p43, @p44, @p45, @p46, @p47, @p48, @p49, @p50, @p51);
+2026-07-07 12:48:58.791 +06:00 [INF] [] Seeded: 4 projects (Demo: 3, Acme: 1)
+2026-07-07 12:48:58.861 +06:00 [INF] [] Executed DbCommand (9ms) [Parameters=[@p0='00000000-0000-0000-0004-000000000001', @p1=NULL (DbType = Int32), @p2='00000000-0000-0000-0002-000000000002' (Nullable = true), @p3=NULL (DbType = DateTime), @p4='2026-07-07T06:48:58.8497690Z' (DbType = DateTime), @p5='00000000-0000-0000-0002-000000000001', @p6=NULL (DbType = DateTime), @p7='Design Figma mockups for the new homepage — desktop + mobile.', @p8='2026-07-14T06:48:58.7936502Z' (Nullable = true) (DbType = DateTime), @p9='480' (Nullable = true), @p10='False', @p11='1', @p12='00000000-0000-0000-0001-000000000001', @p13=NULL (DbType = Guid), @p14='High' (Nullable = false), @p15='00000000-0000-0000-0003-000000000001', @p16=NULL (DbType = DateTime), @p17='InProgress' (Nullable = false), @p18='Create UI mockups for homepage' (Nullable = false), @p19='2026-07-07T06:48:58.8497690Z' (DbType = DateTime), @p20='00000000-0000-0000-0004-000000000002', @p21=NULL (DbType = Int32), @p22='00000000-0000-0000-0002-000000000003' (Nullable = true), @p23=NULL (DbType = DateTime), @p24='2026-07-07T06:48:58.8497688Z' (DbType = DateTime), @p25='00000000-0000-0000-0002-000000000002', @p26=NULL (DbType = DateTime), @p27='Evaluate and configure CMS — Contentful or Sanity.', @p28='2026-07-21T06:48:58.7936502Z' (Nullable = true) (DbType = DateTime), @p29='240' (Nullable = true), @p30='False', @p31='2', @p32='00000000-0000-0000-0001-000000000001', @p33=NULL (DbType = Guid), @p34='High' (Nullable = false), @p35='00000000-0000-0000-0003-000000000001', @p36=NULL (DbType = DateTime), @p37='Todo' (Nullable = false), @p38='Set up CMS platform' (Nullable = false), @p39='2026-07-07T06:48:58.8497688Z' (DbType = DateTime), @p40='00000000-0000-0000-0004-000000000003', @p41=NULL (DbType = Int32), @p42='00000000-0000-0000-0002-000000000004' (Nullable = true), @p43=NULL (DbType = DateTime), @p44='2026-07-07T06:48:58.8497687Z' (DbType = DateTime), @p45='00000000-0000-0000-0002-000000000002', @p46=NULL (DbType = DateTime), @p47='Write all copy for the new homepage — hero, features, pricing, FAQ.', @p48='2026-07-17T06:48:58.7936502Z' (Nullable = true) (DbType = DateTime), @p49='180' (Nullable = true), @p50='False', @p51='3', @p52='00000000-0000-0000-0001-000000000001', @p53=NULL (DbType = Guid), @p54='Medium' (Nullable = false), @p55='00000000-0000-0000-0003-000000000001', @p56=NULL (DbType = DateTime), @p57='Todo' (Nullable = false), @p58='Write homepage copy' (Nullable = false), @p59='2026-07-07T06:48:58.8497687Z' (DbType = DateTime), @p60='00000000-0000-0000-0004-000000000004', @p61='150' (Nullable = true), @p62='00000000-0000-0000-0002-000000000003' (Nullable = true), @p63='2026-07-05T06:48:58.7936502Z' (Nullable = true) (DbType = DateTime), @p64='2026-07-07T06:48:58.8497651Z' (DbType = DateTime), @p65='00000000-0000-0000-0002-000000000001', @p66=NULL (DbType = DateTime), @p67='Full SEO audit using Ahrefs — identify gaps before redesign.', @p68='2026-07-02T06:48:58.7936502Z' (Nullable = true) (DbType = DateTime), @p69='120' (Nullable = true), @p70='False', @p71='4', @p72='00000000-0000-0000-0001-000000000001', @p73=NULL (DbType = Guid), @p74='Medium' (Nullable = false), @p75='00000000-0000-0000-0003-000000000001', @p76=NULL (DbType = DateTime), @p77='Done' (Nullable = false), @p78='Run SEO audit on current site' (Nullable = false), @p79='2026-07-07T06:48:58.8497651Z' (DbType = DateTime), @p80='00000000-0000-0000-0004-000000000005', @p81=NULL (DbType = Int32), @p82='00000000-0000-0000-0002-000000000002' (Nullable = true), @p83=NULL (DbType = DateTime), @p84='2026-07-07T06:48:58.8497650Z' (DbType = DateTime), @p85='00000000-0000-0000-0002-000000000001', @p86=NULL (DbType = DateTime), @p87='Build a complete UI kit in Figma — typography, colors, components.', @p88='2026-07-12T06:48:58.7936502Z' (Nullable = true) (DbType = DateTime), @p89='600' (Nullable = true), @p90='False', @p91='1', @p92='00000000-0000-0000-0001-000000000001', @p93=NULL (DbType = Guid), @p94='Urgent' (Nullable = false), @p95='00000000-0000-0000-0003-000000000002', @p96=NULL (DbType = DateTime), @p97='InProgress' (Nullable = false), @p98='Design new app UI kit' (Nullable = false), @p99='2026-07-07T06:48:58.8497650Z' (DbType = DateTime), @p100='00000000-0000-0000-0004-000000000006', @p101=NULL (DbType = Int32), @p102='00000000-0000-0000-0002-000000000003' (Nullable = true), @p103=NULL (DbType = DateTime), @p104='2026-07-07T06:48:58.8497648Z' (DbType = DateTime), @p105='00000000-0000-0000-0002-000000000001', @p106=NULL (DbType = DateTime), @p107='JWT auth, biometric login, refresh tokens for mobile.', @p108='2026-07-27T06:48:58.7936502Z' (Nullable = true) (DbType = DateTime), @p109='480' (Nullable = true), @p110='False', @p111='2', @p112='00000000-0000-0000-0001-000000000001', @p113=NULL (DbType = Guid), @p114='High' (Nullable = false), @p115='00000000-0000-0000-0003-000000000002', @p116=NULL (DbType = DateTime), @p117='Todo' (Nullable = false), @p118='Build authentication module' (Nullable = false), @p119='2026-07-07T06:48:58.8497648Z' (DbType = DateTime), @p120='00000000-0000-0000-0004-000000000007', @p121=NULL (DbType = Int32), @p122=NULL (DbType = Guid), @p123=NULL (DbType = DateTime), @p124='2026-07-07T06:48:58.8497645Z' (DbType = DateTime), @p125='00000000-0000-0000-0002-000000000002', @p126=NULL (DbType = DateTime), @p127='Firebase push notifications for iOS and Android.', @p128='2026-08-06T06:48:58.7936502Z' (Nullable = true) (DbType = DateTime), @p129='360' (Nullable = true), @p130='False', @p131='3', @p132='00000000-0000-0000-0001-000000000001', @p133=NULL (DbType = Guid), @p134='Medium' (Nullable = false), @p135='00000000-0000-0000-0003-000000000002', @p136=NULL (DbType = DateTime), @p137='Todo' (Nullable = false), @p138='Implement push notifications' (Nullable = false), @p139='2026-07-07T06:48:58.8497646Z' (DbType = DateTime), @p140='00000000-0000-0000-0004-000000000008', @p141=NULL (DbType = Int32), @p142='00000000-0000-0000-0002-000000000006' (Nullable = true), @p143=NULL (DbType = DateTime), @p144='2026-07-07T06:48:58.8497643Z' (DbType = DateTime), @p145='00000000-0000-0000-0002-000000000005', @p146=NULL (DbType = DateTime), @p147='Map and connect all ERP API endpoints to existing systems.', @p148='2026-07-22T06:48:58.7936502Z' (Nullable = true) (DbType = DateTime), @p149='720' (Nullable = true), @p150='False', @p151='1', @p152='00000000-0000-0000-0001-000000000002', @p153=NULL (DbType = Guid), @p154='Urgent' (Nullable = false), @p155='00000000-0000-0000-0004-000000000004', @p156=NULL (DbType = DateTime), @p157='InProgress' (Nullable = false), @p158='Set up ERP API connections' (Nullable = false), @p159='2026-07-07T06:48:58.8497643Z' (DbType = DateTime), @p160='00000000-0000-0000-0004-000000000009', @p161=NULL (DbType = Int32), @p162='00000000-0000-0000-0002-000000000007' (Nullable = true), @p163=NULL (DbType = DateTime), @p164='2026-07-07T06:48:58.8497629Z' (DbType = DateTime), @p165='00000000-0000-0000-0002-000000000005', @p166=NULL (DbType = DateTime), @p167='Clean and migrate 5 years of historical data to the new ERP.', @p168='2026-08-21T06:48:58.7936502Z' (Nullable = true) (DbType = DateTime), @p169='1440' (Nullable = true), @p170='False', @p171='2', @p172='00000000-0000-0000-0001-000000000002', @p173=NULL (DbType = Guid), @p174='High' (Nullable = false), @p175='00000000-0000-0000-0004-000000000004', @p176=NULL (DbType = DateTime), @p177='Todo' (Nullable = false), @p178='Migrate legacy data to new ERP' (Nullable = false), @p179='2026-07-07T06:48:58.8497632Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Tasks" ("Id", "ActualMinutes", "AssignedToUserId", "CompletedAt", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "EstimatedMinutes", "IsDeleted", "OrderIndex", "OrganizationId", "ParentTaskId", "Priority", "ProjectId", "StartDate", "Status", "Title", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19);
+INSERT INTO "Tasks" ("Id", "ActualMinutes", "AssignedToUserId", "CompletedAt", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "EstimatedMinutes", "IsDeleted", "OrderIndex", "OrganizationId", "ParentTaskId", "Priority", "ProjectId", "StartDate", "Status", "Title", "UpdatedAt")
+VALUES (@p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38, @p39);
+INSERT INTO "Tasks" ("Id", "ActualMinutes", "AssignedToUserId", "CompletedAt", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "EstimatedMinutes", "IsDeleted", "OrderIndex", "OrganizationId", "ParentTaskId", "Priority", "ProjectId", "StartDate", "Status", "Title", "UpdatedAt")
+VALUES (@p40, @p41, @p42, @p43, @p44, @p45, @p46, @p47, @p48, @p49, @p50, @p51, @p52, @p53, @p54, @p55, @p56, @p57, @p58, @p59);
+INSERT INTO "Tasks" ("Id", "ActualMinutes", "AssignedToUserId", "CompletedAt", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "EstimatedMinutes", "IsDeleted", "OrderIndex", "OrganizationId", "ParentTaskId", "Priority", "ProjectId", "StartDate", "Status", "Title", "UpdatedAt")
+VALUES (@p60, @p61, @p62, @p63, @p64, @p65, @p66, @p67, @p68, @p69, @p70, @p71, @p72, @p73, @p74, @p75, @p76, @p77, @p78, @p79);
+INSERT INTO "Tasks" ("Id", "ActualMinutes", "AssignedToUserId", "CompletedAt", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "EstimatedMinutes", "IsDeleted", "OrderIndex", "OrganizationId", "ParentTaskId", "Priority", "ProjectId", "StartDate", "Status", "Title", "UpdatedAt")
+VALUES (@p80, @p81, @p82, @p83, @p84, @p85, @p86, @p87, @p88, @p89, @p90, @p91, @p92, @p93, @p94, @p95, @p96, @p97, @p98, @p99);
+INSERT INTO "Tasks" ("Id", "ActualMinutes", "AssignedToUserId", "CompletedAt", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "EstimatedMinutes", "IsDeleted", "OrderIndex", "OrganizationId", "ParentTaskId", "Priority", "ProjectId", "StartDate", "Status", "Title", "UpdatedAt")
+VALUES (@p100, @p101, @p102, @p103, @p104, @p105, @p106, @p107, @p108, @p109, @p110, @p111, @p112, @p113, @p114, @p115, @p116, @p117, @p118, @p119);
+INSERT INTO "Tasks" ("Id", "ActualMinutes", "AssignedToUserId", "CompletedAt", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "EstimatedMinutes", "IsDeleted", "OrderIndex", "OrganizationId", "ParentTaskId", "Priority", "ProjectId", "StartDate", "Status", "Title", "UpdatedAt")
+VALUES (@p120, @p121, @p122, @p123, @p124, @p125, @p126, @p127, @p128, @p129, @p130, @p131, @p132, @p133, @p134, @p135, @p136, @p137, @p138, @p139);
+INSERT INTO "Tasks" ("Id", "ActualMinutes", "AssignedToUserId", "CompletedAt", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "EstimatedMinutes", "IsDeleted", "OrderIndex", "OrganizationId", "ParentTaskId", "Priority", "ProjectId", "StartDate", "Status", "Title", "UpdatedAt")
+VALUES (@p140, @p141, @p142, @p143, @p144, @p145, @p146, @p147, @p148, @p149, @p150, @p151, @p152, @p153, @p154, @p155, @p156, @p157, @p158, @p159);
+INSERT INTO "Tasks" ("Id", "ActualMinutes", "AssignedToUserId", "CompletedAt", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "EstimatedMinutes", "IsDeleted", "OrderIndex", "OrganizationId", "ParentTaskId", "Priority", "ProjectId", "StartDate", "Status", "Title", "UpdatedAt")
+VALUES (@p160, @p161, @p162, @p163, @p164, @p165, @p166, @p167, @p168, @p169, @p170, @p171, @p172, @p173, @p174, @p175, @p176, @p177, @p178, @p179);
+2026-07-07 12:48:58.889 +06:00 [INF] [] Executed DbCommand (5ms) [Parameters=[@p0='00000000-0000-0000-0004-000000000001', @p1='00000000-0000-0000-0002-000000000003', @p2='2026-07-07T06:48:58.7936502Z' (DbType = DateTime), @p3='00000000-0000-0000-0002-000000000001', @p4='00000000-0000-0000-0004-000000000006', @p5='00000000-0000-0000-0002-000000000004', @p6='2026-07-07T06:48:58.7936502Z' (DbType = DateTime), @p7='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "TaskAssignees" ("TaskId", "UserId", "AssignedAt", "AssignedByUserId")
+VALUES (@p0, @p1, @p2, @p3);
+INSERT INTO "TaskAssignees" ("TaskId", "UserId", "AssignedAt", "AssignedByUserId")
+VALUES (@p4, @p5, @p6, @p7);
+2026-07-07 12:48:58.890 +06:00 [INF] [] Seeded: 9 tasks, 2 task assignees
+2026-07-07 12:48:58.890 +06:00 [INF] [] ✅ Database seeding completed successfully.
+2026-07-07 12:50:27.465 +06:00 [WRN] [] Entity 'Organization' has a global query filter defined and is the required end of a relationship with the entity 'ActivityLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-07 12:50:27.482 +06:00 [WRN] [] Entity 'User' has a global query filter defined and is the required end of a relationship with the entity 'TaskAssignee'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-07 12:50:27.488 +06:00 [WRN] [] Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data; this mode should only be enabled during development.
+2026-07-07 12:50:27.756 +06:00 [INF] [] Executed DbCommand (14ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-07-07 12:50:27.990 +06:00 [INF] [] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2026-07-07 12:50:28.004 +06:00 [INF] [] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2026-07-07 12:50:28.006 +06:00 [INF] [] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-07-07 12:50:28.018 +06:00 [INF] [] Starting database seeding...
+2026-07-07 12:50:28.166 +06:00 [INF] [] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted"))
+2026-07-07 12:50:28.174 +06:00 [INF] [] Database already seeded — skipping.
+2026-07-07 13:10:33.582 +06:00 [WRN] [] Entity 'Organization' has a global query filter defined and is the required end of a relationship with the entity 'ActivityLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-07 13:10:33.605 +06:00 [WRN] [] Entity 'User' has a global query filter defined and is the required end of a relationship with the entity 'TaskAssignee'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-07 13:10:33.611 +06:00 [WRN] [] Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data; this mode should only be enabled during development.
+2026-07-07 13:10:33.916 +06:00 [INF] [] Executed DbCommand (18ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-07-07 13:10:34.172 +06:00 [INF] [] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2026-07-07 13:10:34.189 +06:00 [INF] [] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2026-07-07 13:10:34.193 +06:00 [INF] [] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-07-07 13:10:34.205 +06:00 [INF] [] Starting database seeding...
+2026-07-07 13:10:34.363 +06:00 [INF] [] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted"))
+2026-07-07 13:10:34.374 +06:00 [INF] [] Database already seeded — skipping.

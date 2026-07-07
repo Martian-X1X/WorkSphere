@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using WorkHub.API.Data.Seeding;
-using WorkHub.API.DTOs.Common;
+using WorkHub.Infrastructure.Data.Seeding;
+using WorkHub.Application.DTOs.Common;
 
 namespace WorkHub.API.Controllers;
 
