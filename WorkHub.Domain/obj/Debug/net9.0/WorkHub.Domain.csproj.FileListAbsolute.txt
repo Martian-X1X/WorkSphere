@@ -10,3 +10,15 @@ C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\WorkH
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\refint\WorkHub.Domain.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\WorkHub.Domain.pdb
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\ref\WorkHub.Domain.dll
+C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\bin\Debug\net9.0\WorkHub.Domain.deps.json
+C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\bin\Debug\net9.0\WorkHub.Domain.dll
+C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\bin\Debug\net9.0\WorkHub.Domain.pdb
+C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\WorkHub.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\WorkHub.Domain.AssemblyInfoInputs.cache
+C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\WorkHub.Domain.AssemblyInfo.cs
+C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\WorkHub.Domain.csproj.CoreCompileInputs.cache
+C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\WorkHub.Domain.sourcelink.json
+C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\WorkHub.Domain.dll
+C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\refint\WorkHub.Domain.dll
+C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\WorkHub.Domain.pdb
+C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\ref\WorkHub.Domain.dll
