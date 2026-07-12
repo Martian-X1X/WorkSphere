@@ -3404,6 +3404,7 @@ The persistent shell that **every future page lives inside:**
 ## 🔌 Full API Endpoint Registry (50 endpoints)
  
 <details>
+
 <summary><strong>Phase 1 — Auth + Organizations (22 endpoints)</strong></summary>
 | Method | Endpoint | Auth |
 |---|---|---|
@@ -3429,7 +3430,9 @@ The persistent shell that **every future page lives inside:**
 | `GET` | `/health` | Public |
  
 </details>
+
 <details>
+
 <summary><strong>Phase 2 — Projects, Tasks, Comments, Activity (28 endpoints)</strong></summary>
 | Method | Endpoint | Auth |
 |---|---|---|
