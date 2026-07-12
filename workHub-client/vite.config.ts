@@ -8,11 +8,15 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@features': path.resolve(__dirname, './src/features'),
-      '@shared': path.resolve(__dirname, './src/shared'),
+      '@components': path.resolve(__dirname, './src/components'),
+      '@pages': path.resolve(__dirname, './src/pages'),
+      '@hooks': path.resolve(__dirname, './src/hooks'),
+      '@services': path.resolve(__dirname, './src/services'),
       '@stores': path.resolve(__dirname, './src/stores'),
       '@types': path.resolve(__dirname, './src/types'),
+      '@utils': path.resolve(__dirname, './src/utils'),
       '@assets': path.resolve(__dirname, './src/assets'),
+      '@lib': path.resolve(__dirname, './src/lib'),
     },
   },
 
@@ -20,7 +24,6 @@ export default defineConfig({
     host: '127.0.0.1',
     port: 5173,
     proxy: {
-      // ✅ Proxy API calls to backend — avoids CORS in development
       '/api': {
         target: 'http://localhost:5210',
         changeOrigin: true,

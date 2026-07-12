@@ -1,29 +1,49 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
-import LoginPage from '@/pages/auth/LoginPage'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+
+// Layouts
+import { AppLayout }       from '@/components/layout/AppLayout'
+import { ProtectedRoute }  from '@/components/layout/ProtectedRoute'
+
+// Auth pages (use AuthLayout internally)
+import LoginPage    from '@/pages/auth/LoginPage'
 import RegisterPage from '@/pages/auth/RegisterPage'
-import DashboardPage from '@/pages/dashboard/DashboardPage'
+
+// App pages (render inside AppLayout)
+import DashboardPage  from '@/pages/dashboard/DashboardPage'
+import ProjectsPage   from '@/pages/projects/ProjectsPage'
+import MyTasksPage    from '@/pages/tasks/MyTasksPage'
+import MembersPage    from '@/pages/members/MembersPage'
+import ActivityPage   from '@/pages/activity/ActivityPage'
+import SettingsPage   from '@/pages/settings/SettingsPage'
 
 export default function App() {
   return (
+    <BrowserRouter>
       <Routes>
-        {/* ── Public routes ───────────────────────────────── */}
+        {/* ── Public routes (no shell) ────────────────────── */}
         <Route path="/login"    element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* ── Protected routes ────────────────────────────── */}
+        {/* ── Protected routes (inside AppLayout shell) ───── */}
         <Route
-          path="/dashboard"
           element={
             <ProtectedRoute>
-              <DashboardPage />
+              <AppLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/projects"  element={<ProjectsPage />} />
+          <Route path="/tasks"     element={<MyTasksPage />} />
+          <Route path="/members"   element={<MembersPage />} />
+          <Route path="/activity"  element={<ActivityPage />} />
+          <Route path="/settings"  element={<SettingsPage />} />
+        </Route>
 
         {/* ── Default redirect ─────────────────────────────── */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/"  element={<Navigate to="/dashboard" replace />} />
+        <Route path="*"  element={<Navigate to="/dashboard" replace />} />
       </Routes>
+    </BrowserRouter>
   )
 }
