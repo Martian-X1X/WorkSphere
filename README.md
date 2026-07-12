@@ -225,14 +225,23 @@ WorkSphere/
  
 ---
  
-### Role Permissions
+### Role Permissions Matrix
  
-| Role     | Permissions | Capabilities                                        |
-|----------|-------------|-----------------------------------------------------|
-| `Owner`  | 25          | Full platform control — billing, archive, export    |
-| `Admin`  | 18          | Manage team and content, no billing/archive/export  |
-| `Member` | 8           | View all + update own tasks + create/delete own comments |
- 
+```
+┌────────────────────────────┬────────┬───────┬────────┐
+│ Permission Area            │ Owner  │ Admin │ Member │
+├────────────────────────────┼────────┼───────┼────────┤
+│ Organizations (view/update)│  ✅    │  ✅/❌│  ✅/❌ │
+│ Members (view/invite/kick) │  ✅    │  ✅   │  view  │
+│ Projects (full CRUD)       │  ✅    │  ✅   │  view  │
+│ Tasks (full CRUD)          │  ✅    │  ✅   │  own   │
+│ Comments (create/delete)   │  ✅    │  ✅   │  own   │
+│ Reports (view/export)      │  ✅    │  view │  ❌    │
+├────────────────────────────┼────────┼───────┼────────┤
+│ Total permissions          │  25    │  18   │   8    │
+└────────────────────────────┴────────┴───────┴────────┘
+```
+
 ---
  
 ### Entity Relationships
@@ -3125,19 +3134,343 @@ Done → InProgress (reopen)
 | `DELETE` | `/api/tasks/{id}` | 🔒 Owner/Admin |
  
 ---
+
+---
+ 
+### ✅ Day 22 — Multi-Assignee API + My Tasks
+ 
+**Problem:** Tasks can have multiple people working on them (like Asana collaborators).
+ 
+| Endpoint | Description |
+|---|---|
+| `GET /api/tasks/{id}/assignees` | Primary assignee + all collaborators |
+| `POST /api/tasks/{id}/assignees` | Add collaborator — validates no duplicates, no primary collision |
+| `DELETE /api/tasks/{id}/assignees/{userId}` | Remove collaborator |
+| `GET /api/users/me/tasks` | All tasks assigned to me (primary OR collaborator) across all projects |
+ 
+```
+My Tasks query — two separate DB queries merged in memory:
+  Query 1: Tasks WHERE AssignedToUserId = me       → "Primary"
+  Query 2: TaskAssignees WHERE UserId = me → Tasks → "Collaborator"
+  Deduplicated + filtered + paginated in memory
+```
+ 
+> 12 tests passing · Alice sees 3 Primary + 1 Collaborator tasks · Cross-org blocked
+ 
+---
+ 
+### ✅ Day 23 — Task Comments
+ 
+All roles can comment. Delete rules differ:
+ 
+```
+Owner / Admin → can delete ANY comment
+Member        → can only delete/edit THEIR OWN comment
+```
+ 
+| Endpoint | Description |
+|---|---|
+| `GET /api/tasks/{id}/comments` | Paginated, chronological (asc) or newest-first (desc) |
+| `POST /api/tasks/{id}/comments` | All roles — content validated (no whitespace-only) |
+| `PUT /api/tasks/{id}/comments/{id}` | Own comment only — sets `IsEdited = true` + `EditedAt` |
+| `DELETE /api/tasks/{id}/comments/{id}` | Own for Members, any for Admin/Owner |
+ 
+> 17 tests passing · Soft delete · `isOwnComment` flag in response
+ 
+---
+ 
+### ✅ Day 28 — Activity Log
+ 
+Auto-logged on every create/update/delete. Never soft-deleted — permanent audit trail.
+ 
+```
+WHO    → userId + userName (snapshot at time of action)
+WHAT   → action: ProjectCreated, TaskStatusChanged, CommentAdded...
+ENTITY → entityType: Project, Task, Comment, Member
+WHEN   → UTC timestamp
+META   → JSON: { "from": "Active", "to": "Archived" }
+ORG    → organizationId (tenant-scoped)
+```
+ 
+| Endpoint | Description |
+|---|---|
+| `GET /api/activity` | Org-wide activity feed — newest first |
+| `GET /api/projects/{id}/activity` | Project + all its task events |
+| `GET /api/tasks/{id}/activity` | Task events + comment events |
+ 
+> **19 action types** auto-logged across ProjectService, TaskService, CommentService
+ 
+---
+ 
+### ✅ Day 29 — FluentValidation
+ 
+Replaced all `[DataAnnotations]` with proper FluentValidation rules:
+ 
+```
+AuthValidators.cs         → name regex, email, password rules
+OrganizationValidators.cs → URL validation, max lengths
+InviteValidators.cs       → role whitelist validation
+ProjectValidators.cs      → cross-field: DueDate > StartDate
+TaskValidators.cs         → conditional: EstimatedMinutes > 0 if provided
+CommentValidators.cs      → whitespace-only content blocked
+```
+ 
+**New rules DataAnnotations couldn't do:**
+ 
+| Rule | Example |
+|---|---|
+| Regex on names | `Abdul123` → "Only letters, hyphens, apostrophes" |
+| Cross-field dates | `DueDate < StartDate` → caught before service layer |
+| Conditional numeric | `estimatedMinutes: 0` → "Must be greater than 0" |
+| Whitespace check | `"   "` → "Comment cannot be only whitespace" |
+ 
+---
+ 
+### ✅ Day 30 — Phase 2 Sign-off
+ 
+Full end-to-end test suite across all 50 endpoints. Clean DB re-seed. All tests green.
+ 
+```
+📦 Phase 2 Delivered:
+  5 new DB tables          (Projects, Tasks, TaskAssignees, Comments, ActivityLogs)
+  28 new API endpoints
+  FluentValidation on all 8 DTO groups
+  OrgScopeGuard on every mutation endpoint
+  Activity auto-logged on every state change
+  Member ownership rules on tasks + comments
+  Phase 2 tagged: git tag phase-2-complete
+```
+ 
+---
+ 
+### ✅ Day 31 — Serilog Structured Logging
+ 
+```json
+{
+  "Timestamp": "2026-07-01T10:00:15",
+  "Level": "Information",
+  "Message": "Task {TaskId} status changed {Old} → {New}",
+  "TaskId": "abc-123",
+  "Old": "Todo",
+  "New": "Done",
+  "UserId": "xyz-456",
+  "RequestId": "a1b2c3d4",
+  "Elapsed": "18ms"
+}
+```
+ 
+- Console sink (colored, `[HH:mm:ss LVL]` format) + rolling file sink
+- `logs/worksphere-YYYYMMDD.log` — 7-day retention, 10MB per file
+- `X-Correlation-ID` header — clients can inject their own trace ID
+- `UseSerilogRequestLogging()` — replaces manual request log middleware
+- Log levels: `Debug` in dev (SQL queries visible) · `Info+` in production
+- Bootstrap logger catches startup failures before full config loads
+---
+ 
+### ✅ Day 32 — Clean Architecture
+ 
+Refactored from 1 project into 4 layers:
+ 
+```
+WorkSphere.Domain/          → Entities, Constants
+  ↑ no dependencies
+ 
+WorkSphere.Application/     → Services, DTOs, Interfaces, Validators
+  ↑ depends on Domain only
+ 
+WorkSphere.Infrastructure/  → AppDbContext, Migrations, Seeding
+  ↑ depends on Domain + Application
+ 
+WorkHub.API/                → Controllers, Middleware, Authorization
+  ↑ depends on Application + Infrastructure (wiring only)
+```
+ 
+**Dependency rule:** Arrows only point inward. Domain knows nothing. API knows everything but owns nothing.
+ 
+> `dotnet build` → 0 errors · All 50 endpoints still working · `dotnet ef` targets `--project Infrastructure --startup-project API`
+ 
+---
+ 
+### ✅ Day 33 — React + Vite Frontend Setup (Phase 3 Begins)
+ 
+```
+worksphere-client/
+  React 18 · Vite · TypeScript · Tailwind CSS v3
+  TanStack Query v5 · Zustand · React Hook Form · Zod
+  Axios (with JWT interceptor + auto-refresh) · Lucide Icons
+```
+ 
+**Key files built:**
+ 
+| File | Purpose |
+|---|---|
+| `vite.config.ts` | Path aliases (`@/`) + proxy `/api` → `localhost:5210` |
+| `src/types/index.ts` | TypeScript interfaces matching all backend DTOs |
+| `src/lib/api.ts` | Axios instance — attaches JWT, refreshes on 401 |
+| `src/lib/queryClient.ts` | TanStack Query — 1min stale, 5min gc, no window refetch |
+| `src/stores/authStore.ts` | Zustand — persisted auth state + permission helpers |
+| `src/utils/index.ts` | `cn()`, date formatters, badge helpers, error extractor |
+| `src/index.css` | Tailwind + `btn-primary`, `card`, `badge-*` component classes |
+ 
+> `npm run dev` → `http://localhost:5173` · `✅ Connected to WorkSphere API` shown
+ 
+---
+ 
+### ✅ Day 34 — Login + Register Pages
+ 
+Full auth flow with client-side validation (Zod) + server-side error handling (TanStack Mutation):
+ 
+**Login Page**
+- React Hook Form + Zod schema
+- Pre-filled with seed credentials (dev convenience)
+- Show/hide password toggle
+- API errors shown as field-level messages (not just toasts)
+**Register Page**
+- Live password strength indicator (5 rules, green checkmarks)
+- Confirm password cross-field validation
+- `organizationName` field — creates new tenant on success
+**Auth Flow:**
+```
+Submit form → Zod validates → POST /api/auth/login
+  → Success: setAuth() → localStorage tokens → toast → /dashboard
+  → Failure: field errors from API response → shown inline
+```
+ 
+**Protected Routes:**
+```
+ProtectedRoute wraps AppLayout
+  ↓
+Not authenticated → <Navigate to="/login" state={{ from: location }} />
+Authenticated     → render children (AppLayout + Outlet)
+```
+ 
+> 10 tests passing · Client + server validation both working · Token persisted in Zustand + localStorage
+ 
+---
+ 
+### ✅ Day 35 — Dashboard Layout Shell
+ 
+The persistent shell that **every future page lives inside:**
+ 
+```
+┌──────────────────────────────────────────────────────┐
+│  [W] WorkSphere  ←  │  WorkSphere / Dashboard  [🔔][👤]│
+│  ──────────────     ├──────────────────────────────── │
+│  ● Dashboard        │                                  │
+│                     │   Good morning, Demo Owner! 👋   │
+│  ── Work ──         │                                  │
+│  Projects           │   [Projects][Tasks][Members][Act]│
+│  My Tasks           │                                  │
+│                     │   Account Info  │  Permissions   │
+│  ── Team ──         │                                  │
+│  Members            │   25 permissions listed          │
+│  Activity           │   Role: Owner                    │
+│                     │                                  │
+│  ── System ──       │   Quick Navigation               │
+│  Settings           │   [📁][✅][👥][📊]              │
+│                     │                                  │
+│  [DM] Demo Owner    │                                  │
+└──────────────────────────────────────────────────────┘
+```
+ 
+**Components built:**
+ 
+| Component | Description |
+|---|---|
+| `AppLayout.tsx` | Master shell — `<Sidebar>` + `<Header>` + `<Outlet>` |
+| `Sidebar.tsx` | Collapsible (56px icon-only ↔ 224px full), role-filtered nav |
+| `Header.tsx` | Breadcrumb (auto from route) + notification bell + user menu |
+| `NavItem.tsx` | Active highlight, left indicator bar, tooltip when collapsed |
+| `UserMenu.tsx` | Avatar dropdown — name, email, role, org, logout |
+| `MobileMenu.tsx` | Slide-in drawer with backdrop for small screens |
+| `navConfig.ts` | Nav sections with `adminOnly` flag (Members/Settings hidden from Members) |
+ 
+**Routing pattern:**
+```tsx
+<Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+  <Route path="/dashboard" element={<DashboardPage />} />
+  <Route path="/projects"  element={<ProjectsPage />} />   {/* stub */}
+  <Route path="/tasks"     element={<MyTasksPage />} />    {/* stub */}
+  <Route path="/members"   element={<MembersPage />} />    {/* stub */}
+  <Route path="/activity"  element={<ActivityPage />} />   {/* stub */}
+  <Route path="/settings"  element={<SettingsPage />} />   {/* stub */}
+</Route>
+```
+ 
+> Sidebar collapse state persisted · Mobile responsive · Role-based nav items · 10 tests passing
+ 
+---
+ 
+## 🔌 Full API Endpoint Registry (50 endpoints)
+ 
+<details>
+<summary><strong>Phase 1 — Auth + Organizations (22 endpoints)</strong></summary>
+| Method | Endpoint | Auth |
+|---|---|---|
+| `POST` | `/api/auth/register` | Public |
+| `POST` | `/api/auth/login` | Public |
+| `POST` | `/api/auth/refresh` | Public |
+| `POST` | `/api/auth/revoke` | 🔒 Bearer |
+| `GET` | `/api/auth/context` | 🔒 Bearer |
+| `GET` | `/api/users/me` | 🔒 Bearer |
+| `GET` | `/api/users/me/permissions` | 🔒 Bearer |
+| `GET` | `/api/users/me/tasks` | 🔒 Bearer |
+| `GET` | `/api/organizations/me` | 🔒 Any |
+| `PUT` | `/api/organizations/me` | 🔒 Owner |
+| `GET` | `/api/organizations/me/members` | 🔒 Any |
+| `GET` | `/api/organizations/me/members/{id}` | 🔒 Any |
+| `PATCH` | `/api/organizations/me/members/{id}/role` | 🔒 Owner |
+| `PATCH` | `/api/organizations/me/members/{id}/deactivate` | 🔒 Owner/Admin |
+| `POST` | `/api/organizations/me/invites` | 🔒 Owner/Admin |
+| `GET` | `/api/organizations/me/invites` | 🔒 Owner/Admin |
+| `DELETE` | `/api/organizations/me/invites/{id}` | 🔒 Owner/Admin |
+| `GET` | `/api/invites/{token}` | Public |
+| `POST` | `/api/invites/{token}/accept` | Public |
+| `GET` | `/health` | Public |
+ 
+</details>
+<details>
+<summary><strong>Phase 2 — Projects, Tasks, Comments, Activity (28 endpoints)</strong></summary>
+| Method | Endpoint | Auth |
+|---|---|---|
+| `GET` | `/api/projects` | 🔒 Any |
+| `GET` | `/api/projects/{id}` | 🔒 Any |
+| `POST` | `/api/projects` | 🔒 Owner/Admin |
+| `PUT` | `/api/projects/{id}` | 🔒 Owner/Admin |
+| `PATCH` | `/api/projects/{id}/status` | 🔒 Owner/Admin |
+| `DELETE` | `/api/projects/{id}` | 🔒 Owner/Admin |
+| `GET` | `/api/projects/{id}/activity` | 🔒 Any |
+| `GET` | `/api/projects/{id}/tasks` | 🔒 Any |
+| `POST` | `/api/projects/{id}/tasks` | 🔒 Owner/Admin |
+| `GET` | `/api/tasks/{id}` | 🔒 Any |
+| `PUT` | `/api/tasks/{id}` | 🔒 Any (own) |
+| `PATCH` | `/api/tasks/{id}/status` | 🔒 Any (own) |
+| `PATCH` | `/api/tasks/{id}/assign` | 🔒 Owner/Admin |
+| `DELETE` | `/api/tasks/{id}` | 🔒 Owner/Admin |
+| `GET` | `/api/tasks/{id}/assignees` | 🔒 Any |
+| `POST` | `/api/tasks/{id}/assignees` | 🔒 Owner/Admin |
+| `DELETE` | `/api/tasks/{id}/assignees/{userId}` | 🔒 Owner/Admin |
+| `GET` | `/api/tasks/{id}/activity` | 🔒 Any |
+| `GET` | `/api/tasks/{id}/comments` | 🔒 Any |
+| `POST` | `/api/tasks/{id}/comments` | 🔒 Any |
+| `PUT` | `/api/tasks/{id}/comments/{id}` | 🔒 Own only |
+| `DELETE` | `/api/tasks/{id}/comments/{id}` | 🔒 Own / Admin+ |
+| `GET` | `/api/activity` | 🔒 Any |
+ 
+</details>
+---
  
 ## 🛣️ Product Roadmap
  
-| Phase | Days     | Milestone                                              | Status       |
-|-------|----------|--------------------------------------------------------|--------------|
-| 1     | 1 – 17   | Backend foundation: auth, JWT, roles, multi-tenancy    | ✅ Complete  |
-| 2     | 18 – 30  | Project & task API: CRUD, filtering, pagination, logs  | ✅ Complete  |
-| 3     | 31 – 50  | React frontend: dashboard, kanban, drag & drop         | 🟡 InProgress|
-| 4     | 51 – 65  | Fullstack: notifications, invites, search, permissions | 🔲 Upcoming  |
-| 5     | 66 – 80  | Real-time: SignalR chat, presence, file uploads        | 🔲 Upcoming  |
-| 6     | 81 – 90  | DevOps: Docker, CI/CD, cloud deployment                | 🔲 Upcoming  |
-| 7     | 91 – 100 | Production hardening, security audit, launch           | 🔲 Upcoming  |
- 
+| Phase | Days | Milestone | Status |
+|---|---|---|---|
+| **1** | 1–17 | Backend foundation: auth, JWT, multi-tenancy | ✅ Complete |
+| **2** | 18–30 | Projects, tasks, comments, activity log | ✅ Complete |
+| **3** | 31–50 | React frontend: dashboard, kanban, drag & drop | 🟡 In Progress |
+| **4** | 51–65 | Notifications, search, real-time hints | 🔲 Upcoming |
+| **5** | 66–80 | SignalR chat, presence, file uploads | 🔲 Upcoming |
+| **6** | 81–90 | Docker, CI/CD, cloud deployment | 🔲 Upcoming |
+| **7** | 91–100 | Production hardening, security audit, launch | 🔲 Upcoming |
 ---
 
 ## 🔑 Key Milestones
