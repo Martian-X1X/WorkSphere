@@ -248,3 +248,30 @@ export interface AuthContext {
   orgPlan: string
   permissions: string[]
 }
+
+// ── Organization types (extend existing) ──────────────────────────
+export interface UpdateOrganizationRequest {
+  name: string
+  description?: string
+  logoUrl?: string
+}
+
+export interface ChangeMemberRoleRequest {
+  role: 'Owner' | 'Admin' | 'Member'
+}
+
+// ── Invite types ───────────────────────────────────────────────────
+export interface CreateInviteRequest {
+  email: string
+  role: 'Owner' | 'Admin' | 'Member'
+}
+
+export interface InvitePreview {
+  organizationName: string
+  organizationSlug: string
+  invitedByName: string
+  role: 'Owner' | 'Admin' | 'Member'
+  expiresAt: string
+  isExpired: boolean
+  isAlreadyAccepted: boolean
+}
