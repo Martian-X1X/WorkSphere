@@ -564,3 +564,1227 @@ ORDER BY u."FirstName", u."LastName"
 LIMIT @__p_2 OFFSET @__p_1
 2026-07-13 10:27:40.456 +06:00 [INF] [0HNN0IOVCM71J:00000001] Members listed for org "00000000-0000-0000-0001-000000000001" — page 1, 4 results
 2026-07-13 10:27:40.457 +06:00 [INF] [0HNN0IOVCM71J:00000001] [0HNN0IOVCM71J:00000001] GET /api/organizations/me/members → 200 (59.2ms)
+2026-07-13 10:29:56.245 +06:00 [INF] [0HNN0IOVCM71L:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000002'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 10:29:56.248 +06:00 [INF] [0HNN0IOVCM71L:00000001] Executed DbCommand (1ms) [Parameters=[@__refreshToken_0='W/G3YFdD2SGQPaMeLp5qvHsom3khhdWuwwjpeqtDlvyrBTwL0IXSIfodEmM+oo8zhjqsnYWWuBdZRwQJc0xyQg=='], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."RefreshToken" = @__refreshToken_0
+LIMIT 1
+2026-07-13 10:29:56.290 +06:00 [INF] [0HNN0IOVCM71L:00000001] Executed DbCommand (41ms) [Parameters=[@p3='00000000-0000-0000-0002-000000000002', @p0=NULL, @p1=NULL (DbType = DateTime), @p2='2026-07-13T04:29:56.2496621Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Users" SET "RefreshToken" = @p0, "RefreshTokenExpiry" = @p1, "UpdatedAt" = @p2
+WHERE "Id" = @p3;
+2026-07-13 10:29:56.290 +06:00 [INF] [0HNN0IOVCM71L:00000001] Refresh token revoked for user "00000000-0000-0000-0002-000000000002" — logout complete
+2026-07-13 10:29:56.291 +06:00 [INF] [0HNN0IOVCM71L:00000001] [0HNN0IOVCM71L:00000001] POST /api/auth/revoke → 200 (49.6ms)
+2026-07-13 10:30:13.685 +06:00 [INF] [] Application is shutting down...
+2026-07-13 17:38:50.457 +06:00 [WRN] [] Entity 'Organization' has a global query filter defined and is the required end of a relationship with the entity 'ActivityLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-13 17:38:50.483 +06:00 [WRN] [] Entity 'User' has a global query filter defined and is the required end of a relationship with the entity 'TaskAssignee'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-07-13 17:38:50.488 +06:00 [WRN] [] Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data; this mode should only be enabled during development.
+2026-07-13 17:38:50.929 +06:00 [INF] [] Executed DbCommand (14ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-07-13 17:38:51.176 +06:00 [INF] [] Executed DbCommand (9ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2026-07-13 17:38:51.192 +06:00 [INF] [] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2026-07-13 17:38:51.195 +06:00 [INF] [] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-07-13 17:38:51.210 +06:00 [INF] [] Starting database seeding...
+2026-07-13 17:38:51.376 +06:00 [INF] [] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted"))
+2026-07-13 17:38:51.385 +06:00 [INF] [] Database already seeded — skipping.
+2026-07-13 17:38:51.530 +06:00 [INF] [] Now listening on: http://localhost:5210
+2026-07-13 17:38:51.531 +06:00 [INF] [] Application started. Press Ctrl+C to shut down.
+2026-07-13 17:38:51.531 +06:00 [INF] [] Hosting environment: Development
+2026-07-13 17:38:51.531 +06:00 [INF] [] Content root path: C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API
+2026-07-13 17:39:55.714 +06:00 [WRN] [0HNN0QDR080I8:00000001] Failed to determine the https port for redirect.
+2026-07-13 17:39:56.147 +06:00 [INF] [0HNN0QDR080I8:00000001] Executed DbCommand (23ms) [Parameters=[@__email_0='demo.owner@worksphere.io'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Email" = @__email_0
+LIMIT 1
+2026-07-13 17:39:57.369 +06:00 [DBG] [0HNN0QDR080I8:00000001] JWT access token generated for user "00000000-0000-0000-0002-000000000001" — expires "2026-07-13T11:54:57.3230133Z"
+2026-07-13 17:39:57.370 +06:00 [DBG] [0HNN0QDR080I8:00000001] Refresh token generated — expires "2026-07-20T11:39:57.3703530Z"
+2026-07-13 17:39:57.512 +06:00 [INF] [0HNN0QDR080I8:00000001] Executed DbCommand (13ms) [Parameters=[@p4='00000000-0000-0000-0002-000000000001', @p0='2026-07-13T11:39:57.3707748Z' (Nullable = true) (DbType = DateTime), @p1='Vl/qfAP6QGzNStp/q5OxYqKrGb0tA8PeOlwXeiNEBPZrz+Q3zaf3tD9OzeNVvZbjb4V//o0kdsDzjzRxr5aT6w==', @p2='2026-07-20T11:39:57.3706980Z' (Nullable = true) (DbType = DateTime), @p3='2026-07-13T11:39:57.4392834Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Users" SET "LastLoginAt" = @p0, "RefreshToken" = @p1, "RefreshTokenExpiry" = @p2, "UpdatedAt" = @p3
+WHERE "Id" = @p4;
+2026-07-13 17:39:57.523 +06:00 [INF] [0HNN0QDR080I8:00000001] User "00000000-0000-0000-0002-000000000001" logged in from org "00000000-0000-0000-0001-000000000001"
+2026-07-13 17:39:57.572 +06:00 [INF] [0HNN0QDR080I8:00000001] [0HNN0QDR080I8:00000001] POST /api/auth/login → 200 (1872.5ms)
+2026-07-13 17:39:57.824 +06:00 [INF] [0HNN0QDR080I9:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:39:57.868 +06:00 [INF] [0HNN0QDR080I9:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+FROM "Organizations" AS o
+WHERE NOT (o."IsDeleted") AND o."Id" = @___currentUser_OrganizationId_0
+LIMIT 1
+2026-07-13 17:39:57.879 +06:00 [INF] [0HNN0QDR080I9:00000001] [0HNN0QDR080I9:00000001] GET /api/auth/context → 200 (235.3ms)
+2026-07-13 17:40:08.661 +06:00 [DBG] [0HNN0QDR080IA:00000001] Permission granted: Owner → projects.view
+2026-07-13 17:40:08.671 +06:00 [INF] [0HNN0QDR080IA:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:40:08.752 +06:00 [INF] [0HNN0QDR080IA:00000001] Executed DbCommand (12ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Projects" AS p
+WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+2026-07-13 17:40:08.903 +06:00 [INF] [0HNN0QDR080IA:00000001] Executed DbCommand (12ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__p_2='100', @__p_1='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt", t0."Id", t0."ActualMinutes", t0."AssignedToUserId", t0."CompletedAt", t0."CreatedAt", t0."CreatedByUserId", t0."DeletedAt", t0."Description", t0."DueDate", t0."EstimatedMinutes", t0."IsDeleted", t0."OrderIndex", t0."OrganizationId", t0."ParentTaskId", t0."Priority", t0."ProjectId", t0."StartDate", t0."Status", t0."Title", t0."UpdatedAt"
+FROM (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+    ORDER BY p."CreatedAt" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS p0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON p0."CreatedByUserId" = u0."Id"
+LEFT JOIN (
+    SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+    FROM "Users" AS u1
+    WHERE NOT (u1."IsDeleted")
+) AS u2 ON p0."ProjectLeadUserId" = u2."Id"
+LEFT JOIN (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+    FROM "Tasks" AS t
+    WHERE NOT (t."IsDeleted")
+) AS t0 ON p0."Id" = t0."ProjectId"
+ORDER BY p0."CreatedAt" DESC, p0."Id", u0."Id", u2."Id"
+2026-07-13 17:40:09.044 +06:00 [INF] [0HNN0QDR080IA:00000001] Projects listed for org "00000000-0000-0000-0001-000000000001" — 3 results
+2026-07-13 17:40:09.070 +06:00 [INF] [0HNN0QDR080IA:00000001] [0HNN0QDR080IA:00000001] GET /api/projects → 200 (418.6ms)
+2026-07-13 17:40:15.651 +06:00 [DBG] [0HNN0QDR080IB:00000001] Permission granted: Owner → projects.view
+2026-07-13 17:40:15.655 +06:00 [INF] [0HNN0QDR080IB:00000001] Executed DbCommand (2ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:40:15.665 +06:00 [INF] [0HNN0QDR080IB:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__query_Status_1='Active'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Projects" AS p
+WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0 AND p."Status" = @__query_Status_1
+2026-07-13 17:40:15.720 +06:00 [INF] [0HNN0QDR080IB:00000001] Executed DbCommand (2ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__query_Status_1='Active', @__p_3='100', @__p_2='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt", t0."Id", t0."ActualMinutes", t0."AssignedToUserId", t0."CompletedAt", t0."CreatedAt", t0."CreatedByUserId", t0."DeletedAt", t0."Description", t0."DueDate", t0."EstimatedMinutes", t0."IsDeleted", t0."OrderIndex", t0."OrganizationId", t0."ParentTaskId", t0."Priority", t0."ProjectId", t0."StartDate", t0."Status", t0."Title", t0."UpdatedAt"
+FROM (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0 AND p."Status" = @__query_Status_1
+    ORDER BY p."CreatedAt" DESC
+    LIMIT @__p_3 OFFSET @__p_2
+) AS p0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON p0."CreatedByUserId" = u0."Id"
+LEFT JOIN (
+    SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+    FROM "Users" AS u1
+    WHERE NOT (u1."IsDeleted")
+) AS u2 ON p0."ProjectLeadUserId" = u2."Id"
+LEFT JOIN (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+    FROM "Tasks" AS t
+    WHERE NOT (t."IsDeleted")
+) AS t0 ON p0."Id" = t0."ProjectId"
+ORDER BY p0."CreatedAt" DESC, p0."Id", u0."Id", u2."Id"
+2026-07-13 17:40:15.728 +06:00 [INF] [0HNN0QDR080IB:00000001] Projects listed for org "00000000-0000-0000-0001-000000000001" — 2 results
+2026-07-13 17:40:15.730 +06:00 [INF] [0HNN0QDR080IB:00000001] [0HNN0QDR080IB:00000001] GET /api/projects → 200 (81.7ms)
+2026-07-13 17:40:16.896 +06:00 [DBG] [0HNN0QDR080IC:00000001] Permission granted: Owner → projects.view
+2026-07-13 17:40:16.898 +06:00 [INF] [0HNN0QDR080IC:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:40:16.904 +06:00 [INF] [0HNN0QDR080IC:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__query_Status_1='OnHold'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Projects" AS p
+WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0 AND p."Status" = @__query_Status_1
+2026-07-13 17:40:16.906 +06:00 [INF] [0HNN0QDR080IC:00000001] Executed DbCommand (2ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__query_Status_1='OnHold', @__p_3='100', @__p_2='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt", t0."Id", t0."ActualMinutes", t0."AssignedToUserId", t0."CompletedAt", t0."CreatedAt", t0."CreatedByUserId", t0."DeletedAt", t0."Description", t0."DueDate", t0."EstimatedMinutes", t0."IsDeleted", t0."OrderIndex", t0."OrganizationId", t0."ParentTaskId", t0."Priority", t0."ProjectId", t0."StartDate", t0."Status", t0."Title", t0."UpdatedAt"
+FROM (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0 AND p."Status" = @__query_Status_1
+    ORDER BY p."CreatedAt" DESC
+    LIMIT @__p_3 OFFSET @__p_2
+) AS p0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON p0."CreatedByUserId" = u0."Id"
+LEFT JOIN (
+    SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+    FROM "Users" AS u1
+    WHERE NOT (u1."IsDeleted")
+) AS u2 ON p0."ProjectLeadUserId" = u2."Id"
+LEFT JOIN (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+    FROM "Tasks" AS t
+    WHERE NOT (t."IsDeleted")
+) AS t0 ON p0."Id" = t0."ProjectId"
+ORDER BY p0."CreatedAt" DESC, p0."Id", u0."Id", u2."Id"
+2026-07-13 17:40:16.908 +06:00 [INF] [0HNN0QDR080IC:00000001] Projects listed for org "00000000-0000-0000-0001-000000000001" — 1 results
+2026-07-13 17:40:16.909 +06:00 [INF] [0HNN0QDR080IC:00000001] [0HNN0QDR080IC:00000001] GET /api/projects → 200 (12.7ms)
+2026-07-13 17:40:35.287 +06:00 [DBG] [0HNN0QDR080ID:00000001] Permission granted: Owner → projects.view
+2026-07-13 17:40:35.293 +06:00 [INF] [0HNN0QDR080ID:00000001] Executed DbCommand (4ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:40:35.324 +06:00 [INF] [0HNN0QDR080ID:00000001] Executed DbCommand (4ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__search_1_contains='%w%', @__search_1_contains_1='%w%'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Projects" AS p
+WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0 AND (lower(p."Name") LIKE @__search_1_contains OR (p."Description" IS NOT NULL AND lower(p."Description") LIKE @__search_1_contains_1))
+2026-07-13 17:40:35.409 +06:00 [INF] [0HNN0QDR080ID:00000001] Executed DbCommand (2ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__search_1_contains='%w%', @__search_1_contains_1='%w%', @__p_3='100', @__p_2='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt", t0."Id", t0."ActualMinutes", t0."AssignedToUserId", t0."CompletedAt", t0."CreatedAt", t0."CreatedByUserId", t0."DeletedAt", t0."Description", t0."DueDate", t0."EstimatedMinutes", t0."IsDeleted", t0."OrderIndex", t0."OrganizationId", t0."ParentTaskId", t0."Priority", t0."ProjectId", t0."StartDate", t0."Status", t0."Title", t0."UpdatedAt"
+FROM (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0 AND (lower(p."Name") LIKE @__search_1_contains OR (p."Description" IS NOT NULL AND lower(p."Description") LIKE @__search_1_contains_1))
+    ORDER BY p."CreatedAt" DESC
+    LIMIT @__p_3 OFFSET @__p_2
+) AS p0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON p0."CreatedByUserId" = u0."Id"
+LEFT JOIN (
+    SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+    FROM "Users" AS u1
+    WHERE NOT (u1."IsDeleted")
+) AS u2 ON p0."ProjectLeadUserId" = u2."Id"
+LEFT JOIN (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+    FROM "Tasks" AS t
+    WHERE NOT (t."IsDeleted")
+) AS t0 ON p0."Id" = t0."ProjectId"
+ORDER BY p0."CreatedAt" DESC, p0."Id", u0."Id", u2."Id"
+2026-07-13 17:40:35.413 +06:00 [INF] [0HNN0QDR080ID:00000001] Projects listed for org "00000000-0000-0000-0001-000000000001" — 1 results
+2026-07-13 17:40:35.414 +06:00 [INF] [0HNN0QDR080ID:00000001] [0HNN0QDR080ID:00000001] GET /api/projects → 200 (127.7ms)
+2026-07-13 17:40:35.482 +06:00 [DBG] [0HNN0QDR080IE:00000001] Permission granted: Owner → projects.view
+2026-07-13 17:40:35.485 +06:00 [INF] [0HNN0QDR080IE:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:40:35.487 +06:00 [INF] [0HNN0QDR080IE:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__search_1_contains='%we%', @__search_1_contains_1='%we%'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Projects" AS p
+WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0 AND (lower(p."Name") LIKE @__search_1_contains OR (p."Description" IS NOT NULL AND lower(p."Description") LIKE @__search_1_contains_1))
+2026-07-13 17:40:35.490 +06:00 [INF] [0HNN0QDR080IE:00000001] Executed DbCommand (2ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__search_1_contains='%we%', @__search_1_contains_1='%we%', @__p_3='100', @__p_2='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt", t0."Id", t0."ActualMinutes", t0."AssignedToUserId", t0."CompletedAt", t0."CreatedAt", t0."CreatedByUserId", t0."DeletedAt", t0."Description", t0."DueDate", t0."EstimatedMinutes", t0."IsDeleted", t0."OrderIndex", t0."OrganizationId", t0."ParentTaskId", t0."Priority", t0."ProjectId", t0."StartDate", t0."Status", t0."Title", t0."UpdatedAt"
+FROM (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0 AND (lower(p."Name") LIKE @__search_1_contains OR (p."Description" IS NOT NULL AND lower(p."Description") LIKE @__search_1_contains_1))
+    ORDER BY p."CreatedAt" DESC
+    LIMIT @__p_3 OFFSET @__p_2
+) AS p0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON p0."CreatedByUserId" = u0."Id"
+LEFT JOIN (
+    SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+    FROM "Users" AS u1
+    WHERE NOT (u1."IsDeleted")
+) AS u2 ON p0."ProjectLeadUserId" = u2."Id"
+LEFT JOIN (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+    FROM "Tasks" AS t
+    WHERE NOT (t."IsDeleted")
+) AS t0 ON p0."Id" = t0."ProjectId"
+ORDER BY p0."CreatedAt" DESC, p0."Id", u0."Id", u2."Id"
+2026-07-13 17:40:35.492 +06:00 [INF] [0HNN0QDR080IE:00000001] Projects listed for org "00000000-0000-0000-0001-000000000001" — 1 results
+2026-07-13 17:40:35.493 +06:00 [INF] [0HNN0QDR080IE:00000001] [0HNN0QDR080IE:00000001] GET /api/projects → 200 (11.3ms)
+2026-07-13 17:40:39.968 +06:00 [DBG] [0HNN0QDR080IF:00000001] Permission granted: Owner → projects.view
+2026-07-13 17:40:39.972 +06:00 [INF] [0HNN0QDR080IF:00000001] Executed DbCommand (2ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:40:39.978 +06:00 [INF] [0HNN0QDR080IF:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Projects" AS p
+WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+2026-07-13 17:40:40.093 +06:00 [INF] [0HNN0QDR080IF:00000001] Executed DbCommand (56ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__p_2='100', @__p_1='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt", t0."Id", t0."ActualMinutes", t0."AssignedToUserId", t0."CompletedAt", t0."CreatedAt", t0."CreatedByUserId", t0."DeletedAt", t0."Description", t0."DueDate", t0."EstimatedMinutes", t0."IsDeleted", t0."OrderIndex", t0."OrganizationId", t0."ParentTaskId", t0."Priority", t0."ProjectId", t0."StartDate", t0."Status", t0."Title", t0."UpdatedAt"
+FROM (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+    ORDER BY p."CreatedAt"
+    LIMIT @__p_2 OFFSET @__p_1
+) AS p0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON p0."CreatedByUserId" = u0."Id"
+LEFT JOIN (
+    SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+    FROM "Users" AS u1
+    WHERE NOT (u1."IsDeleted")
+) AS u2 ON p0."ProjectLeadUserId" = u2."Id"
+LEFT JOIN (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+    FROM "Tasks" AS t
+    WHERE NOT (t."IsDeleted")
+) AS t0 ON p0."Id" = t0."ProjectId"
+ORDER BY p0."CreatedAt", p0."Id", u0."Id", u2."Id"
+2026-07-13 17:40:40.099 +06:00 [INF] [0HNN0QDR080IF:00000001] Projects listed for org "00000000-0000-0000-0001-000000000001" — 3 results
+2026-07-13 17:40:40.100 +06:00 [INF] [0HNN0QDR080IF:00000001] [0HNN0QDR080IF:00000001] GET /api/projects → 200 (132.1ms)
+2026-07-13 17:40:42.193 +06:00 [DBG] [0HNN0QDR080IG:00000001] Permission granted: Owner → projects.view
+2026-07-13 17:40:42.196 +06:00 [INF] [0HNN0QDR080IG:00000001] Executed DbCommand (2ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:40:42.204 +06:00 [INF] [0HNN0QDR080IG:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Projects" AS p
+WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+2026-07-13 17:40:42.266 +06:00 [INF] [0HNN0QDR080IG:00000001] Executed DbCommand (3ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__p_2='100', @__p_1='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt", t0."Id", t0."ActualMinutes", t0."AssignedToUserId", t0."CompletedAt", t0."CreatedAt", t0."CreatedByUserId", t0."DeletedAt", t0."Description", t0."DueDate", t0."EstimatedMinutes", t0."IsDeleted", t0."OrderIndex", t0."OrganizationId", t0."ParentTaskId", t0."Priority", t0."ProjectId", t0."StartDate", t0."Status", t0."Title", t0."UpdatedAt"
+FROM (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+    ORDER BY p."Name" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS p0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON p0."CreatedByUserId" = u0."Id"
+LEFT JOIN (
+    SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+    FROM "Users" AS u1
+    WHERE NOT (u1."IsDeleted")
+) AS u2 ON p0."ProjectLeadUserId" = u2."Id"
+LEFT JOIN (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+    FROM "Tasks" AS t
+    WHERE NOT (t."IsDeleted")
+) AS t0 ON p0."Id" = t0."ProjectId"
+ORDER BY p0."Name" DESC, p0."Id", u0."Id", u2."Id"
+2026-07-13 17:40:42.275 +06:00 [INF] [0HNN0QDR080IG:00000001] Projects listed for org "00000000-0000-0000-0001-000000000001" — 3 results
+2026-07-13 17:40:42.276 +06:00 [INF] [0HNN0QDR080IG:00000001] [0HNN0QDR080IG:00000001] GET /api/projects → 200 (83.8ms)
+2026-07-13 17:40:44.996 +06:00 [DBG] [0HNN0QDR080IH:00000001] Permission granted: Owner → projects.view
+2026-07-13 17:40:44.999 +06:00 [INF] [0HNN0QDR080IH:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:40:45.000 +06:00 [INF] [0HNN0QDR080IH:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Projects" AS p
+WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+2026-07-13 17:40:45.003 +06:00 [INF] [0HNN0QDR080IH:00000001] Executed DbCommand (2ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__p_2='100', @__p_1='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt", t0."Id", t0."ActualMinutes", t0."AssignedToUserId", t0."CompletedAt", t0."CreatedAt", t0."CreatedByUserId", t0."DeletedAt", t0."Description", t0."DueDate", t0."EstimatedMinutes", t0."IsDeleted", t0."OrderIndex", t0."OrganizationId", t0."ParentTaskId", t0."Priority", t0."ProjectId", t0."StartDate", t0."Status", t0."Title", t0."UpdatedAt"
+FROM (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+    ORDER BY p."CreatedAt" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS p0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON p0."CreatedByUserId" = u0."Id"
+LEFT JOIN (
+    SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+    FROM "Users" AS u1
+    WHERE NOT (u1."IsDeleted")
+) AS u2 ON p0."ProjectLeadUserId" = u2."Id"
+LEFT JOIN (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+    FROM "Tasks" AS t
+    WHERE NOT (t."IsDeleted")
+) AS t0 ON p0."Id" = t0."ProjectId"
+ORDER BY p0."CreatedAt" DESC, p0."Id", u0."Id", u2."Id"
+2026-07-13 17:40:45.004 +06:00 [INF] [0HNN0QDR080IH:00000001] Projects listed for org "00000000-0000-0000-0001-000000000001" — 3 results
+2026-07-13 17:40:45.005 +06:00 [INF] [0HNN0QDR080IH:00000001] [0HNN0QDR080IH:00000001] GET /api/projects → 200 (9.1ms)
+2026-07-13 17:41:18.274 +06:00 [DBG] [0HNN0QDR080II:00000001] Permission granted: Owner → projects.create
+2026-07-13 17:41:18.279 +06:00 [INF] [0HNN0QDR080II:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:41:18.376 +06:00 [ERR] [0HNN0QDR080II:00000001] Failed executing DbCommand (7ms) [Parameters=[@p0='7122425d-29c5-43e2-ba91-c247503b846a', @p1='2026-07-13T11:41:18.3546630Z' (DbType = DateTime), @p2='00000000-0000-0000-0002-000000000001', @p3=NULL (DbType = DateTime), @p4='first test', @p5='2026-07-28T00:00:00.0000000' (Nullable = true) (DbType = DateTime), @p6='False', @p7='test' (Nullable = false), @p8='00000000-0000-0000-0001-000000000001', @p9=NULL (DbType = Guid), @p10='2026-07-14T00:00:00.0000000' (Nullable = true) (DbType = DateTime), @p11='Active' (Nullable = false), @p12='2026-07-13T11:41:18.3547467Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Projects" ("Id", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "IsDeleted", "Name", "OrganizationId", "ProjectLeadUserId", "StartDate", "Status", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12);
+2026-07-13 17:41:18.398 +06:00 [ERR] [0HNN0QDR080II:00000001] An exception occurred in the database while saving changes for context type 'WorkHub.Infrastructure.Data.AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-07-13 17:41:18.402 +06:00 [ERR] [0HNN0QDR080II:00000001] Error creating project for org "00000000-0000-0000-0001-000000000001"
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at WorkHub.Application.Services.ProjectService.CreateProjectAsync(CreateProjectDto dto) in C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.Application\Services\ProjectService.cs:line 191
+2026-07-13 17:41:18.435 +06:00 [WRN] [0HNN0QDR080II:00000001] [0HNN0QDR080II:00000001] POST /api/projects → 400 (161.5ms)
+2026-07-13 17:41:32.025 +06:00 [DBG] [0HNN0QDR080IJ:00000001] Permission granted: Owner → projects.create
+2026-07-13 17:41:32.030 +06:00 [INF] [0HNN0QDR080IJ:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:41:32.034 +06:00 [ERR] [0HNN0QDR080IJ:00000001] Failed executing DbCommand (0ms) [Parameters=[@p0='1206b1cd-51fd-4520-8164-8da0dd28630e', @p1='2026-07-13T11:41:32.0334862Z' (DbType = DateTime), @p2='00000000-0000-0000-0002-000000000001', @p3=NULL (DbType = DateTime), @p4='first test', @p5='2026-07-28T00:00:00.0000000' (Nullable = true) (DbType = DateTime), @p6='False', @p7='test' (Nullable = false), @p8='00000000-0000-0000-0001-000000000001', @p9=NULL (DbType = Guid), @p10='2026-07-14T00:00:00.0000000' (Nullable = true) (DbType = DateTime), @p11='Active' (Nullable = false), @p12='2026-07-13T11:41:32.0334869Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Projects" ("Id", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "IsDeleted", "Name", "OrganizationId", "ProjectLeadUserId", "StartDate", "Status", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12);
+2026-07-13 17:41:32.036 +06:00 [ERR] [0HNN0QDR080IJ:00000001] An exception occurred in the database while saving changes for context type 'WorkHub.Infrastructure.Data.AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-07-13 17:41:32.042 +06:00 [ERR] [0HNN0QDR080IJ:00000001] Error creating project for org "00000000-0000-0000-0001-000000000001"
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at WorkHub.Application.Services.ProjectService.CreateProjectAsync(CreateProjectDto dto) in C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.Application\Services\ProjectService.cs:line 191
+2026-07-13 17:41:32.046 +06:00 [WRN] [0HNN0QDR080IJ:00000001] [0HNN0QDR080IJ:00000001] POST /api/projects → 400 (21.8ms)
+2026-07-13 17:41:52.591 +06:00 [DBG] [0HNN0QDR080IK:00000001] Permission granted: Owner → projects.create
+2026-07-13 17:41:52.593 +06:00 [INF] [0HNN0QDR080IK:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:41:52.596 +06:00 [ERR] [0HNN0QDR080IK:00000001] Failed executing DbCommand (0ms) [Parameters=[@p0='53b57043-05f9-4841-abdd-72f9fc873d25', @p1='2026-07-13T11:41:52.5957946Z' (DbType = DateTime), @p2='00000000-0000-0000-0002-000000000001', @p3=NULL (DbType = DateTime), @p4='first test', @p5='2026-07-28T00:00:00.0000000' (Nullable = true) (DbType = DateTime), @p6='False', @p7='test' (Nullable = false), @p8='00000000-0000-0000-0001-000000000001', @p9=NULL (DbType = Guid), @p10='2026-07-14T00:00:00.0000000' (Nullable = true) (DbType = DateTime), @p11='Active' (Nullable = false), @p12='2026-07-13T11:41:52.5957947Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Projects" ("Id", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "IsDeleted", "Name", "OrganizationId", "ProjectLeadUserId", "StartDate", "Status", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12);
+2026-07-13 17:41:52.597 +06:00 [ERR] [0HNN0QDR080IK:00000001] An exception occurred in the database while saving changes for context type 'WorkHub.Infrastructure.Data.AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-07-13 17:41:52.601 +06:00 [ERR] [0HNN0QDR080IK:00000001] Error creating project for org "00000000-0000-0000-0001-000000000001"
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at WorkHub.Application.Services.ProjectService.CreateProjectAsync(CreateProjectDto dto) in C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.Application\Services\ProjectService.cs:line 191
+2026-07-13 17:41:52.607 +06:00 [WRN] [0HNN0QDR080IK:00000001] [0HNN0QDR080IK:00000001] POST /api/projects → 400 (16.8ms)
+2026-07-13 17:42:41.023 +06:00 [INF] [0HNN0QDR080IL:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:42:41.050 +06:00 [INF] [0HNN0QDR080IL:00000001] Executed DbCommand (1ms) [Parameters=[@__refreshToken_0='Vl/qfAP6QGzNStp/q5OxYqKrGb0tA8PeOlwXeiNEBPZrz+Q3zaf3tD9OzeNVvZbjb4V//o0kdsDzjzRxr5aT6w=='], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."RefreshToken" = @__refreshToken_0
+LIMIT 1
+2026-07-13 17:42:41.085 +06:00 [INF] [0HNN0QDR080IL:00000001] Executed DbCommand (34ms) [Parameters=[@p3='00000000-0000-0000-0002-000000000001', @p0=NULL, @p1=NULL (DbType = DateTime), @p2='2026-07-13T11:42:41.0508561Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Users" SET "RefreshToken" = @p0, "RefreshTokenExpiry" = @p1, "UpdatedAt" = @p2
+WHERE "Id" = @p3;
+2026-07-13 17:42:41.086 +06:00 [INF] [0HNN0QDR080IL:00000001] Refresh token revoked for user "00000000-0000-0000-0002-000000000001" — logout complete
+2026-07-13 17:42:41.088 +06:00 [INF] [0HNN0QDR080IL:00000001] [0HNN0QDR080IL:00000001] POST /api/auth/revoke → 200 (66.7ms)
+2026-07-13 17:42:44.819 +06:00 [INF] [0HNN0QDR080IM:00000001] Executed DbCommand (1ms) [Parameters=[@__email_0='demo.member1@worksphere.io'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Email" = @__email_0
+LIMIT 1
+2026-07-13 17:42:45.217 +06:00 [DBG] [0HNN0QDR080IM:00000001] JWT access token generated for user "00000000-0000-0000-0002-000000000003" — expires "2026-07-13T11:57:45.2171620Z"
+2026-07-13 17:42:45.218 +06:00 [DBG] [0HNN0QDR080IM:00000001] Refresh token generated — expires "2026-07-20T11:42:45.2180767Z"
+2026-07-13 17:42:45.220 +06:00 [INF] [0HNN0QDR080IM:00000001] Executed DbCommand (1ms) [Parameters=[@p4='00000000-0000-0000-0002-000000000003', @p0='2026-07-13T11:42:45.2183279Z' (Nullable = true) (DbType = DateTime), @p1='XRUMbl2Fh6oKkeJcNue0UkzLj1hZ1hIqd6HSvcCjxzu0de6FMXFKdE8zAotIHBLo/Dmy9QgNFcCOruzirKc4FQ==', @p2='2026-07-20T11:42:45.2183264Z' (Nullable = true) (DbType = DateTime), @p3='2026-07-13T11:42:45.2184713Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Users" SET "LastLoginAt" = @p0, "RefreshToken" = @p1, "RefreshTokenExpiry" = @p2, "UpdatedAt" = @p3
+WHERE "Id" = @p4;
+2026-07-13 17:42:45.221 +06:00 [INF] [0HNN0QDR080IM:00000001] User "00000000-0000-0000-0002-000000000003" logged in from org "00000000-0000-0000-0001-000000000001"
+2026-07-13 17:42:45.221 +06:00 [INF] [0HNN0QDR080IM:00000001] [0HNN0QDR080IM:00000001] POST /api/auth/login → 200 (405.5ms)
+2026-07-13 17:42:46.794 +06:00 [DBG] [0HNN0QDR080IN:00000001] Permission granted: Member → projects.view
+2026-07-13 17:42:46.802 +06:00 [INF] [0HNN0QDR080IN:00000001] Executed DbCommand (6ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000003'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:42:46.805 +06:00 [INF] [0HNN0QDR080IN:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Projects" AS p
+WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+2026-07-13 17:42:46.809 +06:00 [INF] [0HNN0QDR080IN:00000001] Executed DbCommand (3ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__p_2='100', @__p_1='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt", t0."Id", t0."ActualMinutes", t0."AssignedToUserId", t0."CompletedAt", t0."CreatedAt", t0."CreatedByUserId", t0."DeletedAt", t0."Description", t0."DueDate", t0."EstimatedMinutes", t0."IsDeleted", t0."OrderIndex", t0."OrganizationId", t0."ParentTaskId", t0."Priority", t0."ProjectId", t0."StartDate", t0."Status", t0."Title", t0."UpdatedAt"
+FROM (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+    ORDER BY p."CreatedAt" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS p0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON p0."CreatedByUserId" = u0."Id"
+LEFT JOIN (
+    SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+    FROM "Users" AS u1
+    WHERE NOT (u1."IsDeleted")
+) AS u2 ON p0."ProjectLeadUserId" = u2."Id"
+LEFT JOIN (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+    FROM "Tasks" AS t
+    WHERE NOT (t."IsDeleted")
+) AS t0 ON p0."Id" = t0."ProjectId"
+ORDER BY p0."CreatedAt" DESC, p0."Id", u0."Id", u2."Id"
+2026-07-13 17:42:46.811 +06:00 [INF] [0HNN0QDR080IN:00000001] Projects listed for org "00000000-0000-0000-0001-000000000001" — 3 results
+2026-07-13 17:42:46.811 +06:00 [INF] [0HNN0QDR080IN:00000001] [0HNN0QDR080IN:00000001] GET /api/projects → 200 (17.6ms)
+2026-07-13 17:43:39.040 +06:00 [DBG] [0HNN0QDR080IO:00000001] Permission granted: Member → projects.view
+2026-07-13 17:43:39.042 +06:00 [INF] [0HNN0QDR080IO:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000003'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:43:39.046 +06:00 [INF] [0HNN0QDR080IO:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__query_Status_1='Archived'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Projects" AS p
+WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0 AND p."Status" = @__query_Status_1
+2026-07-13 17:43:39.048 +06:00 [INF] [0HNN0QDR080IO:00000001] Executed DbCommand (2ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__query_Status_1='Archived', @__p_3='100', @__p_2='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt", t0."Id", t0."ActualMinutes", t0."AssignedToUserId", t0."CompletedAt", t0."CreatedAt", t0."CreatedByUserId", t0."DeletedAt", t0."Description", t0."DueDate", t0."EstimatedMinutes", t0."IsDeleted", t0."OrderIndex", t0."OrganizationId", t0."ParentTaskId", t0."Priority", t0."ProjectId", t0."StartDate", t0."Status", t0."Title", t0."UpdatedAt"
+FROM (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0 AND p."Status" = @__query_Status_1
+    ORDER BY p."CreatedAt" DESC
+    LIMIT @__p_3 OFFSET @__p_2
+) AS p0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON p0."CreatedByUserId" = u0."Id"
+LEFT JOIN (
+    SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+    FROM "Users" AS u1
+    WHERE NOT (u1."IsDeleted")
+) AS u2 ON p0."ProjectLeadUserId" = u2."Id"
+LEFT JOIN (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+    FROM "Tasks" AS t
+    WHERE NOT (t."IsDeleted")
+) AS t0 ON p0."Id" = t0."ProjectId"
+ORDER BY p0."CreatedAt" DESC, p0."Id", u0."Id", u2."Id"
+2026-07-13 17:43:39.049 +06:00 [INF] [0HNN0QDR080IO:00000001] Projects listed for org "00000000-0000-0000-0001-000000000001" — 0 results
+2026-07-13 17:43:39.049 +06:00 [INF] [0HNN0QDR080IO:00000001] [0HNN0QDR080IO:00000001] GET /api/projects → 200 (9.5ms)
+2026-07-13 17:43:42.721 +06:00 [INF] [0HNN0QDR080IP:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000003'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:43:42.723 +06:00 [INF] [0HNN0QDR080IP:00000001] Executed DbCommand (1ms) [Parameters=[@__refreshToken_0='XRUMbl2Fh6oKkeJcNue0UkzLj1hZ1hIqd6HSvcCjxzu0de6FMXFKdE8zAotIHBLo/Dmy9QgNFcCOruzirKc4FQ=='], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."RefreshToken" = @__refreshToken_0
+LIMIT 1
+2026-07-13 17:43:42.726 +06:00 [INF] [0HNN0QDR080IP:00000001] Executed DbCommand (1ms) [Parameters=[@p3='00000000-0000-0000-0002-000000000003', @p0=NULL, @p1=NULL (DbType = DateTime), @p2='2026-07-13T11:43:42.7243498Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Users" SET "RefreshToken" = @p0, "RefreshTokenExpiry" = @p1, "UpdatedAt" = @p2
+WHERE "Id" = @p3;
+2026-07-13 17:43:42.726 +06:00 [INF] [0HNN0QDR080IP:00000001] Refresh token revoked for user "00000000-0000-0000-0002-000000000003" — logout complete
+2026-07-13 17:43:42.727 +06:00 [INF] [0HNN0QDR080IP:00000001] [0HNN0QDR080IP:00000001] POST /api/auth/revoke → 200 (8.3ms)
+2026-07-13 17:43:45.300 +06:00 [INF] [0HNN0QDR080IQ:00000001] Executed DbCommand (1ms) [Parameters=[@__email_0='demo.owner@worksphere.io'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Email" = @__email_0
+LIMIT 1
+2026-07-13 17:43:45.771 +06:00 [DBG] [0HNN0QDR080IQ:00000001] JWT access token generated for user "00000000-0000-0000-0002-000000000001" — expires "2026-07-13T11:58:45.7711381Z"
+2026-07-13 17:43:45.771 +06:00 [DBG] [0HNN0QDR080IQ:00000001] Refresh token generated — expires "2026-07-20T11:43:45.7717252Z"
+2026-07-13 17:43:45.819 +06:00 [INF] [0HNN0QDR080IQ:00000001] Executed DbCommand (46ms) [Parameters=[@p4='00000000-0000-0000-0002-000000000001', @p0='2026-07-13T11:43:45.7720361Z' (Nullable = true) (DbType = DateTime), @p1='MoPHKNSK8MsIvERN9gTrE93GXoCmDh/2D8lOJkTGtmzqWXTAnlrPCSQfy3a4f24NSqaJoNXXQcKUHLzILOK/EA==', @p2='2026-07-20T11:43:45.7720344Z' (Nullable = true) (DbType = DateTime), @p3='2026-07-13T11:43:45.7721914Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Users" SET "LastLoginAt" = @p0, "RefreshToken" = @p1, "RefreshTokenExpiry" = @p2, "UpdatedAt" = @p3
+WHERE "Id" = @p4;
+2026-07-13 17:43:45.820 +06:00 [INF] [0HNN0QDR080IQ:00000001] User "00000000-0000-0000-0002-000000000001" logged in from org "00000000-0000-0000-0001-000000000001"
+2026-07-13 17:43:45.820 +06:00 [INF] [0HNN0QDR080IQ:00000001] [0HNN0QDR080IQ:00000001] POST /api/auth/login → 200 (523.9ms)
+2026-07-13 17:43:47.653 +06:00 [DBG] [0HNN0QDR080IS:00000001] Permission granted: Owner → members.view
+2026-07-13 17:43:47.653 +06:00 [DBG] [0HNN0QDR080IT:00000001] Permission granted: Owner → members.invite
+2026-07-13 17:43:47.653 +06:00 [DBG] [0HNN0QDR080IR:00000001] Permission granted: Owner → organizations.view
+2026-07-13 17:43:47.655 +06:00 [INF] [0HNN0QDR080IT:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:43:47.689 +06:00 [INF] [0HNN0QDR080IT:00000001] Executed DbCommand (5ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT o."Id", o."AcceptedAt", o."AcceptedByUserId", o."CreatedAt", o."DeletedAt", o."ExpiresAt", o."InvitedByUserId", o."InviteeEmail", o."IsDeleted", o."OrganizationId", o."Role", o."Status", o."Token", o."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt"
+FROM "OrganizationInvites" AS o
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON o."InvitedByUserId" = u0."Id"
+WHERE NOT (o."IsDeleted") AND o."OrganizationId" = @___currentUser_OrganizationId_0
+ORDER BY o."CreatedAt" DESC
+2026-07-13 17:43:47.714 +06:00 [INF] [0HNN0QDR080IT:00000001] [0HNN0QDR080IT:00000001] GET /api/organizations/me/invites → 200 (60.9ms)
+2026-07-13 17:43:47.722 +06:00 [INF] [0HNN0QDR080IR:00000001] Executed DbCommand (4ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:43:47.731 +06:00 [INF] [0HNN0QDR080IR:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+FROM "Organizations" AS o
+WHERE NOT (o."IsDeleted") AND o."Id" = @___currentUser_OrganizationId_0
+LIMIT 1
+2026-07-13 17:43:47.738 +06:00 [INF] [0HNN0QDR080IR:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."OrganizationId" = @___currentUser_OrganizationId_0 AND u."IsActive"
+2026-07-13 17:43:47.739 +06:00 [INF] [0HNN0QDR080IR:00000001] Org profile retrieved by "00000000-0000-0000-0002-000000000001" for org "00000000-0000-0000-0001-000000000001"
+2026-07-13 17:43:47.742 +06:00 [INF] [0HNN0QDR080IR:00000001] [0HNN0QDR080IR:00000001] GET /api/organizations/me → 200 (89.0ms)
+2026-07-13 17:43:47.825 +06:00 [INF] [0HNN0QDR080IS:00000001] Executed DbCommand (3ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:43:47.841 +06:00 [INF] [0HNN0QDR080IS:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."OrganizationId" = @___currentUser_OrganizationId_0
+2026-07-13 17:43:47.866 +06:00 [INF] [0HNN0QDR080IS:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__p_2='100', @__p_1='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+FROM "Users" AS u
+WHERE NOT (u."IsDeleted") AND u."OrganizationId" = @___currentUser_OrganizationId_0
+ORDER BY u."FirstName", u."LastName"
+LIMIT @__p_2 OFFSET @__p_1
+2026-07-13 17:43:47.867 +06:00 [INF] [0HNN0QDR080IS:00000001] Members listed for org "00000000-0000-0000-0001-000000000001" — page 1, 4 results
+2026-07-13 17:43:47.872 +06:00 [INF] [0HNN0QDR080IS:00000001] [0HNN0QDR080IS:00000001] GET /api/organizations/me/members → 200 (219.4ms)
+2026-07-13 17:43:52.649 +06:00 [DBG] [0HNN0QDR080IU:00000001] Permission granted: Owner → projects.view
+2026-07-13 17:43:52.651 +06:00 [INF] [0HNN0QDR080IU:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:43:52.667 +06:00 [INF] [0HNN0QDR080IU:00000001] Executed DbCommand (7ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Projects" AS p
+WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+2026-07-13 17:43:52.669 +06:00 [INF] [0HNN0QDR080IU:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__p_2='100', @__p_1='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt", t0."Id", t0."ActualMinutes", t0."AssignedToUserId", t0."CompletedAt", t0."CreatedAt", t0."CreatedByUserId", t0."DeletedAt", t0."Description", t0."DueDate", t0."EstimatedMinutes", t0."IsDeleted", t0."OrderIndex", t0."OrganizationId", t0."ParentTaskId", t0."Priority", t0."ProjectId", t0."StartDate", t0."Status", t0."Title", t0."UpdatedAt"
+FROM (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+    ORDER BY p."CreatedAt" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS p0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON p0."CreatedByUserId" = u0."Id"
+LEFT JOIN (
+    SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+    FROM "Users" AS u1
+    WHERE NOT (u1."IsDeleted")
+) AS u2 ON p0."ProjectLeadUserId" = u2."Id"
+LEFT JOIN (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+    FROM "Tasks" AS t
+    WHERE NOT (t."IsDeleted")
+) AS t0 ON p0."Id" = t0."ProjectId"
+ORDER BY p0."CreatedAt" DESC, p0."Id", u0."Id", u2."Id"
+2026-07-13 17:43:52.671 +06:00 [INF] [0HNN0QDR080IU:00000001] Projects listed for org "00000000-0000-0000-0001-000000000001" — 3 results
+2026-07-13 17:43:52.671 +06:00 [INF] [0HNN0QDR080IU:00000001] [0HNN0QDR080IU:00000001] GET /api/projects → 200 (22.4ms)
+2026-07-13 17:44:24.193 +06:00 [DBG] [0HNN0QDR080IV:00000001] Permission granted: Owner → projects.create
+2026-07-13 17:44:24.196 +06:00 [INF] [0HNN0QDR080IV:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:44:24.199 +06:00 [ERR] [0HNN0QDR080IV:00000001] Failed executing DbCommand (0ms) [Parameters=[@p0='a9e55ca3-cebd-460e-a76e-f3bacf23c81a', @p1='2026-07-13T11:44:24.1991303Z' (DbType = DateTime), @p2='00000000-0000-0000-0002-000000000001', @p3=NULL (DbType = DateTime), @p4='', @p5='2026-07-28T00:00:00.0000000' (Nullable = true) (DbType = DateTime), @p6='False', @p7='test' (Nullable = false), @p8='00000000-0000-0000-0001-000000000001', @p9=NULL (DbType = Guid), @p10='2026-07-14T00:00:00.0000000' (Nullable = true) (DbType = DateTime), @p11='Active' (Nullable = false), @p12='2026-07-13T11:44:24.1991305Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Projects" ("Id", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "IsDeleted", "Name", "OrganizationId", "ProjectLeadUserId", "StartDate", "Status", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12);
+2026-07-13 17:44:24.204 +06:00 [ERR] [0HNN0QDR080IV:00000001] An exception occurred in the database while saving changes for context type 'WorkHub.Infrastructure.Data.AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-07-13 17:44:24.207 +06:00 [ERR] [0HNN0QDR080IV:00000001] Error creating project for org "00000000-0000-0000-0001-000000000001"
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at WorkHub.Application.Services.ProjectService.CreateProjectAsync(CreateProjectDto dto) in C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.Application\Services\ProjectService.cs:line 191
+2026-07-13 17:44:24.209 +06:00 [WRN] [0HNN0QDR080IV:00000001] [0HNN0QDR080IV:00000001] POST /api/projects → 400 (15.8ms)
+2026-07-13 17:44:31.620 +06:00 [DBG] [0HNN0QDR080J0:00000001] Permission granted: Owner → projects.create
+2026-07-13 17:44:31.627 +06:00 [INF] [0HNN0QDR080J0:00000001] Executed DbCommand (2ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-13 17:44:31.631 +06:00 [ERR] [0HNN0QDR080J0:00000001] Failed executing DbCommand (0ms) [Parameters=[@p0='e291fa05-cbc7-454a-8198-7f9071feb38f', @p1='2026-07-13T11:44:31.6311572Z' (DbType = DateTime), @p2='00000000-0000-0000-0002-000000000001', @p3=NULL (DbType = DateTime), @p4='tesett', @p5='2026-07-28T00:00:00.0000000' (Nullable = true) (DbType = DateTime), @p6='False', @p7='test' (Nullable = false), @p8='00000000-0000-0000-0001-000000000001', @p9=NULL (DbType = Guid), @p10='2026-07-14T00:00:00.0000000' (Nullable = true) (DbType = DateTime), @p11='Active' (Nullable = false), @p12='2026-07-13T11:44:31.6311584Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Projects" ("Id", "CreatedAt", "CreatedByUserId", "DeletedAt", "Description", "DueDate", "IsDeleted", "Name", "OrganizationId", "ProjectLeadUserId", "StartDate", "Status", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12);
+2026-07-13 17:44:31.645 +06:00 [ERR] [0HNN0QDR080J0:00000001] An exception occurred in the database while saving changes for context type 'WorkHub.Infrastructure.Data.AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-07-13 17:44:31.650 +06:00 [ERR] [0HNN0QDR080J0:00000001] Error creating project for org "00000000-0000-0000-0001-000000000001"
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.<>c__DisplayClass30_0`2.<<ExecuteAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteImplementationAsync[TState,TResult](Func`4 operation, Func`4 verifySucceeded, TState state, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.ExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at WorkHub.Application.Services.ProjectService.CreateProjectAsync(CreateProjectDto dto) in C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.Application\Services\ProjectService.cs:line 191
+2026-07-13 17:44:31.652 +06:00 [WRN] [0HNN0QDR080J0:00000001] [0HNN0QDR080J0:00000001] POST /api/projects → 400 (32.9ms)
