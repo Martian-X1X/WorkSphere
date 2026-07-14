@@ -183,8 +183,8 @@ public class ProjectService : IProjectService
                 OrganizationId = _currentUser.OrganizationId,
                 CreatedByUserId = _currentUser.UserId,
                 ProjectLeadUserId = dto.ProjectLeadUserId,
-                StartDate = dto.StartDate,
-                DueDate = dto.DueDate
+                StartDate = dto.StartDate?.ToUniversalTime(),
+                DueDate = dto.DueDate?.ToUniversalTime()
             };
 
             _context.Projects.Add(project);
@@ -266,8 +266,8 @@ public class ProjectService : IProjectService
             project.Name = dto.Name.Trim();
             project.Description = dto.Description?.Trim();
             project.ProjectLeadUserId = dto.ProjectLeadUserId;
-            project.StartDate = dto.StartDate;
-            project.DueDate = dto.DueDate;
+            project.StartDate = dto.StartDate?.ToUniversalTime();
+            project.DueDate = dto.DueDate?.ToUniversalTime();
 
             await _context.SaveChangesAsync();
 

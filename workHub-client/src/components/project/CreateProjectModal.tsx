@@ -48,20 +48,22 @@ export function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
   } = useForm<FormData>({ resolver: zodResolver(schema) })
 
   const mutation = useMutation({
-    mutationFn: (data: FormData) =>
-      projectService.createProject({
-        name: data.name,
-        description: data.description,
-        startDate: data.startDate || undefined,
-        dueDate: data.dueDate || undefined,
-      }),
+  mutationFn: (data: FormData) =>
+    projectService.createProject({
+      name: data.name.trim(),
+      description: data.description?.trim() || undefined,
+      startDate: data.startDate?.trim() || undefined,
+      dueDate: data.dueDate?.trim() || undefined,
+    }),
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['projects'] })
       toast.success(`Project "${res.data.data.name}" created!`)
       reset()
       onClose()
     },
-    onError: (error) => toast.error(getApiError(error)),
+    onError: (error: unknown) => {
+      toast.error(getApiError(error))
+    },
   })
 
   const handleClose = () => {

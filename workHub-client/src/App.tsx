@@ -16,6 +16,7 @@ import MembersPage    from '@/pages/members/MembersPage'
 import ActivityPage   from '@/pages/activity/ActivityPage'
 import SettingsPage   from '@/pages/settings/SettingsPage'
 import ProjectDetailPage from '@/pages/projects/ProjectDetailPage'
+import TaskDetailPage from '@/pages/tasks/TaskDetailPage'
 
 export default function App() {
   return (
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="/activity"  element={<ActivityPage />} />
           <Route path="/settings"  element={<SettingsPage />} />
           <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
+          <Route path="/tasks/:taskId" element={<TaskDetailPage />} />
         </Route>
 
         {/* ── Default redirect ─────────────────────────────── */}

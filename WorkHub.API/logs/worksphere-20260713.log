@@ -1788,3 +1788,4 @@ Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving 
    at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
    at WorkHub.Application.Services.ProjectService.CreateProjectAsync(CreateProjectDto dto) in C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.Application\Services\ProjectService.cs:line 191
 2026-07-13 17:44:31.652 +06:00 [WRN] [0HNN0QDR080J0:00000001] [0HNN0QDR080J0:00000001] POST /api/projects → 400 (32.9ms)
+2026-07-13 18:04:07.173 +06:00 [INF] [] Application is shutting down...
