@@ -50,3 +50,33 @@ export const registerSchema = z.object({
 
 export type LoginFormData = z.infer<typeof loginSchema>
 export type RegisterFormData = z.infer<typeof registerSchema>
+
+// ── Task form schema ────────────────────────────────────────────
+export const taskSchema = z.object({
+  title: z
+    .string()
+    .min(1, 'Task title is required')
+    .max(500, 'Title cannot exceed 500 characters'),
+
+  description: z
+    .string()
+    .max(4000, 'Description cannot exceed 4000 characters')
+    .optional(),
+
+  priority: z.enum(['Low', 'Medium', 'High', 'Urgent'], 'Priority is required'),
+
+  assignedToUserId: z.string().optional(),
+
+  dueDate: z.string().optional(),
+
+  // Stored as hours in the form, converted to minutes on submit
+  estimatedHours: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || (!isNaN(Number(val)) && Number(val) >= 0),
+      'Must be a valid number'
+    ),
+})
+
+export type TaskFormData = z.infer<typeof taskSchema>

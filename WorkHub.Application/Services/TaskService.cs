@@ -353,7 +353,7 @@ public class TaskService : ITaskService
             task.OrderIndex = dto.OrderIndex;
 
             // Only Admin/Owner can change assignee
-            if (canManageAll)
+            if (canManageAll && dto.AssignedToUserId != task.AssignedToUserId)
                 task.AssignedToUserId = dto.AssignedToUserId;
 
             await _context.SaveChangesAsync();

@@ -20,6 +20,9 @@ import { projectService } from '@/services/project.service'
 import { taskService } from '@/services/task.service'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/utils'
+import { CreateTaskModal } from '@/components/task/CreateTaskModal'
+import { EditTaskModal } from '@/components/task/EditTaskModal'
+import type { Task } from '@/types'
 
 // ── Status filter tabs ─────────────────────────────────────────────
 const STATUS_FILTERS = [
@@ -46,6 +49,8 @@ export default function ProjectDetailPage() {
   const [statusFilter, setStatusFilter] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('')
   const [search, setSearch] = useState('')
+  const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [editTask, setEditTask] = useState<Task | null>(null)
 
   // ── Queries ──────────────────────────────────────────────────────
   const projectQuery = useQuery({
@@ -126,7 +131,7 @@ export default function ProjectDetailPage() {
           {isAdminOrOwner() && (
             <Button
               className="flex items-center gap-2 flex-shrink-0"
-              onClick={() => {/* Day 44: Create task modal */}}
+              onClick={() => setCreateModalOpen(true)}   // ← was a placeholder
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Add Task</span>
@@ -246,7 +251,12 @@ export default function ProjectDetailPage() {
         ) : tasks.length > 0 ? (
           <div>
             {tasks.map((task) => (
-              <TaskRow key={task.id} task={task} projectId={projectId!} />
+              <TaskRow
+                key={task.id}
+                task={task}
+                projectId={projectId!}
+                onEdit={setEditTask}
+              />
             ))}
             <div className="px-4 py-2 text-xs text-surface-600 border-t
                             border-surface-700/50 mt-1">
@@ -276,11 +286,23 @@ export default function ProjectDetailPage() {
             }
             onAction={
               isAdminOrOwner() && !search && !statusFilter && !priorityFilter
-                ? () => {/* Day 44: Create task modal */}
+                ? () => setCreateModalOpen(true)
                 : undefined
             }
           />
         )}
+        {/* ── Modals ────────────────────────────────────────────── */}
+        <CreateTaskModal
+          open={createModalOpen}
+          onClose={() => setCreateModalOpen(false)}
+          projectId={projectId!}
+        />
+
+        <EditTaskModal
+          task={editTask}
+          open={!!editTask}
+          onClose={() => setEditTask(null)}
+        />
       </div>
     </div>
   )

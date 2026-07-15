@@ -48,6 +48,7 @@ export const taskService = {
     priority?: string
     dueDate?: string
     estimatedMinutes?: number
+    assignedToUserId?: string | null
   }) => api.put<ApiResponse<Task>>(`/tasks/${taskId}`, data),
 
   changeStatus: (taskId: string, status: string, actualMinutes?: number) =>

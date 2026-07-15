@@ -31,6 +31,7 @@ export function StatusDropdown({
     onSuccess: (_, newStatus) => {
       queryClient.invalidateQueries({ queryKey: ['tasks', projectId] })
       queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
       toast.success(`Status changed to ${newStatus}`)
       setOpen(false)
     },

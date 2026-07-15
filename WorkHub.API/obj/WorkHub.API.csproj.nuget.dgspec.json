@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\WorkHub.API.csproj": {}
+    "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\Workhub.API\\WorkHub.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\WorkHub.API.csproj": {
+    "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\Workhub.API\\WorkHub.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\WorkHub.API.csproj",
+        "projectUniqueName": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\Workhub.API\\WorkHub.API.csproj",
         "projectName": "WorkHub.API",
-        "projectPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\WorkHub.API.csproj",
+        "projectPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\Workhub.API\\WorkHub.API.csproj",
         "packagesPath": "C:\\Users\\Abdul\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\obj\\",
+        "outputPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\Workhub.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
