@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import {
-  Calendar,
-  CheckSquare,
-  User,
-  ArrowRight,
+  Calendar, CheckSquare, User, ArrowRight,
 } from 'lucide-react'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { ProgressBar } from '@/components/ui/ProgressBar'
+import { taskService } from '@/services/task.service'
+import { queryKeys } from '@/lib/queryKeys'
 import { formatDate, cn } from '@/utils'
 import type { Project } from '@/types'
 
@@ -15,18 +15,35 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
+  const queryClient = useQueryClient()
   const { taskSummary } = project
+
   const isOverdue =
     project.dueDate &&
     new Date(project.dueDate) < new Date() &&
     project.status === 'Active'
 
+  // ✅ Prefetch tasks when user hovers the card
+  // By the time they click, tasks are already loaded
+  const handleMouseEnter = () => {
+    queryClient.prefetchQuery({
+      queryKey: queryKeys.tasks.byProjectFiltered(project.id, {}),
+      queryFn:  () => taskService.getTasksByProject(project.id, {
+        pageSize: 100,
+        sortBy: 'orderIndex',
+        sortDirection: 'asc',
+      }),
+      staleTime: 1000 * 30,
+    })
+  }
+
   return (
     <Link
       to={`/projects/${project.id}`}
+      onMouseEnter={handleMouseEnter}
       className="card-hover flex flex-col gap-4 group"
     >
-      {/* ── Header ────────────────────────────────────────── */}
+      {/* ── Header ──────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <h3 className="font-semibold text-surface-100 truncate
@@ -42,14 +59,13 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <StatusBadge status={project.status} />
       </div>
 
-      {/* ── Progress ──────────────────────────────────────── */}
+      {/* ── Progress ────────────────────────────────────── */}
       {taskSummary.total > 0 ? (
         <div className="space-y-1.5">
           <ProgressBar value={taskSummary.completionPercentage} />
-          <div className="flex items-center justify-between text-xs text-surface-500">
-            <span>
-              {taskSummary.done}/{taskSummary.total} tasks
-            </span>
+          <div className="flex items-center justify-between
+                          text-xs text-surface-500">
+            <span>{taskSummary.done}/{taskSummary.total} tasks</span>
             <span>{taskSummary.completionPercentage}%</span>
           </div>
         </div>
@@ -57,35 +73,34 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <p className="text-xs text-surface-600 italic">No tasks yet</p>
       )}
 
-      {/* ── Task summary pills ────────────────────────────── */}
+      {/* ── Task pills ──────────────────────────────────── */}
       {taskSummary.total > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {taskSummary.todo > 0 && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-700
-                             text-surface-400">
+            <span className="text-[10px] px-1.5 py-0.5 rounded
+                             bg-surface-700 text-surface-400">
               {taskSummary.todo} todo
             </span>
           )}
           {taskSummary.inProgress > 0 && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-900/40
-                             text-blue-400">
+            <span className="text-[10px] px-1.5 py-0.5 rounded
+                             bg-blue-900/40 text-blue-400">
               {taskSummary.inProgress} in progress
             </span>
           )}
           {taskSummary.done > 0 && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-900/40
-                             text-green-400">
+            <span className="text-[10px] px-1.5 py-0.5 rounded
+                             bg-green-900/40 text-green-400">
               {taskSummary.done} done
             </span>
           )}
         </div>
       )}
 
-      {/* ── Footer ────────────────────────────────────────── */}
+      {/* ── Footer ──────────────────────────────────────── */}
       <div className="flex items-center justify-between pt-1 border-t
                       border-surface-700/50 mt-auto">
         <div className="flex items-center gap-3 text-xs text-surface-500">
-          {/* Project lead */}
           {project.projectLeadName && (
             <div className="flex items-center gap-1">
               <User className="w-3 h-3" />
@@ -94,8 +109,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
               </span>
             </div>
           )}
-
-          {/* Due date */}
           {project.dueDate && (
             <div className={cn(
               'flex items-center gap-1',
@@ -106,14 +119,13 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </div>
           )}
         </div>
-
-        {/* Task count */}
         <div className="flex items-center gap-1 text-xs text-surface-600
                         group-hover:text-primary-400 transition-colors">
           <CheckSquare className="w-3 h-3" />
           <span>{taskSummary.total}</span>
-          <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100
-                                 transition-opacity -ml-1" />
+          <ArrowRight className="w-3 h-3 opacity-0
+                                 group-hover:opacity-100 transition-opacity
+                                 -ml-1" />
         </div>
       </div>
     </Link>

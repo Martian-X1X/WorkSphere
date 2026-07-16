@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import {
   FolderKanban,
   Plus,
@@ -12,9 +11,10 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ProjectCard } from '@/components/project/ProjectCard'
 import { ProjectCardSkeleton } from '@/components/project/ProjectCardSkeleton'
 import { CreateProjectModal } from '@/components/project/CreateProjectModal'
-import { projectService } from '@/services/project.service'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/utils'
+import { useProjects } from '@/hooks/useProjects'
+
 
 // ── Status filter tabs ─────────────────────────────────────────────
 const STATUS_FILTERS = [
@@ -47,30 +47,20 @@ export default function ProjectsPage() {
   const sort = SORT_OPTIONS[sortIdx]
 
   // ── Query ─────────────────────────────────────────────────────────
-  const { data, isLoading, isFetching, refetch } = useQuery({
-    queryKey: ['projects', statusFilter, search, sort.sortBy, sort.sortDirection],
-    queryFn: () =>
-      projectService.getProjects({
-        status: statusFilter || undefined,
-        search: search || undefined,
-        sortBy: sort.sortBy,
-        sortDirection: sort.sortDirection,
-        pageSize: 100,
-      }),
-    staleTime: 60 * 1000,
-  })
+const { data: projectData, isLoading, isFetching, refetch } = useProjects({
+  status: statusFilter || undefined,
+  search: search || undefined,
+  sortBy: sort.sortBy,
+  sortDirection: sort.sortDirection,
+})
 
-  const projects = data?.data.data?.items ?? []
-  const totalCount = data?.data.data?.totalCount ?? 0
+const projects   = projectData?.items ?? []
+const totalCount = projectData?.totalCount ?? 0
 
   // ── Status counts for tabs ────────────────────────────────────────
-  const { data: allData } = useQuery({
-    queryKey: ['projects', '', '', 'createdAt', 'desc'],
-    queryFn: () => projectService.getProjects({ pageSize: 100 }),
-    staleTime: 5 * 60 * 1000,
-  })
+const { data: allProjectData } = useProjects({})
+const allProjects = allProjectData?.items ?? []
 
-  const allProjects = allData?.data.data?.items ?? []
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = { '': allProjects.length }
     allProjects.forEach((p) => {

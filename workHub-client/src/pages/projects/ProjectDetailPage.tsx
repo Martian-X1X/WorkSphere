@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
 import {
   ArrowLeft,
   Plus,
@@ -16,12 +15,12 @@ import { ProgressBar } from '@/components/ui/ProgressBar'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { TaskRow } from '@/components/task/TaskRow'
 import { TaskRowSkeleton } from '@/components/task/TaskRowSkeleton'
-import { projectService } from '@/services/project.service'
-import { taskService } from '@/services/task.service'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/utils'
 import { CreateTaskModal } from '@/components/task/CreateTaskModal'
 import { EditTaskModal } from '@/components/task/EditTaskModal'
+import { useProject } from '@/hooks/useProjects'
+import { useTasks } from '@/hooks/useTasks'
 import type { Task } from '@/types'
 
 // ── Status filter tabs ─────────────────────────────────────────────
@@ -53,32 +52,22 @@ export default function ProjectDetailPage() {
   const [editTask, setEditTask] = useState<Task | null>(null)
 
   // ── Queries ──────────────────────────────────────────────────────
-  const projectQuery = useQuery({
-    queryKey: ['project', projectId],
-    queryFn: () => projectService.getProjectById(projectId!),
-    enabled: !!projectId,
+  const { data: project, isLoading: projectLoading } = useProject(projectId)
+  const {
+    data: tasksData,
+    isLoading: tasksLoading,
+    isFetching: tasksFetching,
+    refetch: refetchTasks,
+  } = useTasks(projectId, {
+    status:   statusFilter   || undefined,
+    priority: priorityFilter || undefined,
+    search:   search         || undefined,
   })
 
-  const tasksQuery = useQuery({
-    queryKey: ['tasks', projectId, statusFilter, priorityFilter, search],
-    queryFn: () =>
-      taskService.getTasksByProject(projectId!, {
-        status:   statusFilter   || undefined,
-        priority: priorityFilter || undefined,
-        search:   search         || undefined,
-        pageSize: 100,
-        sortBy: 'orderIndex',
-        sortDirection: 'asc',
-      }),
-    enabled: !!projectId,
-    staleTime: 30 * 1000,
-  })
+  const tasks      = tasksData?.items ?? []
+  const totalTasks = tasksData?.totalCount ?? 0
 
-  const project    = projectQuery.data?.data.data
-  const tasks      = tasksQuery.data?.data.data?.items ?? []
-  const totalTasks = tasksQuery.data?.data.data?.totalCount ?? 0
-
-  if (projectQuery.isLoading) {
+  if (projectLoading) {
     return (
       <div className="flex items-center justify-center py-24">
         <Spinner size="lg" />
@@ -131,7 +120,7 @@ export default function ProjectDetailPage() {
           {isAdminOrOwner() && (
             <Button
               className="flex items-center gap-2 flex-shrink-0"
-              onClick={() => setCreateModalOpen(true)}   // ← was a placeholder
+              onClick={() => setCreateModalOpen(true)}
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Add Task</span>
@@ -216,15 +205,15 @@ export default function ProjectDetailPage() {
           </select>
 
           <button
-            onClick={() => tasksQuery.refetch()}
-            disabled={tasksQuery.isFetching}
+            onClick={() => refetchTasks()}
+            disabled={tasksFetching}
             className="p-2 border border-surface-700 rounded-lg
                        text-surface-500 hover:text-surface-300
                        hover:border-surface-600 bg-surface-800/50 transition-colors"
           >
             <RefreshCw className={cn(
               'w-4 h-4',
-              tasksQuery.isFetching && 'animate-spin'
+              tasksFetching && 'animate-spin'
             )} />
           </button>
         </div>
@@ -241,7 +230,7 @@ export default function ProjectDetailPage() {
           <span>Priority</span>
         </div>
 
-        {tasksQuery.isLoading ? (
+        {tasksLoading ? (
           // Skeleton
           <div>
             {Array.from({ length: 5 }).map((_, i) => (

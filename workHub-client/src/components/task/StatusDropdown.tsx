@@ -1,10 +1,8 @@
 import { useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ChevronDown } from 'lucide-react'
-import toast from 'react-hot-toast'
 import { TaskStatusBadge } from '@/components/ui/TaskStatusBadge'
-import { taskService } from '@/services/task.service'
-import { getApiError, cn } from '@/utils'
+import { useChangeTaskStatus } from '@/hooks/useTasks'
+import { cn } from '@/utils'
 
 const STATUSES = [
   'Todo', 'InProgress', 'InReview', 'Done', 'Cancelled',
@@ -23,23 +21,8 @@ export function StatusDropdown({
   projectId,
   disabled = false,
 }: StatusDropdownProps) {
-  const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
-
-  const mutation = useMutation({
-    mutationFn: (status: string) => taskService.changeStatus(taskId, status),
-    onSuccess: (_, newStatus) => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', projectId] })
-      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
-      queryClient.invalidateQueries({ queryKey: ['projects'] })
-      toast.success(`Status changed to ${newStatus}`)
-      setOpen(false)
-    },
-    onError: (error) => {
-      toast.error(getApiError(error))
-      setOpen(false)
-    },
-  })
+  const { mutate: changeStatus, isPending } = useChangeTaskStatus(projectId)
 
   return (
     <div className="relative">
@@ -47,16 +30,21 @@ export function StatusDropdown({
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
-          if (!disabled) setOpen(!open)
+          if (!disabled && !isPending) setOpen(!open)
         }}
-        disabled={disabled || mutation.isPending}
+        disabled={disabled || isPending}
         className={cn(
           'flex items-center gap-1 transition-opacity',
           disabled ? 'opacity-50 cursor-default' : 'hover:opacity-80 cursor-pointer'
         )}
       >
         <TaskStatusBadge status={currentStatus} size="sm" />
-        {!disabled && <ChevronDown className="w-3 h-3 text-surface-500" />}
+        {!disabled && (
+          <ChevronDown className={cn(
+            'w-3 h-3 text-surface-500',
+            isPending && 'animate-spin'
+          )} />
+        )}
       </button>
 
       {open && (
@@ -73,15 +61,15 @@ export function StatusDropdown({
                 key={s}
                 onClick={(e) => {
                   e.stopPropagation()
-                  if (s !== currentStatus) mutation.mutate(s)
-                  else setOpen(false)
+                  if (s !== currentStatus) {
+                    changeStatus({ taskId, status: s })
+                  }
+                  setOpen(false)
                 }}
                 className={cn(
                   'w-full px-3 py-2 flex items-center gap-2 text-left',
                   'transition-colors hover:bg-surface-700',
-                  s === currentStatus
-                    ? 'bg-surface-700/50'
-                    : ''
+                  s === currentStatus && 'bg-surface-700/50'
                 )}
               >
                 <TaskStatusBadge status={s} size="sm" />
