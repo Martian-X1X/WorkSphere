@@ -3495,7 +3495,7 @@ The persistent shell that **every future page lives inside:**
 This project is **proprietary software**. All rights reserved.
 Unauthorized copying, distribution, or commercial use without explicit written permission is prohibited.
 
-Abdullah Mohammed Abdul Matin | Software Engineer @ Martian Labs | abdullah.matin6920@gmail.com
+| Abdullah Mohammed Abdul Matin | Software Engineer @ Martian Labs | abdullah.matin6920@gmail.com | 
 ---
 
 *WorkSphere — Built for scale. Designed for teams.*
