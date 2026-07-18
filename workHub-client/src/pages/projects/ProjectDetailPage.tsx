@@ -1,12 +1,7 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
-  ArrowLeft,
-  Plus,
-  Search,
-  RefreshCw,
-  FolderKanban,
-  CheckSquare,
+  ArrowLeft, Plus, Search, RefreshCw, CheckSquare,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
@@ -15,15 +10,15 @@ import { ProgressBar } from '@/components/ui/ProgressBar'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { TaskRow } from '@/components/task/TaskRow'
 import { TaskRowSkeleton } from '@/components/task/TaskRowSkeleton'
-import { useAuthStore } from '@/stores/authStore'
-import { cn } from '@/utils'
 import { CreateTaskModal } from '@/components/task/CreateTaskModal'
 import { EditTaskModal } from '@/components/task/EditTaskModal'
 import { useProject } from '@/hooks/useProjects'
 import { useTasks } from '@/hooks/useTasks'
+import { useAuthStore } from '@/stores/authStore'
+import { QueryError } from '@/components/ui/QueryError'
+import { cn } from '@/utils'
 import type { Task } from '@/types'
 
-// ── Status filter tabs ─────────────────────────────────────────────
 const STATUS_FILTERS = [
   { label: 'All',         value: '' },
   { label: 'Todo',        value: 'Todo' },
@@ -45,18 +40,25 @@ export default function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const { isAdminOrOwner } = useAuthStore()
 
-  const [statusFilter, setStatusFilter] = useState('')
+  const [statusFilter,   setStatusFilter]   = useState('')
   const [priorityFilter, setPriorityFilter] = useState('')
-  const [search, setSearch] = useState('')
+  const [search,         setSearch]         = useState('')
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [editTask, setEditTask] = useState<Task | null>(null)
+  const [editTask,        setEditTask]        = useState<Task | null>(null)
 
-  // ── Queries ──────────────────────────────────────────────────────
-  const { data: project, isLoading: projectLoading } = useProject(projectId)
+  // ── Custom hooks (Day 45) ────────────────────────────────────────
+  const {
+    data: project,
+    isLoading: projectLoading,
+    error: projectError,
+    refetch: refetchProject,
+  } = useProject(projectId)
+
   const {
     data: tasksData,
     isLoading: tasksLoading,
     isFetching: tasksFetching,
+    error: tasksError,
     refetch: refetchTasks,
   } = useTasks(projectId, {
     status:   statusFilter   || undefined,
@@ -64,9 +66,10 @@ export default function ProjectDetailPage() {
     search:   search         || undefined,
   })
 
-  const tasks      = tasksData?.items ?? []
+  const tasks      = tasksData?.items      ?? []
   const totalTasks = tasksData?.totalCount ?? 0
 
+  // ── Loading state ────────────────────────────────────────────────
   if (projectLoading) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -75,11 +78,26 @@ export default function ProjectDetailPage() {
     )
   }
 
+  // ── Project error ───────────────────────────────────────────────
+  if (projectError) {
+    return (
+      <QueryError
+        error={projectError}
+        onRetry={refetchProject}
+        title="Failed to load project"
+      />
+    )
+  }
+
+  // ── Not found state ──────────────────────────────────────────────
   if (!project) {
     return (
       <div className="text-center py-24">
         <p className="text-surface-500">Project not found.</p>
-        <Link to="/projects" className="text-primary-400 hover:text-primary-300 text-sm mt-2 inline-block">
+        <Link
+          to="/projects"
+          className="text-primary-400 hover:text-primary-300 text-sm mt-2 inline-block"
+        >
           ← Back to Projects
         </Link>
       </div>
@@ -91,7 +109,7 @@ export default function ProjectDetailPage() {
   return (
     <div className="space-y-6 animate-fade-in">
 
-      {/* ── Back + header ────────────────────────────────────── */}
+      {/* ── Back + header ─────────────────────────────────────── */}
       <div className="space-y-4">
         <Link
           to="/projects"
@@ -129,23 +147,27 @@ export default function ProjectDetailPage() {
         </div>
       </div>
 
-      {/* ── Project stats ─────────────────────────────────────── */}
+      {/* ── Project stats ──────────────────────────────────────── */}
       {summary.total > 0 && (
         <div className="card space-y-3 py-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4 flex-wrap">
               {[
-                { label: 'Total',       value: summary.total,       color: 'text-surface-300' },
-                { label: 'Todo',        value: summary.todo,        color: 'text-surface-400' },
-                { label: 'In Progress', value: summary.inProgress,  color: 'text-blue-400' },
-                { label: 'In Review',   value: summary.inReview,    color: 'text-purple-400' },
-                { label: 'Done',        value: summary.done,        color: 'text-green-400' },
-              ].filter(s => s.value > 0).map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <p className={cn('text-lg font-bold', stat.color)}>{stat.value}</p>
-                  <p className="text-[10px] text-surface-600">{stat.label}</p>
-                </div>
-              ))}
+                { label: 'Total',       value: summary.total,      color: 'text-surface-300' },
+                { label: 'Todo',        value: summary.todo,       color: 'text-surface-400' },
+                { label: 'In Progress', value: summary.inProgress, color: 'text-blue-400' },
+                { label: 'In Review',   value: summary.inReview,   color: 'text-purple-400' },
+                { label: 'Done',        value: summary.done,       color: 'text-green-400' },
+              ]
+                .filter(s => s.value > 0)
+                .map((stat) => (
+                  <div key={stat.label} className="text-center">
+                    <p className={cn('text-lg font-bold', stat.color)}>
+                      {stat.value}
+                    </p>
+                    <p className="text-[10px] text-surface-600">{stat.label}</p>
+                  </div>
+                ))}
             </div>
             <div className="text-right flex-shrink-0">
               <p className="text-2xl font-bold text-surface-100">
@@ -158,7 +180,7 @@ export default function ProjectDetailPage() {
         </div>
       )}
 
-      {/* ── Filters ───────────────────────────────────────────── */}
+      {/* ── Filters ────────────────────────────────────────────── */}
       <div className="space-y-3">
         {/* Status tabs */}
         <div className="flex items-center gap-1 overflow-x-auto pb-1">
@@ -193,7 +215,6 @@ export default function ProjectDetailPage() {
             />
           </div>
 
-          {/* Priority filter */}
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
@@ -207,9 +228,9 @@ export default function ProjectDetailPage() {
           <button
             onClick={() => refetchTasks()}
             disabled={tasksFetching}
-            className="p-2 border border-surface-700 rounded-lg
-                       text-surface-500 hover:text-surface-300
-                       hover:border-surface-600 bg-surface-800/50 transition-colors"
+            className="p-2 border border-surface-700 rounded-lg text-surface-500
+                       hover:text-surface-300 hover:border-surface-600
+                       bg-surface-800/50 transition-colors"
           >
             <RefreshCw className={cn(
               'w-4 h-4',
@@ -219,9 +240,9 @@ export default function ProjectDetailPage() {
         </div>
       </div>
 
-      {/* ── Task list ─────────────────────────────────────────── */}
+      {/* ── Task list ──────────────────────────────────────────── */}
       <div className="card p-2 space-y-0.5">
-        {/* Header */}
+        {/* Column headers */}
         <div className="hidden sm:grid grid-cols-[auto,1fr,auto] gap-3
                         px-4 py-2 text-xs text-surface-600 border-b
                         border-surface-700/50 mb-1">
@@ -231,12 +252,17 @@ export default function ProjectDetailPage() {
         </div>
 
         {tasksLoading ? (
-          // Skeleton
           <div>
             {Array.from({ length: 5 }).map((_, i) => (
               <TaskRowSkeleton key={i} />
             ))}
           </div>
+        ) : tasksError ? (
+          <QueryError
+            error={tasksError}
+            onRetry={refetchTasks}
+            title="Failed to load tasks"
+          />
         ) : tasks.length > 0 ? (
           <div>
             {tasks.map((task) => (
@@ -280,19 +306,20 @@ export default function ProjectDetailPage() {
             }
           />
         )}
-        {/* ── Modals ────────────────────────────────────────────── */}
-        <CreateTaskModal
-          open={createModalOpen}
-          onClose={() => setCreateModalOpen(false)}
-          projectId={projectId!}
-        />
-
-        <EditTaskModal
-          task={editTask}
-          open={!!editTask}
-          onClose={() => setEditTask(null)}
-        />
       </div>
+
+      {/* ── Modals ─────────────────────────────────────────────── */}
+      <CreateTaskModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        projectId={projectId!}
+      />
+
+      <EditTaskModal
+        task={editTask}
+        open={!!editTask}
+        onClose={() => setEditTask(null)}
+      />
     </div>
   )
 }

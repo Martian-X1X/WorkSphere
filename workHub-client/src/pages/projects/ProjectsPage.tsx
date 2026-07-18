@@ -9,11 +9,13 @@ import {
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProjectCard } from '@/components/project/ProjectCard'
-import { ProjectCardSkeleton } from '@/components/project/ProjectCardSkeleton'
+
 import { CreateProjectModal } from '@/components/project/CreateProjectModal'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/utils'
 import { useProjects } from '@/hooks/useProjects'
+import { QueryError } from '@/components/ui/QueryError'
+import { ProjectsPageSkeleton } from '@/components/project/ProjectsPageSkeleton'
 
 
 // ── Status filter tabs ─────────────────────────────────────────────
@@ -47,10 +49,16 @@ export default function ProjectsPage() {
   const sort = SORT_OPTIONS[sortIdx]
 
   // ── Query ─────────────────────────────────────────────────────────
-const { data: projectData, isLoading, isFetching, refetch } = useProjects({
-  status: statusFilter || undefined,
-  search: search || undefined,
-  sortBy: sort.sortBy,
+const {
+  data: projectData,
+  isLoading,
+  isFetching,
+  error,
+  refetch,
+} = useProjects({
+  status:        statusFilter || undefined,
+  search:        search       || undefined,
+  sortBy:        sort.sortBy,
   sortDirection: sort.sortDirection,
 })
 
@@ -68,6 +76,9 @@ const allProjects = allProjectData?.items ?? []
     })
     return counts
   }, [allProjects])
+
+  if (isLoading) return <ProjectsPageSkeleton />
+  if (error)     return <QueryError error={error} onRetry={refetch} title="Failed to load projects" />
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -210,31 +221,18 @@ const allProjects = allProjectData?.items ?? []
       </div>
 
       {/* ── Content ─────────────────────────────────────────────── */}
-      {isLoading ? (
-        // Skeleton grid
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <ProjectCardSkeleton key={i} />
-          ))}
-        </div>
-      ) : projects.length > 0 ? (
-        // Project card grid
+      {projects.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.map((project) => (
             <ProjectCard key={project.id} project={project} />
           ))}
         </div>
       ) : (
-        // Empty state
         <EmptyState
           icon={FolderKanban}
-          title={
-            search
-              ? 'No projects match your search'
-              : statusFilter
-              ? `No ${statusFilter.toLowerCase()} projects`
-              : 'No projects yet'
-          }
+          title={search ? 'No projects match your search'
+            : statusFilter ? `No ${statusFilter.toLowerCase()} projects`
+            : 'No projects yet'}
           description={
             search || statusFilter
               ? 'Try adjusting your filters or search terms'

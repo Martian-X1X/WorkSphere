@@ -97,3 +97,23 @@
   .badge-high   { @apply badge bg-orange-900/50 text-orange-400; }
   .badge-urgent { @apply badge bg-red-900/50 text-red-400; }
 }
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-pulse-subtle {
+    animation: pulseSub 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseSub {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.6; }
+  }
+}

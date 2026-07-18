@@ -8,7 +8,6 @@ import {
   Search,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { Spinner } from '@/components/ui/Spinner'
 import { OrgInfoCard } from '@/components/organization/OrgInfoCard'
 import { MemberRow } from '@/components/organization/MemberRow'
 import { InviteRow } from '@/components/organization/InviteRow'
@@ -16,6 +15,8 @@ import { InviteMemberModal } from '@/components/organization/InviteMemberModal'
 import { ChangeRoleModal } from '@/components/organization/ChangeRoleModal'
 import { organizationService } from '@/services/organization.service'
 import { useAuthStore } from '@/stores/authStore'
+import { QueryError } from '@/components/ui/QueryError'
+import { MembersPageSkeleton } from '@/components/organization/MembersPageSkeleton'
 import type { Member } from '@/types'
 
 export default function MembersPage() {
@@ -48,6 +49,29 @@ export default function MembersPage() {
   const members = membersQuery.data?.data.data?.items ?? []
   const invites = invitesQuery.data?.data.data ?? []
 
+  // ── Loading / Error states ──────────────────────────────────────
+  const isLoading = orgQuery.isLoading || membersQuery.isLoading
+  const orgError = orgQuery.error
+  const membersError = membersQuery.error
+
+  if (isLoading) return <MembersPageSkeleton />
+
+  if (orgError) return (
+    <QueryError
+      error={orgError}
+      onRetry={orgQuery.refetch}
+      title="Failed to load organization"
+    />
+  )
+
+  if (membersError) return (
+    <QueryError
+      error={membersError}
+      onRetry={membersQuery.refetch}
+      title="Failed to load members"
+    />
+  )
+
   // ── Filtered members ─────────────────────────────────────────────
   const filtered = search.trim()
     ? members.filter(m =>
@@ -62,8 +86,6 @@ export default function MembersPage() {
     i => i.status === 'Pending' &&
     new Date(i.expiresAt) > new Date()
   )
-
-  const isLoading = orgQuery.isLoading || membersQuery.isLoading
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -91,15 +113,8 @@ export default function MembersPage() {
         )}
       </div>
 
-      {/* ── Loading state ────────────────────────────────────────── */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-24">
-          <Spinner size="lg" />
-        </div>
-      )}
-
-      {!isLoading && (
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      {/* ── Content ─────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
           {/* ── Left column — org info ────────────────────────── */}
           <div className="xl:col-span-1 space-y-4">
@@ -259,7 +274,6 @@ export default function MembersPage() {
             </div>
           </div>
         </div>
-      )}
 
       {/* ── Modals ──────────────────────────────────────────────── */}
       <InviteMemberModal
