@@ -295,7 +295,7 @@ Edit `WorkHub.API/appsettings.json`:
 
 > ⚠️ Never commit `appsettings.json` with real credentials. Use environment variables or secrets management in production.
 
-### 4. Install EF Core CLI Tool
+### 4. Install EF Core CLI Tools
 
 ```bash
 dotnet tool install --global dotnet-ef
@@ -340,7 +340,7 @@ http://localhost:5210/swagger
 
 ---
 
-## 📅 Development Log
+## 📅 Development Logs
 
 ### ✅ Day 1 — Infrastructure Setup
 - Initialized .NET 9 Web API project and solution
@@ -1510,7 +1510,7 @@ Login          DB: RefreshToken = "TokenA"
 
 ##### ✅ Test 1 — `GET /me` With Valid Token
 
-**Headers:** `Authorization: Bearer eyJhbGci...`
+**Headers:** `Authorization: Bearer eyJhbGci....`
 
 **Response — `200 OK`:**
 ```json
