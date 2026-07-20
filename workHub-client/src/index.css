@@ -143,3 +143,23 @@
     background: transparent;
   }
 }
+
+@layer utilities {
+  /* Drag cursor states */
+  .cursor-grab {
+    cursor: grab;
+  }
+  .cursor-grabbing {
+    cursor: grabbing;
+  }
+
+  /* Prevent text selection while dragging */
+  [data-dragging="true"] {
+    user-select: none;
+  }
+
+  /* Smooth card transitions (except when dragging) */
+  .kanban-card-transition {
+    transition: transform 150ms ease, box-shadow 150ms ease;
+  }
+}
