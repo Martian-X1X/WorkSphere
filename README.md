@@ -1507,7 +1507,6 @@ Login          DB: RefreshToken = "TokenA"
 ```
 
 ---
-
 ##### ✅ Test 1 — `GET /me` With Valid Token
 
 **Headers:** `Authorization: Bearer eyJhbGci....`
@@ -1535,7 +1534,6 @@ Login          DB: RefreshToken = "TokenA"
 > 🟢 All data read from JWT claims — zero database queries. Proven by console log: `Profile accessed by 653db7e8 (Owner)`
 
 ---
-
 ##### ❌ Test 2 — `GET /me` Without Token
 
 **Headers:** *(none)*
@@ -3219,7 +3217,7 @@ CommentValidators.cs      → whitespace-only content blocked
  
 | Rule | Example |
 |---|---|
-| Regex on names | `Abdul123` → "Only letters, hyphens, apostrophes" |
+| Regex on names | `Abdul1234` → "Only letters, hyphens, apostrophes" |
 | Cross-field dates | `DueDate < StartDate` → caught before service layer |
 | Conditional numeric | `estimatedMinutes: 0` → "Must be greater than 0" |
 | Whitespace check | `"   "` → "Comment cannot be only whitespace" |
