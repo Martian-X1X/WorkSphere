@@ -1,5 +1,5 @@
 import api from '@/lib/api'
-import type { ApiResponse, PagedResult, Task } from '@/types'
+import type { ActivityLog, ApiResponse, PagedResult, Task, TaskAssignee } from '@/types'
 
 export interface TaskQueryParams {
   status?: string
@@ -62,6 +62,13 @@ export const taskService = {
 
   deleteTask: (taskId: string) =>
     api.delete<ApiResponse<object>>(`/tasks/${taskId}`),
+
+  // ── Activity & Assignees ────────────────────────────────────────
+  getTaskActivity: (taskId: string) =>
+    api.get<ApiResponse<ActivityLog[]>>(`/tasks/${taskId}/activity`),
+
+  getTaskAssignees: (taskId: string) =>
+    api.get<ApiResponse<TaskAssignee[]>>(`/tasks/${taskId}/assignees`),
 
   // ── My Tasks ────────────────────────────────────────────────────
   getMyTasks: (params: { status?: string; priority?: string; overdue?: boolean } = {}) => {

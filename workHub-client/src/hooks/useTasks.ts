@@ -205,3 +205,25 @@ export function useDeleteTask(projectId: string) {
     onError: (error) => toast.error(getApiError(error)),
   })
 }
+
+// ── useTaskActivity ────────────────────────────────────────────────
+export function useTaskActivity(taskId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.tasks.activity(taskId ?? ''),
+    queryFn:  () => taskService.getTaskActivity(taskId!),
+    enabled:  !!taskId,
+    staleTime: 1000 * 30,
+    select: (data) => data.data.data ?? [],
+  })
+}
+
+// ── useTaskAssignees ───────────────────────────────────────────────
+export function useTaskAssignees(taskId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.tasks.assignees(taskId ?? ''),
+    queryFn:  () => taskService.getTaskAssignees(taskId!),
+    enabled:  !!taskId,
+    staleTime: 1000 * 60,
+    select: (data) => data.data.data ?? [],
+  })
+}

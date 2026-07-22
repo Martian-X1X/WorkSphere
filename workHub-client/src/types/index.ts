@@ -143,7 +143,9 @@ export interface TaskAssignee {
   userId: string
   fullName: string
   email: string
+  role: string
   assignedAt: string
+  assignedByName: string
 }
 
 export interface Task {
@@ -205,15 +207,14 @@ export interface Comment {
 // ──────────────────────────────────────────────────────────────────
 export interface ActivityLog {
   id: string
+  userId: string
+  userName: string
   action: string
   entityType: string
   entityId: string
-  entityName: string | null
+  entityName: string
   projectId: string | null
-  userId: string
-  userName: string
-  metadata: string | null
-  description: string
+  metadata: Record<string, unknown> | null
   createdAt: string
 }
 
