@@ -6,6 +6,7 @@ import { QueryError }       from '@/components/ui/QueryError'
 import { TaskStatusBadge }  from '@/components/ui/TaskStatusBadge'
 import { EditTaskModal }    from '@/components/task/EditTaskModal'
 import { TaskActions }      from '@/components/task/TaskActions'
+import { CommentList }    from '@/components/comment/CommentList'
 import { TaskMetaSidebar }  from '@/components/task/TaskMetaSidebar'
 import { ActivityFeed }     from '@/components/task/ActivityFeed'
 import {
@@ -13,6 +14,7 @@ import {
   useTaskActivity,
   useTaskAssignees,
 } from '@/hooks/useTasks'
+import { useComments } from '@/hooks/useComments'
 import { cn } from '@/utils'
 import type { Task } from '@/types'
 
@@ -41,6 +43,9 @@ export default function TaskDetailPage() {
     data:      assignees,
     isLoading: assigneesLoading,
   } = useTaskAssignees(taskId)
+
+  const { data: comments } = useComments(taskId)
+  const commentCount = comments?.length ?? 0
 
   // ── Loading ──────────────────────────────────────────────────────
   if (taskLoading) {
@@ -166,7 +171,7 @@ export default function TaskDetailPage() {
                 { id: 'activity' as Tab, label: 'Activity',
                   icon: Activity, count: activities?.length },
                 { id: 'comments' as Tab, label: 'Comments',
-                  icon: MessageSquare, count: 0 },
+                  icon: MessageSquare, count: commentCount },
               ]).map(({ id, label, icon: Icon, count }) => (
                 <button
                   key={id}
@@ -205,16 +210,7 @@ export default function TaskDetailPage() {
               )}
 
               {activeTab === 'comments' && (
-                <div className="text-center py-10">
-                  <MessageSquare className="w-10 h-10 text-surface-700
-                                            mx-auto mb-3" />
-                  <p className="text-sm text-surface-500 font-medium">
-                    Comments coming Day 50
-                  </p>
-                  <p className="text-xs text-surface-600 mt-1">
-                    Full comment system with edit and delete
-                  </p>
-                </div>
+                <CommentList taskId={taskId!} />
               )}
             </div>
           </div>

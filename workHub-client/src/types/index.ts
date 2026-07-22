@@ -190,16 +190,25 @@ export interface CreateTaskRequest {
 // Comment types
 // ──────────────────────────────────────────────────────────────────
 export interface Comment {
-  id: string
-  content: string
-  isEdited: boolean
-  editedAt: string | null
+  id:              string
+  content:         string
+  isEdited:        boolean
+  editedAt:        string | null
+  taskId:          string
+  organizationId:  string
   createdByUserId: string
-  createdByName: string
-  isOwnComment: boolean
-  taskId: string
-  createdAt: string
-  updatedAt: string
+  createdByName:   string
+  isOwnComment:    boolean
+  createdAt:       string
+  updatedAt:       string
+}
+
+export interface CreateCommentRequest {
+  content: string
+}
+
+export interface UpdateCommentRequest {
+  content: string
 }
 
 // ──────────────────────────────────────────────────────────────────
