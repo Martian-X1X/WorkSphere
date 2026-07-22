@@ -49,7 +49,7 @@ export function useMyTasks(filters: {
     queryKey: queryKeys.tasks.myTasks(filters),
     queryFn:  () => taskService.getMyTasks(filters),
     staleTime: 1000 * 60,
-    select: (data) => data.data.data,
+    select: (data) => data.data.data?.items ?? [],
   })
 }
 

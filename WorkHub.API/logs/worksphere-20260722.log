@@ -4286,3 +4286,294 @@ INNER JOIN (
 ) AS u0 ON c0."CreatedByUserId" = u0."Id"
 ORDER BY c0."CreatedAt"
 2026-07-22 16:14:09.749 +06:00 [INF] [0HNN7QT69LMDB:00000001] [0HNN7QT69LMDB:00000001] GET /api/tasks/00000000-0000-0000-0004-000000000002/comments → 200 (199.1ms)
+2026-07-22 16:21:21.369 +06:00 [DBG] [0HNN7QT69LMDC:00000001] Permission granted: Admin → tasks.view
+2026-07-22 16:21:21.416 +06:00 [INF] [0HNN7QT69LMDC:00000001] Executed DbCommand (6ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000002'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-22 16:21:21.452 +06:00 [INF] [0HNN7QT69LMDC:00000001] Executed DbCommand (9ms) [Parameters=[@__orgId_0='00000000-0000-0000-0001-000000000001', @__userId_1='00000000-0000-0000-0002-000000000002' (Nullable = true)], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt", p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt"
+FROM "Tasks" AS t
+INNER JOIN (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted")
+) AS p0 ON t."ProjectId" = p0."Id"
+WHERE NOT (t."IsDeleted") AND t."OrganizationId" = @__orgId_0 AND t."AssignedToUserId" = @__userId_1
+2026-07-22 16:21:21.466 +06:00 [INF] [0HNN7QT69LMDC:00000001] Executed DbCommand (4ms) [Parameters=[@__userId_0='00000000-0000-0000-0002-000000000002'], CommandType='"Text"', CommandTimeout='30']
+SELECT t."TaskId"
+FROM "TaskAssignees" AS t
+WHERE t."UserId" = @__userId_0
+2026-07-22 16:21:21.572 +06:00 [INF] [0HNN7QT69LMDC:00000001] Executed DbCommand (56ms) [Parameters=[@__orgId_0='00000000-0000-0000-0001-000000000001', @__collaboratorTaskIds_1={  } (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt", p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt"
+FROM "Tasks" AS t
+INNER JOIN (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted")
+) AS p0 ON t."ProjectId" = p0."Id"
+WHERE NOT (t."IsDeleted") AND t."OrganizationId" = @__orgId_0 AND t."Id" = ANY (@__collaboratorTaskIds_1)
+2026-07-22 16:21:21.582 +06:00 [INF] [0HNN7QT69LMDC:00000001] [0HNN7QT69LMDC:00000001] GET /api/users/me/tasks → 200 (213.1ms)
+2026-07-22 16:22:16.717 +06:00 [DBG] [0HNN7QT69LMDD:00000001] Permission granted: Admin → tasks.view
+2026-07-22 16:22:16.719 +06:00 [INF] [0HNN7QT69LMDD:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000002'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-22 16:22:16.721 +06:00 [INF] [0HNN7QT69LMDD:00000001] Executed DbCommand (1ms) [Parameters=[@__orgId_0='00000000-0000-0000-0001-000000000001', @__userId_1='00000000-0000-0000-0002-000000000002' (Nullable = true)], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt", p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt"
+FROM "Tasks" AS t
+INNER JOIN (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted")
+) AS p0 ON t."ProjectId" = p0."Id"
+WHERE NOT (t."IsDeleted") AND t."OrganizationId" = @__orgId_0 AND t."AssignedToUserId" = @__userId_1
+2026-07-22 16:22:16.725 +06:00 [INF] [0HNN7QT69LMDD:00000001] Executed DbCommand (1ms) [Parameters=[@__userId_0='00000000-0000-0000-0002-000000000002'], CommandType='"Text"', CommandTimeout='30']
+SELECT t."TaskId"
+FROM "TaskAssignees" AS t
+WHERE t."UserId" = @__userId_0
+2026-07-22 16:22:16.728 +06:00 [INF] [0HNN7QT69LMDD:00000001] Executed DbCommand (1ms) [Parameters=[@__orgId_0='00000000-0000-0000-0001-000000000001', @__collaboratorTaskIds_1={  } (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt", p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt"
+FROM "Tasks" AS t
+INNER JOIN (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted")
+) AS p0 ON t."ProjectId" = p0."Id"
+WHERE NOT (t."IsDeleted") AND t."OrganizationId" = @__orgId_0 AND t."Id" = ANY (@__collaboratorTaskIds_1)
+2026-07-22 16:22:16.729 +06:00 [INF] [0HNN7QT69LMDD:00000001] [0HNN7QT69LMDD:00000001] GET /api/users/me/tasks → 200 (12.1ms)
+2026-07-22 16:22:20.596 +06:00 [DBG] [0HNN7QT69LMDE:00000001] Permission granted: Admin → projects.view
+2026-07-22 16:22:20.596 +06:00 [DBG] [0HNN7QT69LMDF:00000001] Permission granted: Admin → projects.view
+2026-07-22 16:22:20.599 +06:00 [INF] [0HNN7QT69LMDE:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000002'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-22 16:22:20.601 +06:00 [INF] [0HNN7QT69LMDE:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Projects" AS p
+WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+2026-07-22 16:22:20.607 +06:00 [INF] [0HNN7QT69LMDE:00000001] Executed DbCommand (4ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__p_2='100', @__p_1='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt", t0."Id", t0."ActualMinutes", t0."AssignedToUserId", t0."CompletedAt", t0."CreatedAt", t0."CreatedByUserId", t0."DeletedAt", t0."Description", t0."DueDate", t0."EstimatedMinutes", t0."IsDeleted", t0."OrderIndex", t0."OrganizationId", t0."ParentTaskId", t0."Priority", t0."ProjectId", t0."StartDate", t0."Status", t0."Title", t0."UpdatedAt"
+FROM (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+    ORDER BY p."CreatedAt" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS p0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON p0."CreatedByUserId" = u0."Id"
+LEFT JOIN (
+    SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+    FROM "Users" AS u1
+    WHERE NOT (u1."IsDeleted")
+) AS u2 ON p0."ProjectLeadUserId" = u2."Id"
+LEFT JOIN (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+    FROM "Tasks" AS t
+    WHERE NOT (t."IsDeleted")
+) AS t0 ON p0."Id" = t0."ProjectId"
+ORDER BY p0."CreatedAt" DESC, p0."Id", u0."Id", u2."Id"
+2026-07-22 16:22:20.608 +06:00 [INF] [0HNN7QT69LMDE:00000001] Projects listed for org "00000000-0000-0000-0001-000000000001" — 5 results
+2026-07-22 16:22:20.608 +06:00 [INF] [0HNN7QT69LMDE:00000001] [0HNN7QT69LMDE:00000001] GET /api/projects → 200 (12.3ms)
+2026-07-22 16:22:20.744 +06:00 [INF] [0HNN7QT69LMDF:00000001] Executed DbCommand (3ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000002'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-22 16:22:20.746 +06:00 [INF] [0HNN7QT69LMDF:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Projects" AS p
+WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+2026-07-22 16:22:20.756 +06:00 [INF] [0HNN7QT69LMDF:00000001] Executed DbCommand (9ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__p_2='100', @__p_1='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT p0."Id", p0."CreatedAt", p0."CreatedByUserId", p0."DeletedAt", p0."Description", p0."DueDate", p0."IsDeleted", p0."Name", p0."OrganizationId", p0."ProjectLeadUserId", p0."StartDate", p0."Status", p0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt", t0."Id", t0."ActualMinutes", t0."AssignedToUserId", t0."CompletedAt", t0."CreatedAt", t0."CreatedByUserId", t0."DeletedAt", t0."Description", t0."DueDate", t0."EstimatedMinutes", t0."IsDeleted", t0."OrderIndex", t0."OrganizationId", t0."ParentTaskId", t0."Priority", t0."ProjectId", t0."StartDate", t0."Status", t0."Title", t0."UpdatedAt"
+FROM (
+    SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+    FROM "Projects" AS p
+    WHERE NOT (p."IsDeleted") AND p."OrganizationId" = @___currentUser_OrganizationId_0
+    ORDER BY p."CreatedAt" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS p0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON p0."CreatedByUserId" = u0."Id"
+LEFT JOIN (
+    SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+    FROM "Users" AS u1
+    WHERE NOT (u1."IsDeleted")
+) AS u2 ON p0."ProjectLeadUserId" = u2."Id"
+LEFT JOIN (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+    FROM "Tasks" AS t
+    WHERE NOT (t."IsDeleted")
+) AS t0 ON p0."Id" = t0."ProjectId"
+ORDER BY p0."CreatedAt" DESC, p0."Id", u0."Id", u2."Id"
+2026-07-22 16:22:20.757 +06:00 [INF] [0HNN7QT69LMDF:00000001] Projects listed for org "00000000-0000-0000-0001-000000000001" — 5 results
+2026-07-22 16:22:20.758 +06:00 [INF] [0HNN7QT69LMDF:00000001] [0HNN7QT69LMDF:00000001] GET /api/projects → 200 (161.4ms)
+2026-07-22 16:22:26.268 +06:00 [DBG] [0HNN7QT69LMDG:00000001] Permission granted: Admin → tasks.view
+2026-07-22 16:22:26.268 +06:00 [DBG] [0HNN7QT69LMDH:00000001] Permission granted: Admin → tasks.view
+2026-07-22 16:22:26.269 +06:00 [DBG] [0HNN7QT69LMDI:00000001] Permission granted: Admin → tasks.view
+2026-07-22 16:22:26.269 +06:00 [DBG] [0HNN7QT69LMDJ:00000001] Permission granted: Admin → comments.view
+2026-07-22 16:22:26.270 +06:00 [INF] [0HNN7QT69LMDG:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000002'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-22 16:22:26.270 +06:00 [INF] [0HNN7QT69LMDH:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000002'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-22 16:22:26.274 +06:00 [INF] [0HNN7QT69LMDG:00000001] Executed DbCommand (3ms) [Parameters=[@__taskId_0='00000000-0000-0000-0004-000000000005'], CommandType='"Text"', CommandTimeout='30']
+SELECT s."Id", s."ActualMinutes", s."AssignedToUserId", s."CompletedAt", s."CreatedAt", s."CreatedByUserId", s."DeletedAt", s."Description", s."DueDate", s."EstimatedMinutes", s."IsDeleted", s."OrderIndex", s."OrganizationId", s."ParentTaskId", s."Priority", s."ProjectId", s."StartDate", s."Status", s."Title", s."UpdatedAt", s."Id0", s."CreatedAt0", s."DeletedAt0", s."Email", s."EmailVerificationExpiry", s."EmailVerificationToken", s."FirstName", s."IsActive", s."IsDeleted0", s."IsEmailVerified", s."LastLoginAt", s."LastName", s."OrganizationId0", s."PasswordHash", s."PasswordResetExpiry", s."PasswordResetToken", s."ProfilePictureUrl", s."RefreshToken", s."RefreshTokenExpiry", s."Role", s."UpdatedAt0", s."Id1", s."CreatedAt1", s."DeletedAt1", s."Email0", s."EmailVerificationExpiry0", s."EmailVerificationToken0", s."FirstName0", s."IsActive0", s."IsDeleted1", s."IsEmailVerified0", s."LastLoginAt0", s."LastName0", s."OrganizationId1", s."PasswordHash0", s."PasswordResetExpiry0", s."PasswordResetToken0", s."ProfilePictureUrl0", s."RefreshToken0", s."RefreshTokenExpiry0", s."Role0", s."UpdatedAt1", s."Id2", s."CreatedAt2", s."CreatedByUserId0", s."DeletedAt2", s."Description0", s."DueDate0", s."IsDeleted2", s."Name", s."OrganizationId2", s."ProjectLeadUserId", s."StartDate0", s."Status0", s."UpdatedAt2", s0."TaskId", s0."UserId", s0."AssignedAt", s0."AssignedByUserId", s0."Id", s0."CreatedAt", s0."DeletedAt", s0."Email", s0."EmailVerificationExpiry", s0."EmailVerificationToken", s0."FirstName", s0."IsActive", s0."IsDeleted", s0."IsEmailVerified", s0."LastLoginAt", s0."LastName", s0."OrganizationId", s0."PasswordHash", s0."PasswordResetExpiry", s0."PasswordResetToken", s0."ProfilePictureUrl", s0."RefreshToken", s0."RefreshTokenExpiry", s0."Role", s0."UpdatedAt", t2."Id", t2."ActualMinutes", t2."AssignedToUserId", t2."CompletedAt", t2."CreatedAt", t2."CreatedByUserId", t2."DeletedAt", t2."Description", t2."DueDate", t2."EstimatedMinutes", t2."IsDeleted", t2."OrderIndex", t2."OrganizationId", t2."ParentTaskId", t2."Priority", t2."ProjectId", t2."StartDate", t2."Status", t2."Title", t2."UpdatedAt"
+FROM (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt", u0."Id" AS "Id0", u0."CreatedAt" AS "CreatedAt0", u0."DeletedAt" AS "DeletedAt0", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted" AS "IsDeleted0", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId" AS "OrganizationId0", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt" AS "UpdatedAt0", u2."Id" AS "Id1", u2."CreatedAt" AS "CreatedAt1", u2."DeletedAt" AS "DeletedAt1", u2."Email" AS "Email0", u2."EmailVerificationExpiry" AS "EmailVerificationExpiry0", u2."EmailVerificationToken" AS "EmailVerificationToken0", u2."FirstName" AS "FirstName0", u2."IsActive" AS "IsActive0", u2."IsDeleted" AS "IsDeleted1", u2."IsEmailVerified" AS "IsEmailVerified0", u2."LastLoginAt" AS "LastLoginAt0", u2."LastName" AS "LastName0", u2."OrganizationId" AS "OrganizationId1", u2."PasswordHash" AS "PasswordHash0", u2."PasswordResetExpiry" AS "PasswordResetExpiry0", u2."PasswordResetToken" AS "PasswordResetToken0", u2."ProfilePictureUrl" AS "ProfilePictureUrl0", u2."RefreshToken" AS "RefreshToken0", u2."RefreshTokenExpiry" AS "RefreshTokenExpiry0", u2."Role" AS "Role0", u2."UpdatedAt" AS "UpdatedAt1", p0."Id" AS "Id2", p0."CreatedAt" AS "CreatedAt2", p0."CreatedByUserId" AS "CreatedByUserId0", p0."DeletedAt" AS "DeletedAt2", p0."Description" AS "Description0", p0."DueDate" AS "DueDate0", p0."IsDeleted" AS "IsDeleted2", p0."Name", p0."OrganizationId" AS "OrganizationId2", p0."ProjectLeadUserId", p0."StartDate" AS "StartDate0", p0."Status" AS "Status0", p0."UpdatedAt" AS "UpdatedAt2"
+    FROM "Tasks" AS t
+    INNER JOIN (
+        SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+        FROM "Users" AS u
+        WHERE NOT (u."IsDeleted")
+    ) AS u0 ON t."CreatedByUserId" = u0."Id"
+    LEFT JOIN (
+        SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+        FROM "Users" AS u1
+        WHERE NOT (u1."IsDeleted")
+    ) AS u2 ON t."AssignedToUserId" = u2."Id"
+    INNER JOIN (
+        SELECT p."Id", p."CreatedAt", p."CreatedByUserId", p."DeletedAt", p."Description", p."DueDate", p."IsDeleted", p."Name", p."OrganizationId", p."ProjectLeadUserId", p."StartDate", p."Status", p."UpdatedAt"
+        FROM "Projects" AS p
+        WHERE NOT (p."IsDeleted")
+    ) AS p0 ON t."ProjectId" = p0."Id"
+    WHERE NOT (t."IsDeleted") AND t."Id" = @__taskId_0
+    LIMIT 1
+) AS s
+LEFT JOIN (
+    SELECT t0."TaskId", t0."UserId", t0."AssignedAt", t0."AssignedByUserId", u4."Id", u4."CreatedAt", u4."DeletedAt", u4."Email", u4."EmailVerificationExpiry", u4."EmailVerificationToken", u4."FirstName", u4."IsActive", u4."IsDeleted", u4."IsEmailVerified", u4."LastLoginAt", u4."LastName", u4."OrganizationId", u4."PasswordHash", u4."PasswordResetExpiry", u4."PasswordResetToken", u4."ProfilePictureUrl", u4."RefreshToken", u4."RefreshTokenExpiry", u4."Role", u4."UpdatedAt"
+    FROM "TaskAssignees" AS t0
+    INNER JOIN (
+        SELECT u3."Id", u3."CreatedAt", u3."DeletedAt", u3."Email", u3."EmailVerificationExpiry", u3."EmailVerificationToken", u3."FirstName", u3."IsActive", u3."IsDeleted", u3."IsEmailVerified", u3."LastLoginAt", u3."LastName", u3."OrganizationId", u3."PasswordHash", u3."PasswordResetExpiry", u3."PasswordResetToken", u3."ProfilePictureUrl", u3."RefreshToken", u3."RefreshTokenExpiry", u3."Role", u3."UpdatedAt"
+        FROM "Users" AS u3
+        WHERE NOT (u3."IsDeleted")
+    ) AS u4 ON t0."UserId" = u4."Id"
+) AS s0 ON s."Id" = s0."TaskId"
+LEFT JOIN (
+    SELECT t1."Id", t1."ActualMinutes", t1."AssignedToUserId", t1."CompletedAt", t1."CreatedAt", t1."CreatedByUserId", t1."DeletedAt", t1."Description", t1."DueDate", t1."EstimatedMinutes", t1."IsDeleted", t1."OrderIndex", t1."OrganizationId", t1."ParentTaskId", t1."Priority", t1."ProjectId", t1."StartDate", t1."Status", t1."Title", t1."UpdatedAt"
+    FROM "Tasks" AS t1
+    WHERE NOT (t1."IsDeleted")
+) AS t2 ON s."Id" = t2."ParentTaskId"
+ORDER BY s."Id", s."Id0", s."Id1", s."Id2", s0."TaskId", s0."UserId", s0."Id"
+2026-07-22 16:22:26.275 +06:00 [INF] [0HNN7QT69LMDH:00000001] Executed DbCommand (4ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001', @__taskId_1='00000000-0000-0000-0004-000000000005', @__taskId_2='00000000-0000-0000-0004-000000000005' (Nullable = true), @__p_4='50', @__p_3='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."Action", a."CreatedAt", a."EntityId", a."EntityName", a."EntityType", a."Metadata", a."OrganizationId", a."ProjectId", a."UserId", a."UserName"
+FROM "ActivityLogs" AS a
+WHERE a."OrganizationId" = @___currentUser_OrganizationId_0 AND (a."EntityId" = @__taskId_1 OR (a."EntityType" = 'Comment' AND a."ProjectId" = @__taskId_2))
+ORDER BY a."CreatedAt" DESC
+LIMIT @__p_4 OFFSET @__p_3
+2026-07-22 16:22:26.276 +06:00 [INF] [0HNN7QT69LMDH:00000001] [0HNN7QT69LMDH:00000001] GET /api/tasks/00000000-0000-0000-0004-000000000005/activity → 200 (8.2ms)
+2026-07-22 16:22:26.276 +06:00 [INF] [0HNN7QT69LMDG:00000001] [0HNN7QT69LMDG:00000001] GET /api/tasks/00000000-0000-0000-0004-000000000005 → 200 (8.6ms)
+2026-07-22 16:22:26.317 +06:00 [INF] [0HNN7QT69LMDJ:00000001] Executed DbCommand (6ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000002'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-22 16:22:26.319 +06:00 [INF] [0HNN7QT69LMDJ:00000001] Executed DbCommand (1ms) [Parameters=[@__taskId_0='00000000-0000-0000-0004-000000000005'], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt"
+FROM "Tasks" AS t
+WHERE NOT (t."IsDeleted") AND t."Id" = @__taskId_0
+LIMIT 1
+2026-07-22 16:22:26.320 +06:00 [INF] [0HNN7QT69LMDI:00000001] Executed DbCommand (6ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000002'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-07-22 16:22:26.322 +06:00 [INF] [0HNN7QT69LMDJ:00000001] Executed DbCommand (3ms) [Parameters=[@__taskId_0='00000000-0000-0000-0004-000000000005'], CommandType='"Text"', CommandTimeout='30']
+SELECT count(*)::int
+FROM "Comments" AS c
+WHERE NOT (c."IsDeleted") AND c."TaskId" = @__taskId_0
+2026-07-22 16:22:26.326 +06:00 [INF] [0HNN7QT69LMDJ:00000001] Executed DbCommand (3ms) [Parameters=[@__taskId_0='00000000-0000-0000-0004-000000000005', @__p_2='50', @__p_1='0'], CommandType='"Text"', CommandTimeout='30']
+SELECT c0."Id", c0."Content", c0."CreatedAt", c0."CreatedByUserId", c0."DeletedAt", c0."EditedAt", c0."IsDeleted", c0."IsEdited", c0."OrganizationId", c0."TaskId", c0."UpdatedAt", u0."Id", u0."CreatedAt", u0."DeletedAt", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt"
+FROM (
+    SELECT c."Id", c."Content", c."CreatedAt", c."CreatedByUserId", c."DeletedAt", c."EditedAt", c."IsDeleted", c."IsEdited", c."OrganizationId", c."TaskId", c."UpdatedAt"
+    FROM "Comments" AS c
+    WHERE NOT (c."IsDeleted") AND c."TaskId" = @__taskId_0
+    ORDER BY c."CreatedAt"
+    LIMIT @__p_2 OFFSET @__p_1
+) AS c0
+INNER JOIN (
+    SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+    FROM "Users" AS u
+    WHERE NOT (u."IsDeleted")
+) AS u0 ON c0."CreatedByUserId" = u0."Id"
+ORDER BY c0."CreatedAt"
+2026-07-22 16:22:26.326 +06:00 [INF] [0HNN7QT69LMDJ:00000001] [0HNN7QT69LMDJ:00000001] GET /api/tasks/00000000-0000-0000-0004-000000000005/comments → 200 (57.3ms)
+2026-07-22 16:22:26.329 +06:00 [INF] [0HNN7QT69LMDI:00000001] Executed DbCommand (8ms) [Parameters=[@__taskId_0='00000000-0000-0000-0004-000000000005'], CommandType='"Text"', CommandTimeout='30']
+SELECT s."Id", s."ActualMinutes", s."AssignedToUserId", s."CompletedAt", s."CreatedAt", s."CreatedByUserId", s."DeletedAt", s."Description", s."DueDate", s."EstimatedMinutes", s."IsDeleted", s."OrderIndex", s."OrganizationId", s."ParentTaskId", s."Priority", s."ProjectId", s."StartDate", s."Status", s."Title", s."UpdatedAt", s."Id0", s."CreatedAt0", s."DeletedAt0", s."Email", s."EmailVerificationExpiry", s."EmailVerificationToken", s."FirstName", s."IsActive", s."IsDeleted0", s."IsEmailVerified", s."LastLoginAt", s."LastName", s."OrganizationId0", s."PasswordHash", s."PasswordResetExpiry", s."PasswordResetToken", s."ProfilePictureUrl", s."RefreshToken", s."RefreshTokenExpiry", s."Role", s."UpdatedAt0", s0."TaskId", s0."UserId", s0."AssignedAt", s0."AssignedByUserId", s0."Id", s0."CreatedAt", s0."DeletedAt", s0."Email", s0."EmailVerificationExpiry", s0."EmailVerificationToken", s0."FirstName", s0."IsActive", s0."IsDeleted", s0."IsEmailVerified", s0."LastLoginAt", s0."LastName", s0."OrganizationId", s0."PasswordHash", s0."PasswordResetExpiry", s0."PasswordResetToken", s0."ProfilePictureUrl", s0."RefreshToken", s0."RefreshTokenExpiry", s0."Role", s0."UpdatedAt"
+FROM (
+    SELECT t."Id", t."ActualMinutes", t."AssignedToUserId", t."CompletedAt", t."CreatedAt", t."CreatedByUserId", t."DeletedAt", t."Description", t."DueDate", t."EstimatedMinutes", t."IsDeleted", t."OrderIndex", t."OrganizationId", t."ParentTaskId", t."Priority", t."ProjectId", t."StartDate", t."Status", t."Title", t."UpdatedAt", u0."Id" AS "Id0", u0."CreatedAt" AS "CreatedAt0", u0."DeletedAt" AS "DeletedAt0", u0."Email", u0."EmailVerificationExpiry", u0."EmailVerificationToken", u0."FirstName", u0."IsActive", u0."IsDeleted" AS "IsDeleted0", u0."IsEmailVerified", u0."LastLoginAt", u0."LastName", u0."OrganizationId" AS "OrganizationId0", u0."PasswordHash", u0."PasswordResetExpiry", u0."PasswordResetToken", u0."ProfilePictureUrl", u0."RefreshToken", u0."RefreshTokenExpiry", u0."Role", u0."UpdatedAt" AS "UpdatedAt0"
+    FROM "Tasks" AS t
+    LEFT JOIN (
+        SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt"
+        FROM "Users" AS u
+        WHERE NOT (u."IsDeleted")
+    ) AS u0 ON t."AssignedToUserId" = u0."Id"
+    WHERE NOT (t."IsDeleted") AND t."Id" = @__taskId_0
+    LIMIT 1
+) AS s
+LEFT JOIN (
+    SELECT t0."TaskId", t0."UserId", t0."AssignedAt", t0."AssignedByUserId", u2."Id", u2."CreatedAt", u2."DeletedAt", u2."Email", u2."EmailVerificationExpiry", u2."EmailVerificationToken", u2."FirstName", u2."IsActive", u2."IsDeleted", u2."IsEmailVerified", u2."LastLoginAt", u2."LastName", u2."OrganizationId", u2."PasswordHash", u2."PasswordResetExpiry", u2."PasswordResetToken", u2."ProfilePictureUrl", u2."RefreshToken", u2."RefreshTokenExpiry", u2."Role", u2."UpdatedAt"
+    FROM "TaskAssignees" AS t0
+    INNER JOIN (
+        SELECT u1."Id", u1."CreatedAt", u1."DeletedAt", u1."Email", u1."EmailVerificationExpiry", u1."EmailVerificationToken", u1."FirstName", u1."IsActive", u1."IsDeleted", u1."IsEmailVerified", u1."LastLoginAt", u1."LastName", u1."OrganizationId", u1."PasswordHash", u1."PasswordResetExpiry", u1."PasswordResetToken", u1."ProfilePictureUrl", u1."RefreshToken", u1."RefreshTokenExpiry", u1."Role", u1."UpdatedAt"
+        FROM "Users" AS u1
+        WHERE NOT (u1."IsDeleted")
+    ) AS u2 ON t0."UserId" = u2."Id"
+) AS s0 ON s."Id" = s0."TaskId"
+ORDER BY s."Id", s."Id0", s0."TaskId", s0."UserId"
+2026-07-22 16:22:26.330 +06:00 [INF] [0HNN7QT69LMDI:00000001] [0HNN7QT69LMDI:00000001] GET /api/tasks/00000000-0000-0000-0004-000000000005/assignees → 200 (61.6ms)
