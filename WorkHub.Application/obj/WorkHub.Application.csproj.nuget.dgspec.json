@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Application\\WorkHub.Application.csproj": {}
+    "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Application\\WorkHub.Application.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Application\\WorkHub.Application.csproj": {
+    "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Application\\WorkHub.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Application\\WorkHub.Application.csproj",
+        "projectUniqueName": "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Application\\WorkHub.Application.csproj",
         "projectName": "WorkHub.Application",
-        "projectPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Application\\WorkHub.Application.csproj",
-        "packagesPath": "C:\\Users\\Abdul\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Application\\obj\\",
+        "projectPath": "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Application\\WorkHub.Application.csproj",
+        "packagesPath": "C:\\Users\\Abdullah\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Abdul\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Abdullah\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -32,11 +32,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj": {
-                "projectPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj"
+              "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj": {
+                "projectPath": "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj"
               },
-              "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\WorkHub.Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\WorkHub.Infrastructure.csproj"
+              "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\WorkHub.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\WorkHub.Infrastructure.csproj"
               }
             }
           }
@@ -102,24 +102,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj": {
+    "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj",
         "projectName": "WorkHub.Domain",
-        "projectPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj",
-        "packagesPath": "C:\\Users\\Abdul\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\obj\\",
+        "projectPath": "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj",
+        "packagesPath": "C:\\Users\\Abdullah\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Abdul\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Abdullah\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -167,24 +167,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\WorkHub.Infrastructure.csproj": {
+    "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\WorkHub.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\WorkHub.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\WorkHub.Infrastructure.csproj",
         "projectName": "WorkHub.Infrastructure",
-        "projectPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\WorkHub.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\Abdul\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\obj\\",
+        "projectPath": "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\WorkHub.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\Abdullah\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Abdul\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Abdullah\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -199,8 +199,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj": {
-                "projectPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj"
+              "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj": {
+                "projectPath": "C:\\Users\\Abdullah\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj"
               }
             }
           }
@@ -256,7 +256,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
