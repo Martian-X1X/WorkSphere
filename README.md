@@ -1707,42 +1707,42 @@ Profile accessed by user 653db7e8 (Owner)          ← Zero DB hit
 #### 🗺️ Permission Matrix
 
 ```
-┌────────────────────────────────┬────────┬───────┬────────┐
-│ Permission                     │ Owner  │ Admin │ Member │
-├────────────────────────────────┼────────┼───────┼────────┤
-│ organizations.view             │  ✅    │  ✅   │  ✅    │
-│ organizations.update           │  ✅    │  ❌   │  ❌    │
-│ organizations.delete           │  ✅    │  ❌   │  ❌    │
-│ organizations.billing.view     │  ✅    │  ❌   │  ❌    │
-├────────────────────────────────┼────────┼───────┼────────┤
-│ members.view                   │  ✅    │  ✅   │  ✅    │
-│ members.invite                 │  ✅    │  ✅   │  ❌    │
-│ members.remove                 │  ✅    │  ✅   │  ❌    │
-│ members.changerole             │  ✅    │  ❌   │  ❌    │
-├────────────────────────────────┼────────┼───────┼────────┤
-│ projects.view                  │  ✅    │  ✅   │  ✅    │
-│ projects.create                │  ✅    │  ✅   │  ❌    │
-│ projects.update                │  ✅    │  ✅   │  ❌    │
-│ projects.delete                │  ✅    │  ✅   │  ❌    │
-│ projects.archive               │  ✅    │  ❌   │  ❌    │
-├────────────────────────────────┼────────┼───────┼────────┤
-│ tasks.view                     │  ✅    │  ✅   │  ✅    │
-│ tasks.create                   │  ✅    │  ✅   │  ❌    │
-│ tasks.update                   │  ✅    │  ✅   │  ❌    │
-│ tasks.delete                   │  ✅    │  ✅   │  ❌    │
-│ tasks.assign                   │  ✅    │  ✅   │  ❌    │
-│ tasks.update.own               │  ✅    │  ✅   │  ✅    │
-├────────────────────────────────┼────────┼───────┼────────┤
-│ comments.view                  │  ✅    │  ✅   │  ✅    │
-│ comments.create                │  ✅    │  ✅   │  ✅    │
-│ comments.delete                │  ✅    │  ✅   │  ❌    │
-│ comments.delete.own            │  ✅    │  ✅   │  ✅    │
-├────────────────────────────────┼────────┼───────┼────────┤
-│ reports.view                   │  ✅    │  ✅   │  ❌    │
-│ reports.export                 │  ✅    │  ❌   │  ❌    │
-├────────────────────────────────┼────────┼───────┼────────┤
-│ Total permissions              │  25    │  18   │   7    │
-└────────────────────────────────┴────────┴───────┴────────┘
+┌────────────────────────────────┬────────┬───────┬──────────┐
+│ Permission                     │ Owner  │ Admin │ Member   │
+├────────────────────────────────┼────────┼───────┼──────────┤
+│ organizations.view             │  ✅    │  ✅   │  ✅     │
+│ organizations.update           │  ✅    │  ❌   │  ❌     │
+│ organizations.delete           │  ✅    │  ❌   │  ❌     │
+│ organizations.billing.view     │  ✅    │  ❌   │  ❌     │
+├────────────────────────────────┼────────┼───────┼──────────┤
+│ members.view                   │  ✅    │  ✅   │  ✅     │
+│ members.invite                 │  ✅    │  ✅   │  ❌     │
+│ members.remove                 │  ✅    │  ✅   │  ❌     │
+│ members.changerole             │  ✅    │  ❌   │  ❌     │
+├────────────────────────────────┼────────┼───────┼──────────┤
+│ projects.view                  │  ✅    │  ✅   │  ✅     │
+│ projects.create                │  ✅    │  ✅   │  ❌     │
+│ projects.update                │  ✅    │  ✅   │  ❌     │
+│ projects.delete                │  ✅    │  ✅   │  ❌     │
+│ projects.archive               │  ✅    │  ❌   │  ❌     │
+├────────────────────────────────┼────────┼───────┼──────────┤
+│ tasks.view                     │  ✅    │  ✅   │  ✅     │
+│ tasks.create                   │  ✅    │  ✅   │  ❌     │
+│ tasks.update                   │  ✅    │  ✅   │  ❌     │
+│ tasks.delete                   │  ✅    │  ✅   │  ❌     │
+│ tasks.assign                   │  ✅    │  ✅   │  ❌     │
+│ tasks.update.own               │  ✅    │  ✅   │  ✅     │
+├────────────────────────────────┼────────┼───────┼──────────┤
+│ comments.view                  │  ✅    │  ✅   │  ✅     │
+│ comments.create                │  ✅    │  ✅   │  ✅     │
+│ comments.delete                │  ✅    │  ✅   │  ❌     │
+│ comments.delete.own            │  ✅    │  ✅   │  ✅     │
+├────────────────────────────────┼────────┼───────┼──────────┤
+│ reports.view                   │  ✅    │  ✅   │  ❌     │
+│ reports.export                 │  ✅    │  ❌   │  ❌     │
+├────────────────────────────────┼────────┼───────┼──────────┤
+│ Total permissions              │  25    │  18   │   7      │
+└────────────────────────────────┴────────┴───────┴──────────┘
 ```
 
 ---
@@ -2918,14 +2918,14 @@ TechStart Ltd (00000000-0000-0000-0001-000000000003)
 #### 🔗 FK Constraints Verified
  
 ```
-TaskAssignees.AssignedByUserId → Users    (RESTRICT)  ✅
-TaskAssignees.TaskId           → Tasks    (CASCADE)   ✅
-TaskAssignees.UserId           → Users    (CASCADE)   ✅
-Tasks.AssignedToUserId         → Users    (RESTRICT)  ✅
-Tasks.CreatedByUserId          → Users    (RESTRICT)  ✅
-Tasks.OrganizationId           → Organizations (RESTRICT) ✅
-Tasks.ParentTaskId             → Tasks    (RESTRICT)  ✅
-Tasks.ProjectId                → Projects (CASCADE)   ✅
+TaskAssignees.AssignedByUserId → Users         (RESTRICT)      ✅
+TaskAssignees.TaskId           → Tasks         (CASCADE)       ✅
+TaskAssignees.UserId           → Users         (CASCADE)       ✅
+Tasks.AssignedToUserId         → Users         (RESTRICT)      ✅
+Tasks.CreatedByUserId          → Users         (RESTRICT)      ✅
+Tasks.OrganizationId           → Organizations (RESTRICT)      ✅
+Tasks.ParentTaskId             → Tasks         (RESTRICT)      ✅
+Tasks.ProjectId                → Projects      (CASCADE)       ✅
 ```
  
 ---
@@ -3063,10 +3063,10 @@ Member:
   ✅ View all tasks in their org's projects
   ✅ Update tasks assigned to THEM only
   ✅ Change status of tasks assigned to THEM only
-  ❌ Cannot create tasks (403)
-  ❌ Cannot delete tasks (403)
-  ❌ Cannot assign tasks to others (403)
-  ❌ Cannot update tasks assigned to someone else (400)
+  ❌ Cannot create tasks (403 ERROR)
+  ❌ Cannot delete tasks (403 ERROR)
+  ❌ Cannot assign tasks to others (403 ERROR)
+  ❌ Cannot update tasks assigned to someone else (400 ERROR)
 ```
  
 ---
