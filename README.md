@@ -3217,7 +3217,7 @@ CommentValidators.cs      → whitespace-only content blocked
  
 | Rule | Example |
 |---|---|
-| Regex on names | `Abdul12345` → "Only letters, hyphens, apostrophes" |
+| Regex on names | `Abdul123` → "Only letters, hyphens, apostrophes" |
 | Cross-field dates | `DueDate < StartDate` → caught before service layer |
 | Conditional numeric | `estimatedMinutes: 0` → "Must be greater than 0" |
 | Whitespace check | `"   "` → "Comment cannot be only whitespace" |
@@ -3351,9 +3351,9 @@ Authenticated     → render children (AppLayout + Outlet)
 The persistent shell that **every future page lives inside:**
  
 ```
-┌──────────────────────────────────────────────────────┐
+┌────────────────────────────────────────────────────────┐
 │  [W] WorkSphere  ←  │  WorkSphere / Dashboard  [🔔][👤]│
-│  ──────────────     ├──────────────────────────────── │
+│  ──────────────     ├──────────────────────────────────│
 │  ● Dashboard        │                                  │
 │                     │   Good morning, Demo Owner! 👋   │
 │  ── Work ──         │                                  │
@@ -3368,7 +3368,7 @@ The persistent shell that **every future page lives inside:**
 │  Settings           │   [📁][✅][👥][📊]             │
 │                     │                                  │
 │  [DM] Demo Owner    │                                  │
-└──────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────┘
 ```
  
 **Components built:**
@@ -3490,7 +3490,7 @@ The persistent shell that **every future page lives inside:**
 
 ## 📄 License
 
-This project is **proprietary software**.All rights reserved.
+This project is **proprietary software**. All rights reserved.
 Unauthorized copying, distribution, or commercial use without explicit written permission is prohibited.
 
 | Abdullah Mohammed Abdul Matin | Software Engineer @ Martian Labs | abdullah.matin6920@gmail.com | 
