@@ -3460,15 +3460,499 @@ The persistent shell that **every future page lives inside:**
  
 </details>
 ---
+
+---
+
+### ✅ Days 36–40 — Auth Pages + Routing + Dashboard (Phase 3 Foundation)
+
+| Day | Deliverable | Highlights |
+|---|---|---|
+| **36** | Auth Pages UI | Login + Register with Zod validation, password strength indicator, seed credential pre-fill |
+| **37** | Connect Auth APIs | Axios instance with JWT interceptor, auto-refresh on 401, `authService` |
+| **38** | Token Storage + Auth Context | Zustand store with localStorage persistence, `hasPermission()`, `isAdminOrOwner()` |
+| **39** | Protected Routes | `ProtectedRoute` component, redirect to `/login` with `from` state |
+| **40** | Dashboard Layout Shell | `AppLayout` (Outlet), `Sidebar` (collapsible), `Header` (breadcrumb), `UserMenu`, `MobileMenu` |
+
+---
+
+### ✅ Day 41 — Organization UI
+
+Connected org info card + live member list to real API data.
+
+**Components built:**
+| Component | Description |
+|---|---|
+| `OrgInfoCard` | Name, slug, plan, member count, active status |
+| `MemberRow` | Avatar, name, email, role badge, last seen, ⋮ menu |
+| `InviteRow` | Email, role, expiry, cancel button |
+| `InviteMemberModal` | Email + role selector (Member/Admin), client-side validation |
+| `ChangeRoleModal` | 3-role selector with descriptions |
+
+**Features:**
+```
+✅ Org info card — name, slug, plan, member count, active status
+✅ Quick stats — active, inactive, pending invites
+✅ Member search by name or email
+✅ Change role (Owner only) → ChangeRoleModal
+✅ Deactivate member → immediate token revocation (TenantMiddleware)
+✅ Invite member → send 256-bit invite token
+✅ Cancel pending invite
+✅ "You" badge on current user's row
+✅ Inactive members dimmed (50% opacity)
+```
+
+---
+
+### ✅ Day 42 — Project List UI
+
+Card grid connected to `GET /api/projects` with full filtering.
+
+```
+┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│ Website      │ │ Mobile App   │ │ Q3 Marketing │
+│ Redesign     │ │ v2           │ │ Campaign     │
+│ ● Active     │ │ ● Active     │ │ ⏸ On Hold   │
+│ ████░░ 25%   │ │ ███░░░ 33%   │ │ ─────── 0%  │
+│ 1/4 tasks    │ │ 1/3 tasks    │ │ No tasks yet │
+└──────────────┘ └──────────────┘ └──────────────┘
+```
+
+**Features:**
+```
+✅ Status filter tabs (All/Active/OnHold/Completed/Archived) with counts
+✅ Search by name
+✅ Sort (Newest/Oldest/Name A-Z/Name Z-A/Due date)
+✅ Progress bar per card (green at 100%)
+✅ Task count pills (todo/in progress/done)
+✅ Prefetch tasks on project card hover (instant load on click)
+✅ CreateProjectModal — name, description, start/due date with Zod
+✅ ProjectCardSkeleton — 6 skeletons during load
+✅ Empty state with "New Project" CTA (Admin/Owner only)
+```
+
+**DateTime fix applied:**
+```
+<input type="date"> → "YYYY-MM-DD" string
+→ .NET Kind=Unspecified → PostgreSQL timestamptz rejects
+Fix: .ToUniversalTime() on StartDate + DueDate in ProjectService.cs
+```
+
+---
+
+### ✅ Day 43 — Task List UI
+
+Project detail page with full task list inside project.
+
+```
+← Projects   Website Redesign                    [≡ List] [⊞ Board]  [+ Add Task]
+Active · 4 tasks · 25% complete
+────────────────────────────────────────────────────────────────────────────────
+[All] [Todo] [In Progress] [In Review] [Done] [Cancelled]
+🔍 Search tasks...                [Priority ▾]  [↺]
+────────────────────────────────────────────────────────────────────────────────
+Status            Task                                          Priority
+[InProgress ▾]    Create UI mockups                            [High]
+                  Demo Admin · Due Jul 22 · 2h estimate
+[Todo ▾]          Set up CMS platform                          [High]
+                  Alice Johnson · Due Jul 14
+✅ [Done]          Run SEO audit                                [Medium]
+                  Alice Johnson · Completed
+```
+
+**Features:**
+```
+✅ Status filter tabs with counts
+✅ Priority dropdown filter
+✅ Search tasks (title)
+✅ Inline StatusDropdown per row (optimistic update)
+✅ TaskRowSkeleton (5 rows during load)
+✅ ⋮ menu on each row → Edit / Delete (Owner/Admin only)
+✅ Member: only sees dropdown on own tasks
+✅ Project stats bar (Total/Todo/InProgress/Done + %)
+✅ Progress bar updates after status change
+✅ Empty state with "Add Task" CTA
+```
+
+---
+
+### ✅ Day 44 — Create / Edit Task Forms
+
+Modal forms with React Hook Form + Zod + assignee picker.
+
+```
+┌─── New Task ──────────────────────────────────────┐
+│  Title *                                          │
+│  [Design the homepage hero section...]            │
+│                                                   │
+│  Description (optional)                           │
+│  [What needs to be done?]                         │
+│                                                   │
+│  Priority           Assignee                      │
+│  [⬆ High ▾]        [Alice Johnson — Member ▾]    │
+│                                                   │
+│  Due Date           Estimate (hours)              │
+│  [2026-07-22]       [4]                           │
+│                                                   │
+│             [Cancel]  [✓ Create Task]             │
+└───────────────────────────────────────────────────┘
+```
+
+**Key implementation details:**
+```
+✅ Shared TaskFormFields component (used by both Create + Edit)
+✅ AssigneeSelect — loads active members from org, filters inactive
+✅ Hours → minutes conversion on submit (estimatedHours * 60)
+✅ ISO date → YYYY-MM-DD for edit pre-fill (dueDate.split('T')[0])
+✅ assignedToUserId always sent in PUT payload (prevents silent clear bug)
+✅ Zod cross-field: DueDate must be after StartDate
+✅ EditTaskModal useEffect pre-fills form when task changes
+✅ Reset on close (create) / revert on cancel (edit)
+```
+
+**Bug fixed:**
+```
+PUT /api/tasks/{id} without assignedToUserId → backend sets null
+Fix: always send assignedToUserId: data.assignedToUserId || null
+```
+
+---
+
+### ✅ Day 45 — React Query Integration
+
+Extracted all inline queries into custom hooks with centralized query keys.
+
+**Query Key Factory** (`src/lib/queryKeys.ts`):
+```typescript
+queryKeys.org.detail()                              // ['org', 'detail']
+queryKeys.projects.list({ status, search })         // ['projects', 'list', filters]
+queryKeys.projects.detail(id)                       // ['projects', 'detail', id]
+queryKeys.tasks.byProjectFiltered(id, filters)      // ['tasks', 'project', id, filters]
+queryKeys.tasks.detail(id)                          // ['tasks', 'detail', id]
+queryKeys.tasks.myTasks(filters)                    // ['tasks', 'mine', filters]
+queryKeys.comments.byTask(taskId)                   // ['comments', taskId]
+```
+
+**Custom Hooks:**
+| Hook | File | Purpose |
+|---|---|---|
+| `useOrganization` | `useOrganization.ts` | Org profile with `select` unwrap |
+| `useMembers` | `useOrganization.ts` | Member list |
+| `useActiveMembers` | `useOrganization.ts` | Filtered active only |
+| `useInvites` | `useOrganization.ts` | Pending invites |
+| `useCreateInvite` | `useOrganization.ts` | Mutation + invalidate |
+| `useProjects` | `useProjects.ts` | Project list with filters |
+| `useProject` | `useProjects.ts` | Single project |
+| `useCreateProject` | `useProjects.ts` | Mutation + toast |
+| `useTasks` | `useTasks.ts` | Tasks by project |
+| `useTask` | `useTasks.ts` | Single task |
+| `useMyTasks` | `useTasks.ts` | My assigned tasks |
+| `useChangeTaskStatus` | `useTasks.ts` | **Optimistic update** |
+| `useDeleteTask` | `useTasks.ts` | Mutation + invalidate |
+
+**Optimistic Status Update:**
+```typescript
+// Status badge changes INSTANTLY — no loading spinner
+onMutate: async ({ taskId, status }) => {
+  await queryClient.cancelQueries(...)
+  const previous = queryClient.getQueryData(...)  // snapshot
+  queryClient.setQueriesData(...)                 // update instantly
+  return { previous }                             // for rollback
+},
+onError: (_, __, context) => {
+  queryClient.setQueryData(..., context.previous) // revert on fail
+}
+```
+
+**Prefetch on Hover:**
+```typescript
+// ProjectCard.tsx — tasks load before user even clicks
+const handleMouseEnter = () => {
+  queryClient.prefetchQuery({
+    queryKey: queryKeys.tasks.byProjectFiltered(project.id, {}),
+    queryFn:  () => taskService.getTasksByProject(project.id, {...}),
+  })
+}
+```
+
+---
+
+### ✅ Day 46 — Loading + Error States
+
+Production-grade loading, error, and empty states across all pages.
+
+**Components built:**
+| Component | Description |
+|---|---|
+| `ErrorBoundary` | Class component — catches render crashes, "Try again" resets |
+| `QueryError` | API error display — offline/404/403/generic with retry button |
+| `PageState` | Reusable wrapper handling loading/error/empty/content |
+| `ProjectsPageSkeleton` | Full page skeleton (header + tabs + 6 cards) |
+| `MembersPageSkeleton` | Org card + member list skeletons |
+| `Spinner` | Upgraded with size variants (sm/md/lg/xl) + label |
+
+**Error handling matrix:**
+```
+Status 401 → axios interceptor → redirect to /login (silent)
+Status 403 → toast "You do not have permission to do that."
+Status 404 → silent (component shows empty state)
+Network err → QueryError with WifiOff icon + "No internet connection"
+Render crash → ErrorBoundary catches + "Something went wrong"
+```
+
+**ErrorBoundary wraps entire app** (`main.tsx`):
+```tsx
+<ErrorBoundary>
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>
+</ErrorBoundary>
+```
+
+---
+
+### ✅ Day 47 — Kanban Board UI
+
+5-column Kanban board with view toggle inside ProjectDetailPage.
+
+```
+[≡ List]  [⊞ Board] ← view toggle persists across navigation
+
+┌─── Todo (2) ──┐  ┌─── In Progress (1) ┐  ┌─── In Review (0) ──┐
+│               │  │  ▄▄▄ priority bar   │  │                    │
+│ Write copy    │  │  Create UI mockups  │  │  (drop here)       │
+│ Bob · Med     │  │  Admin · High ●    │  │                    │
+├───────────────┤  │  Due Jul 22 🔴     │  └────────────────────┘
+│ Set up CMS    │  └────────────────────┘
+│ Alice · High  │  ┌─── Done (1) ────────┐  ┌─── Cancelled (0) ──┐
+├───────────────┤  │  ✅ Run SEO audit   │  │                    │
+│  + Add task   │  │  Alice · Medium     │  │  (drop here)       │
+└───────────────┘  └────────────────────┘  └────────────────────┘
+```
+
+**Features:**
+```
+✅ 5 columns: Todo / InProgress / InReview / Done / Cancelled
+✅ Priority color bar at top of each card (red/orange/blue/grey)
+✅ Task title (link to detail page), description preview (2 lines)
+✅ Assignee avatar (dashed outline if unassigned)
+✅ Due date (red if overdue), estimate
+✅ Pencil edit button on hover (Admin/Owner only)
+✅ Column collapse (▼/▶ toggle) — shows "N tasks hidden"
+✅ "Drop here" placeholder when column is empty
+✅ "+ Add task" button in Todo column (Admin/Owner only)
+✅ Board search + priority filter (applies across all columns)
+✅ KanbanCardSkeleton — 2 skeletons per column during load
+✅ Horizontal scroll with thin scrollbar styling
+```
+
+---
+
+### ✅ Day 48 — Drag & Drop (dnd-kit)
+
+Full drag-and-drop between Kanban columns with optimistic updates and rollback.
+
+**Packages installed:**
+```
+@dnd-kit/core       → DndContext, sensors, collision detection
+@dnd-kit/sortable   → keyboard sorting
+@dnd-kit/utilities  → CSS.Transform
+```
+
+**Architecture:**
+```
+DndContext (wraps KanbanBoard)
+├── PointerSensor (8px activation threshold — prevents accidental drag on click)
+├── KeyboardSensor (accessibility — Space to grab, arrows to move, Enter to drop)
+│
+├── DroppableColumn × 5   (useDroppable — highlights blue on hover)
+│   └── DraggableCard × N (useDraggable — opacity: 0 on original while dragging)
+│
+└── DragOverlay           (ghost card: rotate(2deg) scale(1.05), follows cursor)
+```
+
+**Drag flow:**
+```
+mousedown (8px+) → onDragStart → setActiveTask → show DragOverlay
+hover column     → onDragOver  → optimistically move card in local state
+mouseup          → onDragEnd   → PATCH /api/tasks/{id}/status
+                               → on success: invalidate queries + toast
+                               → on failure: revert to original position + error toast
+```
+
+**Optimistic local state:**
+```typescript
+// Card moves instantly — API runs in background
+const [localTasks, setLocalTasks] = useState<Task[]>(tasks)
+
+onDragOver: move card in localTasks immediately
+onDragEnd:  call API → success: sync from server | failure: revert localTasks
+```
+
+**Test results:**
+```
+✅ Cards draggable (mouse + touch)
+✅ 8px threshold prevents click → drag misfire
+✅ Ghost card: tilt + scale ("lifted" effect)
+✅ Column highlights on hover (ring-2 ring-primary-500)
+✅ Status changes persist after page refresh
+✅ API failure → card reverts with error toast
+✅ Keyboard: Space grab, arrows move, Enter drop, Escape cancel
+✅ Click still works (title links to detail page)
+✅ Mobile touch drag works
+```
+
+---
+
+### ✅ Day 49 — Task Details Page
+
+Full production task detail page with sidebar, activity feed, and quick actions.
+
+```
+Projects / Website Redesign / Create UI mockups
+← Back to Website Redesign
+
+┌─────────────────────────────────────┐  ┌──────────────────────┐
+│  [InProgress ▾] [High] [Edit] [Del] │  │  Details             │
+│  ───────────────────────────────── │  │                      │
+│  Create UI mockups for homepage     │  │  👤 Assignee         │
+│                                     │  │  [DA] Demo Admin     │
+│  Design the full homepage UI        │  │                      │
+│  in Figma including all components  │  │  📁 Project          │
+│                                     │  │  Website Redesign    │
+│  Status: ● In Progress              │  │                      │
+│  ────────────────────────────────── │  │  📅 Due Date         │
+│  [Activity] [Comments (0)]          │  │  Jul 22 🔴 Overdue   │
+│  ────────────────────────────────── │  │                      │
+│  [DA] Demo Admin changed status     │  │  🏷 Priority         │
+│       Todo → InProgress  · 2h ago   │  │  [High]              │
+│  [DO] Demo Owner created task       │  │                      │
+│       Jul 14, 9:02 AM               │  │  ⏱ Time             │
+└─────────────────────────────────────┘  │  Estimate: 2h 0m     │
+                                          │  ██████░░ 100%       │
+                                          │                      │
+                                          │  ✅ Created by       │
+                                          │  Demo Owner          │
+                                          │  Jul 14, 2026        │
+                                          └──────────────────────┘
+```
+
+**Components built:**
+| Component | Description |
+|---|---|
+| `TaskActions` | Status dropdown + priority badge + Edit + Delete |
+| `TaskMetaSidebar` | All metadata fields with icons, sticky on desktop |
+| `ActivityFeed` | Timeline with avatar, action label, relative timestamp |
+
+**Activity action labels:**
+```
+TaskCreated        → "created this task"
+TaskStatusChanged  → "changed status from Todo to InProgress"
+TaskPriorityChanged→ "changed priority from Medium to High"
+TaskAssigned       → "assigned this task to Alice Johnson"
+CommentAdded       → "added a comment"
+```
+
+---
+
+### ✅ Day 50 — Comments UI
+
+Full comment system on task detail page — final day of Phase 3.
+
+```
+[Activity]  [Comments (3)]
+
+┌─── Write a comment ──────────────────────────────┐
+│  [DA] [textarea — auto-expands as you type       │
+│                                                  │
+│  Ctrl+Enter to submit · Esc to cancel            │
+│                              [Cancel] [▶ Comment]│
+└──────────────────────────────────────────────────┘
+
+[DA] Demo Admin                              just now  ⋮
+     Great progress on the mockups!
+
+[AJ] Alice Johnson                           2 hours ago  ⋮
+     I'll have this done by tomorrow EOD.
+     (edited)
+
+[DO] Demo Owner                              Jul 14, 2026
+     This task was created with specific requirements...
+```
+
+**Permission rules (matching backend):**
+```
+Owner / Admin → Edit: ❌  Delete: ✅ (any comment)
+Member (own)  → Edit: ✅  Delete: ✅
+Member (other)→ Edit: ❌  Delete: ❌
+```
+
+**Features:**
+```
+✅ Textarea auto-expands as you type
+✅ Ctrl+Enter submits, Escape cancels
+✅ Comment button disabled when empty
+✅ Submit → textarea clears + resets height
+✅ Inline edit form (replaces comment text in place)
+✅ "(edited)" label shown after edits
+✅ ⋮ dropdown menu (hover to reveal)
+✅ Delete → window.confirm → removes instantly
+✅ CommentSkeleton (3 rows during load)
+✅ Empty state: "No comments yet. Be the first to comment!"
+✅ Live count in tab badge: "Comments (3)"
+✅ Activity feed updates after comment add/delete
+✅ Comments invalidate correctly across tabs
+```
+
+---
+
+### ✅ Bonus — My Tasks Page
+
+Dedicated page showing all tasks assigned to the logged-in user, grouped by project.
+
+```
+My Tasks
+4 tasks assigned to you                                    [↺]
+
+┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│ 📋 4         │ │ 🔵 1         │ │ 🔴 2         │ │ 📅 0         │
+│ Total        │ │ In Progress  │ │ Overdue      │ │ Due Today    │
+└──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘
+
+[All][Todo][In Progress][In Review][Done][Cancelled]
+🔍 Search tasks or projects...  [Priority ▾]  [⚠ Overdue only]
+
+Website Redesign                                          2 tasks
+  [InProgress ▾]  Create UI mockups      📁 Website   [High]
+  [Todo ▾]        Set up CMS platform    📁 Website   [High]
+
+Mobile App v2                                             1 task
+  [Todo ▾]        Build auth module      📁 Mobile    [High]
+```
+
+**Features:**
+```
+✅ Stats: total, in progress, overdue, due today
+✅ Status filter tabs with per-status counts
+✅ Search (title + project name + description)
+✅ Priority filter dropdown
+✅ "Overdue only" toggle button (turns red when active)
+✅ Tasks grouped by project, sorted alphabetically
+✅ Project name as clickable link → project detail
+✅ Inline status change (optimistic update)
+✅ ⋮ menu → Edit / Delete (Admin/Owner only)
+✅ EditTaskModal wired
+✅ "Clear filters" in empty state resets all filters
+✅ Footer: "Showing X of Y tasks (filtered)"
+```
  
 ## 🛣️ Product Roadmap
- 
+
 | Phase | Days | Milestone | Status |
 |---|---|---|---|
 | **1** | 1–17 | Backend foundation: auth, JWT, multi-tenancy | ✅ Complete |
 | **2** | 18–30 | Projects, tasks, comments, activity log | ✅ Complete |
-| **3** | 31–50 | React frontend: dashboard, kanban, drag & drop | 🟡 In Progress |
-| **4** | 51–65 | Notifications, search, real-time hints | 🔲 Upcoming |
+| **3** | 31–50 | React frontend: dashboard, kanban, drag & drop | ✅ Complete |
+| **4** | 51–65 | Notifications, search, real-time features | 🟡 In Progress |
 | **5** | 66–80 | SignalR chat, presence, file uploads | 🔲 Upcoming |
 | **6** | 81–90 | Docker, CI/CD, cloud deployment | 🔲 Upcoming |
 | **7** | 91–100 | Production hardening, security audit, launch | 🔲 Upcoming |
@@ -3476,16 +3960,15 @@ The persistent shell that **every future page lives inside:**
 
 ## 🔑 Key Milestones
 
-| Day | Deliverable                                                          |
-|-----|----------------------------------------------------------------------|
-| 15  | Complete auth system — register, login, JWT, roles, multi-tenancy    |
-| 30  | Full project & task API with filtering, pagination, activity logs    |
-| 50  | Complete React frontend — dashboard, kanban, drag & drop             |
-| 65  | Production-like platform with notifications, invites, permissions    |
-| 80  | Real-time chat, SignalR notifications, file uploads, analytics       |
-| 90  | Dockerized, deployed to cloud, CI/CD pipeline live                   |
-| 100 | Production-ready SaaS — fully deployed, secured, and documented      |
-
+| Day | Deliverable | Status |
+|---|---|---|
+| 17 | Complete auth system — register, login, JWT, roles, multi-tenancy | ✅ Done |
+| 30 | Full project & task API with filtering, pagination, activity logs | ✅ Done |
+| 50 | Complete React frontend — dashboard, kanban, drag & drop, comments | ✅ Done |
+| 65 | Production-like platform with notifications, invites, permissions | 🔲 Upcoming |
+| 80 | Real-time chat, SignalR notifications, file uploads, analytics | 🔲 Upcoming |
+| 90 | Dockerized, deployed to cloud, CI/CD pipeline live | 🔲 Upcoming |
+| 100 | Production-ready SaaS — fully deployed, secured, and documented | 🔲 Upcoming |
 ---
 
 ## 📄 License
