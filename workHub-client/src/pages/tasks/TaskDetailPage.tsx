@@ -9,11 +9,8 @@ import { TaskActions }      from '@/components/task/TaskActions'
 import { CommentList }    from '@/components/comment/CommentList'
 import { TaskMetaSidebar }  from '@/components/task/TaskMetaSidebar'
 import { ActivityFeed }     from '@/components/task/ActivityFeed'
-import {
-  useTask,
-  useTaskActivity,
-  useTaskAssignees,
-} from '@/hooks/useTasks'
+import { useTask, useTaskAssignees } from '@/hooks/useTasks'
+import { useTaskActivity }           from '@/hooks/useActivity'
 import { useComments } from '@/hooks/useComments'
 import { cn } from '@/utils'
 import type { Task } from '@/types'

@@ -59,4 +59,13 @@ export const queryKeys = {
   comments: {
     byTask: (taskId: string) => ['comments', taskId] as const,
   },
+  // Find the existing activity section and replace with:
+  activity: {
+    org: (page?: number) =>
+      ['activity', 'org', page ?? 1] as const,
+    byProject: (projectId: string) =>
+      ['activity', 'project', projectId] as const,
+    byTask: (taskId: string) =>
+      ['activity', 'task', taskId] as const,
+  },
 } as const
