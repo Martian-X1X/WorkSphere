@@ -59,6 +59,7 @@ export function CreateTaskModal({
       // Invalidate tasks + project (task summary updates)
       queryClient.invalidateQueries({ queryKey: ['tasks', projectId] })
       queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+      queryClient.invalidateQueries({ queryKey: ['activity'] })
       toast.success(`Task "${res.data.data.title}" created!`)
       reset()
       onClose()

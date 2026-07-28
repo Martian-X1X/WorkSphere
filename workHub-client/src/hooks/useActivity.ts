@@ -8,8 +8,9 @@ export function useOrgActivity(page = 1, pageSize = 50) {
   return useQuery({
     queryKey: queryKeys.activity.org(page),
     queryFn:  () => activityService.getOrgActivity({ page, pageSize }),
-    staleTime: 1000 * 30,               // 30 seconds
+    staleTime: 0,                        // always stale = always refetch
     refetchInterval: 1000 * 30,         // auto-refresh every 30s
+    refetchOnMount: 'always',            // force refetch every time page opens
     select: (data) => data.data.data,   // unwrap ApiResponse → PagedResult
   })
 }

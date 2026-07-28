@@ -179,6 +179,8 @@ export function useChangeTaskStatus(projectId: string) {
       queryClient.invalidateQueries({
         queryKey: queryKeys.projects.detail(projectId),
       })
+      queryClient.invalidateQueries({ queryKey: ['activity'] })
+      queryClient.invalidateQueries({ queryKey: ['activity', 'org', 1] })
     },
 
     onSuccess: (_, { status }) => {

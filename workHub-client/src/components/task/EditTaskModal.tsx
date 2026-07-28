@@ -78,6 +78,7 @@ export function EditTaskModal({ task, open, onClose }: EditTaskModalProps) {
       queryClient.invalidateQueries({ queryKey: ['task', task!.id] })
       queryClient.invalidateQueries({ queryKey: ['project', task!.projectId] })
       queryClient.invalidateQueries({ queryKey: ['projects'] })
+      queryClient.invalidateQueries({ queryKey: ['activity'] })
       toast.success('Task updated successfully!')
       onClose()
     },

@@ -37,8 +37,11 @@ export default function ActivityPage() {
   const { data: projectsData } = useProjects({})
   const { data: members }      = useMembers()
 
-  const allActivities  = activityData?.items    ?? []
-  const totalCount     = activityData?.totalCount ?? 0
+  const allActivities  = activityData ?? []
+  const totalCount     = allActivities.length
+
+  console.log('Activity data updated at:', new Date(dataUpdatedAt).toLocaleTimeString())
+  console.log('Total activities:', allActivities.length)
   const projects       = projectsData?.items      ?? []
 
   // ── Client-side filtering ─────────────────────────────────────────
