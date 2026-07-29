@@ -18,16 +18,24 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     const sizes = {
-      sm: 'px-3 py-1.5 text-sm',
-      md: 'px-4 py-2 text-sm',
-      lg: 'px-6 py-3 text-base',
+      sm: 'px-3 py-1.5 text-xs rounded-lg min-h-[36px]',
+      md: 'px-4 py-2 text-sm rounded-xl min-h-[40px]',
+      lg: 'px-5 py-2.5 text-base rounded-xl min-h-[44px]',
     }
 
     return (
       <button
         ref={ref}
         disabled={disabled || loading}
-        className={cn(variants[variant], sizes[size], className)}
+        className={cn(
+          'inline-flex items-center justify-center gap-2',
+          'font-medium transition-all duration-150',
+          'cursor-pointer active:scale-[0.98]',
+          'disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100',
+          variants[variant],
+          sizes[size],
+          className,
+        )}
         {...props}
       >
         {loading ? (

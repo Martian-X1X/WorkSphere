@@ -229,9 +229,9 @@ export default function MyTasksPage() {
         </div>
 
         {/* Search + priority + overdue */}
-        <div className="flex gap-2 flex-wrap">
-          {/* Search */}
-          <div className="relative flex-1 min-w-[200px]">
+        <div className="flex flex-col sm:flex-row gap-2">
+          {/* Search — full width on mobile */}
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2
                                w-4 h-4 text-surface-500" />
             <input
@@ -243,41 +243,42 @@ export default function MyTasksPage() {
             />
           </div>
 
-          {/* Priority */}
-          <select
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value)}
-            className="input-field w-auto cursor-pointer"
-          >
-            {PRIORITY_FILTERS.map((p) => (
-              <option key={p.value} value={p.value}>{p.label}</option>
-            ))}
-          </select>
+          {/* Priority + overdue — side by side on mobile */}
+          <div className="flex gap-2">
+            <select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+              className="input-field w-auto cursor-pointer"
+            >
+              {PRIORITY_FILTERS.map((p) => (
+                <option key={p.value} value={p.value}>{p.label}</option>
+              ))}
+            </select>
 
-          {/* Overdue toggle */}
-          <button
-            onClick={() => setOverdueOnly(!overdueOnly)}
-            className={cn(
-              'flex items-center gap-2 px-3 py-2 rounded-lg border text-sm',
-              'font-medium transition-colors',
-              overdueOnly
-                ? 'bg-red-900/30 border-red-800/50 text-red-400'
-                : 'border-surface-700 text-surface-500 hover:border-surface-600',
-            )}
-          >
-            <AlertCircle className="w-4 h-4" />
-            Overdue only
-            {stats.overdue > 0 && (
-              <span className={cn(
-                'text-[10px] px-1.5 py-0.5 rounded-full font-semibold',
+            <button
+              onClick={() => setOverdueOnly(!overdueOnly)}
+              className={cn(
+                'flex items-center gap-2 px-3 py-2 rounded-lg border text-sm',
+                'font-medium transition-colors',
                 overdueOnly
-                  ? 'bg-red-800/50 text-red-300'
-                  : 'bg-surface-700 text-surface-500',
-              )}>
-                {stats.overdue}
-              </span>
-            )}
-          </button>
+                  ? 'bg-red-900/30 border-red-800/50 text-red-400'
+                  : 'border-surface-700 text-surface-500 hover:border-surface-600',
+              )}
+            >
+              <AlertCircle className="w-4 h-4" />
+              Overdue only
+              {stats.overdue > 0 && (
+                <span className={cn(
+                  'text-[10px] px-1.5 py-0.5 rounded-full font-semibold',
+                  overdueOnly
+                    ? 'bg-red-800/50 text-red-300'
+                    : 'bg-surface-700 text-surface-500',
+                )}>
+                  {stats.overdue}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 

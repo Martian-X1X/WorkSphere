@@ -95,10 +95,10 @@ export default function ActivityPage() {
     <div className="space-y-6 animate-fade-in">
 
       {/* ── Page header ──────────────────────────────────── */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-surface-50">Activity</h1>
-          <p className="text-surface-400 mt-1 text-sm">
+          <h1 className="page-title">Activity</h1>
+          <p className="page-subtitle">
             Everything happening in your organization
             {totalCount > 0 && (
               <span className="ml-1 text-surface-500">
@@ -171,7 +171,7 @@ export default function ActivityPage() {
       />
 
       {/* ── Results count + page size ─────────────────────── */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <p className="text-sm text-surface-500">
           {hasFilters
             ? `${filtered.length} of ${allActivities.length} events`

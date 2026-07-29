@@ -69,12 +69,12 @@ export function ActivityFilterBar({
       </div>
 
       {/* Project + User dropdowns */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex flex-col sm:flex-row gap-2">
         {/* Project filter */}
         <select
           value={projectFilter}
           onChange={(e) => onProjectChange(e.target.value)}
-          className="input-field w-auto cursor-pointer min-w-[160px]"
+          className="input-field w-full sm:w-auto sm:min-w-[160px] cursor-pointer"
         >
           <option value="">All Projects</option>
           {projects.map((p) => (
@@ -86,7 +86,7 @@ export function ActivityFilterBar({
         <select
           value={userFilter}
           onChange={(e) => onUserChange(e.target.value)}
-          className="input-field w-auto cursor-pointer min-w-[160px]"
+          className="input-field w-full sm:w-auto sm:min-w-[160px] cursor-pointer"
         >
           <option value="">All Members</option>
           {members.map((m) => (

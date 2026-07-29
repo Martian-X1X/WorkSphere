@@ -43,8 +43,9 @@ export function Sidebar({ onNavClick }: SidebarProps) {
         <button
           onClick={toggleSidebar}
           className={cn(
-            'p-1.5 rounded-lg text-surface-500 hover:text-surface-300',
-            'hover:bg-surface-800 transition-colors flex-shrink-0'
+            'p-2 touch-target rounded-lg text-surface-500',
+            'hover:text-surface-300 hover:bg-surface-800',
+            'transition-colors flex-shrink-0'
           )}
           aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
         >

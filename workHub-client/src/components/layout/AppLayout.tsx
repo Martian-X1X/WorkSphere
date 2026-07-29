@@ -26,9 +26,8 @@ export function AppLayout() {
         <Header />
 
         {/* Scrollable page content */}
-        <main className="flex-1 overflow-y-auto">
-          {/* Page wrapper with consistent padding */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <main className="flex-1 overflow-auto">
+          <div className="p-4 sm:p-6 max-w-7xl mx-auto w-full animate-fade-in">
             <Outlet />
           </div>
         </main>

@@ -84,7 +84,7 @@ export default function TaskDetailPage() {
     <div className="space-y-6 animate-fade-in">
 
       {/* ── Breadcrumb ──────────────────────────────────────── */}
-      <nav className="flex items-center gap-1.5 text-sm text-surface-500">
+      <nav className="flex items-center gap-1.5 text-sm text-surface-500 overflow-x-auto scrollbar-hide whitespace-nowrap pb-0.5">
         <Link
           to="/projects"
           className="hover:text-surface-300 transition-colors"

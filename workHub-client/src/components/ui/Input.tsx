@@ -26,7 +26,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           id={inputId}
           className={cn(
             'input-field',
-            error && 'border-red-500 focus:ring-red-500',
+            error && 'border-red-500/70 focus:ring-red-500/30',
             className
           )}
           {...props}

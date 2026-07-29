@@ -86,8 +86,8 @@ const allProjects = allProjectData?.items ?? []
       {/* ── Page header ─────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-surface-50">Projects</h1>
-          <p className="text-surface-400 mt-1 text-sm">
+          <h1 className="page-title">Projects</h1>
+          <p className="page-subtitle">
             {totalCount > 0
               ? `${totalCount} project${totalCount !== 1 ? 's' : ''} in your organization`
               : 'Manage your team\'s projects'}
@@ -109,7 +109,7 @@ const allProjects = allProjectData?.items ?? []
       {/* ── Filters bar ─────────────────────────────────────────── */}
       <div className="space-y-3">
         {/* Status tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1">
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-hide -mx-4 sm:mx-0 px-4 sm:px-0">
           {STATUS_FILTERS.map((f) => {
             const count = statusCounts[f.value] ?? 0
             const isActive = statusFilter === f.value
@@ -142,7 +142,7 @@ const allProjects = allProjectData?.items ?? []
         </div>
 
         {/* Search + sort */}
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           {/* Search */}
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2

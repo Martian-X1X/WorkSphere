@@ -122,7 +122,7 @@ export default function ProjectDetailPage() {
           Projects
         </Link>
 
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
           <div className="min-w-0 space-y-1">
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-2xl font-bold text-surface-50 truncate">
@@ -137,7 +137,7 @@ export default function ProjectDetailPage() {
             )}
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
             {/* View toggle */}
             <ViewToggle view={view} onChange={setView} />
 
@@ -158,7 +158,7 @@ export default function ProjectDetailPage() {
       {summary.total > 0 && (
         <div className="card space-y-3 py-4">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide pb-1">
               {[
                 { label: 'Total',       value: summary.total,      color: 'text-surface-300' },
                 { label: 'Todo',        value: summary.todo,       color: 'text-surface-400' },
@@ -302,13 +302,22 @@ export default function ProjectDetailPage() {
 
       {/* ── BOARD VIEW ──────────────────────────────────────── */}
       {view === 'board' && !tasksError && (
-        <KanbanBoard
-          tasks={tasks}
-          isLoading={tasksLoading}
-          projectId={projectId!}
-          onEdit={setEditTask}
-          onAddTask={() => setCreateModalOpen(true)}
-        />
+        <div className="relative">
+          {/* Scroll hint — only visible on mobile */}
+          <div className="sm:hidden flex items-center gap-1.5 mb-2
+                          text-xs text-surface-600">
+            <span>←</span>
+            <span>Scroll to see all columns</span>
+            <span>→</span>
+          </div>
+          <KanbanBoard
+            tasks={tasks}
+            isLoading={tasksLoading}
+            projectId={projectId!}
+            onEdit={setEditTask}
+            onAddTask={() => setCreateModalOpen(true)}
+          />
+        </div>
       )}
 
       {/* ── LIST VIEW ───────────────────────────────────────── */}

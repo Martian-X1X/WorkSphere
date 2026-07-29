@@ -93,10 +93,10 @@ export default function MembersPage() {
       {/* ── Page header ─────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-surface-50">
+          <h1 className="page-title">
             Organization
           </h1>
-          <p className="text-surface-400 mt-1 text-sm">
+          <p className="page-subtitle">
             Manage your team members and invitations
           </p>
         </div>

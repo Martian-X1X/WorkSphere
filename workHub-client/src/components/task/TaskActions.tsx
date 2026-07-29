@@ -75,77 +75,77 @@ export function TaskActions({ task, onEdit }: TaskActionsProps) {
   }
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <div className="flex items-start gap-2 flex-wrap">
 
-      {/* ── Status change dropdown ───────────────────────── */}
-      {canEdit && (
-        <div className="relative">
-          <button
-            onClick={() => setStatusMenuOpen(!statusMenuOpen)}
-            disabled={statusMutation.isPending}
-            className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-lg',
-              'border border-surface-700 bg-surface-800/50',
-              'hover:border-surface-600 transition-colors',
-              statusMutation.isPending && 'opacity-50 cursor-not-allowed'
+      {/* ── Left group: status + priority + edit ──────────── */}
+      <div className="flex items-center gap-2 flex-wrap flex-1">
+        {canEdit && (
+          <div className="relative">
+            <button
+              onClick={() => setStatusMenuOpen(!statusMenuOpen)}
+              disabled={statusMutation.isPending}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg',
+                'border border-surface-700 bg-surface-800/50',
+                'hover:border-surface-600 transition-colors',
+                statusMutation.isPending && 'opacity-50 cursor-not-allowed'
+              )}
+            >
+              <TaskStatusBadge status={task.status} size="sm" />
+              <ChevronDown className={cn(
+                'w-3.5 h-3.5 text-surface-500 transition-transform',
+                statusMenuOpen && 'rotate-180'
+              )} />
+            </button>
+
+            {statusMenuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setStatusMenuOpen(false)}
+                />
+                <div className="absolute left-0 top-10 w-40 bg-surface-800
+                                border border-surface-700 rounded-xl shadow-xl
+                                z-20 overflow-hidden animate-fade-in">
+                  {STATUSES.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => {
+                        if (s !== task.status) statusMutation.mutate(s)
+                        else setStatusMenuOpen(false)
+                      }}
+                      className={cn(
+                        'w-full flex items-center gap-2.5 px-3 py-2.5',
+                        'text-sm text-left transition-colors hover:bg-surface-700',
+                        s === task.status && 'bg-surface-700/50'
+                      )}
+                    >
+                      <TaskStatusBadge status={s} size="sm" />
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
+          </div>
+        )}
+
+        <PriorityBadge priority={task.priority} />
+
+        {canEdit && (
+          <button
+            onClick={onEdit}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+                       border border-surface-700 bg-surface-800/50 text-sm
+                       text-surface-300 hover:text-surface-100
+                       hover:border-surface-600 transition-colors"
           >
-            <TaskStatusBadge status={task.status} size="sm" />
-            <ChevronDown className={cn(
-              'w-3.5 h-3.5 text-surface-500 transition-transform',
-              statusMenuOpen && 'rotate-180'
-            )} />
+            <Pencil className="w-3.5 h-3.5" />
+            Edit
           </button>
+        )}
+      </div>
 
-          {statusMenuOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-10"
-                onClick={() => setStatusMenuOpen(false)}
-              />
-              <div className="absolute left-0 top-10 w-40 bg-surface-800
-                              border border-surface-700 rounded-xl shadow-xl
-                              z-20 overflow-hidden animate-fade-in">
-                {STATUSES.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => {
-                      if (s !== task.status) statusMutation.mutate(s)
-                      else setStatusMenuOpen(false)
-                    }}
-                    className={cn(
-                      'w-full flex items-center gap-2.5 px-3 py-2.5',
-                      'text-sm text-left transition-colors hover:bg-surface-700',
-                      s === task.status && 'bg-surface-700/50'
-                    )}
-                  >
-                    <TaskStatusBadge status={s} size="sm" />
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* ── Priority badge (display only) ─────────────────── */}
-      <PriorityBadge priority={task.priority} />
-
-      {/* ── Edit button ───────────────────────────────────── */}
-      {canEdit && (
-        <button
-          onClick={onEdit}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg
-                     border border-surface-700 bg-surface-800/50 text-sm
-                     text-surface-300 hover:text-surface-100
-                     hover:border-surface-600 transition-colors"
-        >
-          <Pencil className="w-3.5 h-3.5" />
-          Edit
-        </button>
-      )}
-
-      {/* ── Delete button ─────────────────────────────────── */}
+      {/* ── Delete button (isolated to its own line) ───────── */}
       {canDelete && (
         <button
           onClick={handleDelete}

@@ -35,7 +35,7 @@ export function Modal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -45,7 +45,11 @@ export function Modal({
       {/* Modal box */}
       <div className={cn(
         'relative w-full bg-surface-900 border border-surface-700',
-        'rounded-2xl shadow-2xl shadow-black/50 animate-fade-in',
+        'shadow-2xl shadow-black/50 animate-fade-in',
+        'rounded-none sm:rounded-2xl',
+        'h-full sm:h-auto',
+        'max-h-full sm:max-h-[90vh]',
+        'overflow-y-auto sm:overflow-visible',
         sizes[size]
       )}>
         {/* Header */}

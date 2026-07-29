@@ -75,7 +75,7 @@ export default function DashboardPage() {
       {/* ── Welcome header ─────────────────────────────── */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-surface-50">
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-50">
             Good {getGreeting()}, {user?.firstName}! 👋
           </h1>
           <p className="text-surface-400 mt-1 text-sm">
