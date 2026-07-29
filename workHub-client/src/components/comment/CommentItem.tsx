@@ -3,6 +3,7 @@ import { Pencil, Trash2, MoreHorizontal } from 'lucide-react'
 import { Avatar } from '@/components/ui/Avatar'
 import { CommentForm } from './CommentForm'
 import { useAuthStore } from '@/stores/authStore'
+import { usePermission } from '@/hooks/usePermission'
 import { formatRelative, formatDateTime, cn } from '@/utils'
 import type { Comment } from '@/types'
 
@@ -29,11 +30,12 @@ export function CommentItem({
   onStartEdit,
   onCancelEdit,
 }: CommentItemProps) {
-  const { isAdminOrOwner } = useAuthStore()
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const canEdit   = comment.isOwnComment
-  const canDelete = comment.isOwnComment || isAdminOrOwner()
+  const canDeleteComment = usePermission('comments.delete')
+  const canDeleteOwn    = usePermission('comments.delete.own')
+  const canEdit         = comment.isOwnComment && usePermission('comments.create')
+  const canDelete       = canDeleteComment || (comment.isOwnComment && canDeleteOwn)
 
   const handleEditSubmit = async (content: string) => {
     await onEdit(comment.id, content)

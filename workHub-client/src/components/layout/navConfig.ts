@@ -9,16 +9,17 @@ import {
 } from 'lucide-react'
 
 export interface NavItem {
-  label: string
-  path: string
-  icon: LucideIcon
-  badge?: number        // notification count
-  adminOnly?: boolean   // hide from Members
+  label:      string
+  path:       string
+  icon:       LucideIcon
+  badge?:     number
+  permission?: string
+  adminOnly?: boolean
 }
 
 export interface NavSection {
-  title?: string        // section header (optional)
-  items: NavItem[]
+  title?: string
+  items:  NavItem[]
 }
 
 export const navSections: NavSection[] = [
@@ -38,11 +39,13 @@ export const navSections: NavSection[] = [
         label: 'Projects',
         path: '/projects',
         icon: FolderKanban,
+        permission: 'projects.view',
       },
       {
         label: 'My Tasks',
         path: '/tasks',
         icon: CheckSquare,
+        permission: 'tasks.view',
       },
     ],
   },
@@ -53,7 +56,7 @@ export const navSections: NavSection[] = [
         label: 'Members',
         path: '/members',
         icon: Users,
-        adminOnly: true,
+        permission: 'members.view',
       },
       {
         label: 'Activity',
@@ -69,7 +72,7 @@ export const navSections: NavSection[] = [
         label: 'Settings',
         path: '/settings',
         icon: Settings,
-        adminOnly: true,
+        permission: 'organizations.update',
       },
     ],
   },

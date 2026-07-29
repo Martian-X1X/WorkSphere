@@ -8,6 +8,7 @@ import { PriorityBadge } from '@/components/ui/PriorityBadge'
 import { useAuthStore } from '@/stores/authStore'
 import { taskService } from '@/services/task.service'
 import { queryKeys } from '@/lib/queryKeys'
+import { usePermission } from '@/hooks/usePermission'
 import { getApiError, cn } from '@/utils'
 import type { Task } from '@/types'
 
@@ -21,13 +22,13 @@ interface TaskActionsProps {
 }
 
 export function TaskActions({ task, onEdit }: TaskActionsProps) {
-  const { isAdminOrOwner, user } = useAuthStore()
+  const { user } = useAuthStore()
+  const canEdit   = usePermission('tasks.update') ||
+                    (usePermission('tasks.update.own') && task.assignedToUserId === user?.id)
+  const canDelete = usePermission('tasks.delete')
   const queryClient = useQueryClient()
   const navigate    = useNavigate()
   const [statusMenuOpen, setStatusMenuOpen] = useState(false)
-
-  const canEdit = isAdminOrOwner() || task.assignedToUserId === user?.id
-  const canDelete = isAdminOrOwner()
 
   // ── Status mutation ──────────────────────────────────────────
   const statusMutation = useMutation({

@@ -4,11 +4,12 @@ import { LogOut, User, ChevronDown, Shield } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '@/stores/authStore'
 import { authService } from '@/services/auth.service'
+import { RoleBadge } from '@/components/ui/RoleBadge'
 import { getRoleColor, cn } from '@/utils'
 
 export function UserMenu() {
   const navigate = useNavigate()
-  const { user, logout, isAdminOrOwner } = useAuthStore()
+  const { user, logout, isAdminOrOwner, permissions } = useAuthStore()
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -75,19 +76,15 @@ export function UserMenu() {
                         shadow-black/30 z-50 overflow-hidden animate-fade-in">
 
           {/* User info header */}
-          <div className="px-4 py-3 border-b border-surface-700">
+          <div className="px-3 py-2.5 border-b border-surface-700/50">
             <p className="text-sm font-medium text-surface-100 truncate">
               {user.fullName}
             </p>
             <p className="text-xs text-surface-500 truncate">{user.email}</p>
-            <div className="flex items-center gap-1.5 mt-1.5">
-              <Shield className="w-3 h-3 text-surface-500" />
-              <span className={cn('text-xs font-medium', getRoleColor(user.role))}>
-                {user.role}
-              </span>
-              <span className="text-surface-600 text-xs">·</span>
-              <span className="text-xs text-surface-500 truncate">
-                {user.organizationName}
+            <div className="flex items-center gap-2 mt-1.5">
+              <RoleBadge role={user.role as 'Owner' | 'Admin' | 'Member'} size="sm" />
+              <span className="text-[10px] text-surface-600">
+                {permissions.length} permissions
               </span>
             </div>
           </div>

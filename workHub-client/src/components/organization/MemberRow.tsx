@@ -6,6 +6,7 @@ import { Avatar } from '@/components/ui/Avatar'
 import { RoleBadge } from '@/components/ui/RoleBadge'
 import { organizationService } from '@/services/organization.service'
 import { useAuthStore } from '@/stores/authStore'
+import { usePermission } from '@/hooks/usePermission'
 import { formatRelative, getApiError } from '@/utils'
 import type { Member } from '@/types'
 
@@ -15,7 +16,10 @@ interface MemberRowProps {
 }
 
 export function MemberRow({ member, onChangeRole }: MemberRowProps) {
-  const { user, isAdminOrOwner, isOwner } = useAuthStore()
+  const { user, isOwner } = useAuthStore()
+  const { hasPermission } = useAuthStore()
+  const canChangeRole = usePermission('members.changerole')
+  const canDeactivate = usePermission('members.remove')
   const queryClient = useQueryClient()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -30,7 +34,7 @@ export function MemberRow({ member, onChangeRole }: MemberRowProps) {
   })
 
   const isCurrentUser = user?.id === member.id
-  const canManage = isAdminOrOwner() && !isCurrentUser && member.isActive
+  const canManage = (canChangeRole || canDeactivate) && !isCurrentUser && member.isActive
 
   return (
     <div className="flex items-center gap-3 py-3 px-4 hover:bg-surface-700/30
@@ -106,8 +110,8 @@ export function MemberRow({ member, onChangeRole }: MemberRowProps) {
               <div className="absolute right-0 top-8 w-44 bg-surface-800
                               border border-surface-700 rounded-xl shadow-xl
                               z-20 overflow-hidden animate-fade-in">
-                {/* Change role — Owner only */}
-                {isOwner() && (
+                {/* Change role */}
+                {canChangeRole && (
                   <button
                     onClick={() => {
                       setMenuOpen(false)
@@ -122,24 +126,25 @@ export function MemberRow({ member, onChangeRole }: MemberRowProps) {
                   </button>
                 )}
 
-                {/* Deactivate — Owner or Admin */}
-                <button
-                  onClick={() => {
-                    setMenuOpen(false)
-                    if (window.confirm(
-                      `Deactivate ${member.fullName}? They will be immediately logged out.`
-                    )) {
-                      deactivateMutation.mutate()
-                    }
-                  }}
-                  disabled={deactivateMutation.isPending}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5
-                             text-sm text-red-400 hover:text-red-300
-                             hover:bg-red-900/20 transition-colors"
-                >
-                  <UserX className="w-4 h-4" />
-                  Deactivate
-                </button>
+                {canDeactivate && (
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false)
+                      if (window.confirm(
+                        `Deactivate ${member.fullName}? They will be immediately logged out.`
+                      )) {
+                        deactivateMutation.mutate()
+                      }
+                    }}
+                    disabled={deactivateMutation.isPending}
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5
+                               text-sm text-red-400 hover:text-red-300
+                               hover:bg-red-900/20 transition-colors"
+                  >
+                    <UserX className="w-4 h-4" />
+                    Deactivate
+                  </button>
+                )}
               </div>
             </>
           )}

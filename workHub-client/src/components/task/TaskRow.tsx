@@ -11,6 +11,7 @@ import { StatusDropdown } from './StatusDropdown'
 import { Avatar } from '@/components/ui/Avatar'
 import { taskService } from '@/services/task.service'
 import { useAuthStore } from '@/stores/authStore'
+import { usePermission } from '@/hooks/usePermission'
 import { formatDate, formatMinutes, isOverdue, getApiError, cn } from '@/utils'
 import type { Task } from '@/types'
 
@@ -21,14 +22,15 @@ interface TaskRowProps {
 }
 
 export function TaskRow({ task, projectId, onEdit }: TaskRowProps) {
-  const { isAdminOrOwner, user } = useAuthStore()
+  const { user } = useAuthStore()
+  const canEdit   = usePermission('tasks.update')
+  const canDelete = usePermission('tasks.delete')
   const queryClient = useQueryClient()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const overdue = isOverdue(task.dueDate, task.status)
-  const canChangeStatus =
-    isAdminOrOwner() || task.assignedToUserId === user?.id
-  const canManage = isAdminOrOwner()
+  const canChangeStatus = canEdit || task.assignedToUserId === user?.id
+  const canManage = canEdit || canDelete
   const isDone = task.status === 'Done'
   const isCancelled = task.status === 'Cancelled'
 
@@ -153,36 +155,40 @@ export function TaskRow({ task, projectId, onEdit }: TaskRowProps) {
                 <div className="absolute right-0 top-7 w-36 bg-surface-800
                                 border border-surface-700 rounded-xl shadow-xl
                                 z-20 overflow-hidden animate-fade-in">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setMenuOpen(false)
-                      onEdit(task)
-                    }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5
-                               text-sm text-surface-300 hover:text-surface-100
-                               hover:bg-surface-700 transition-colors text-left"
-                  >
-                    <Pencil className="w-4 h-4 text-surface-500" />
-                    Edit task
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setMenuOpen(false)
-                      if (window.confirm(`Delete "${task.title}"?`)) {
-                        deleteMutation.mutate()
-                      }
-                    }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5
-                               text-sm text-red-400 hover:text-red-300
-                               hover:bg-red-900/20 transition-colors text-left"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Delete
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setMenuOpen(false)
+                        onEdit(task)
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5
+                                 text-sm text-surface-300 hover:text-surface-100
+                                 hover:bg-surface-700 transition-colors text-left"
+                    >
+                      <Pencil className="w-4 h-4 text-surface-500" />
+                      Edit task
+                    </button>
+                  )}
+                  {canDelete && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setMenuOpen(false)
+                        if (window.confirm(`Delete "${task.title}"?`)) {
+                          deleteMutation.mutate()
+                        }
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5
+                                 text-sm text-red-400 hover:text-red-300
+                                 hover:bg-red-900/20 transition-colors text-left"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete
+                    </button>
+                  )}
                 </div>
               </>
             )}

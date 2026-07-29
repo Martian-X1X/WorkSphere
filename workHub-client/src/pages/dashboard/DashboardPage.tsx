@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/stores/authStore'
+import { Permissions } from '@/lib/permissions'
 import { authService } from '@/services/auth.service'
 import { getRoleColor, cn } from '@/utils'
 
@@ -52,7 +53,7 @@ function StatCard({ label, value, icon: Icon, iconColor, to, sublabel }: StatCar
 }
 
 export default function DashboardPage() {
-  const { user, setPermissions, isAdminOrOwner } = useAuthStore()
+  const { user, setPermissions, permissions } = useAuthStore()
 
   // ── Load auth context for permissions ─────────────────────────
   const { data: contextData } = useQuery({
@@ -114,7 +115,7 @@ export default function DashboardPage() {
           to="/tasks"
           sublabel="View all"
         />
-        {isAdminOrOwner() && (
+        {permissions.includes('members.view') && (
           <StatCard
             label="Members"
             value="4"
@@ -177,29 +178,45 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-surface-100">Permissions</h2>
             <span className="text-xs text-surface-500">
-              {ctx?.permissions.length ?? '—'} total
+              {permissions.length} total
             </span>
           </div>
 
-          {ctx ? (
-            <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
-              {ctx.permissions.map((p: string) => (
-                <div
-                  key={p}
-                  className="flex items-center gap-2 text-xs text-surface-400
-                             py-1 border-b border-surface-700/50 last:border-0"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500
-                                   flex-shrink-0" />
-                  <code className="text-surface-300">{p}</code>
+          <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+            {([
+              { label: 'Organizations', perms: Object.values(Permissions.Org) },
+              { label: 'Members',       perms: Object.values(Permissions.Members) },
+              { label: 'Projects',      perms: Object.values(Permissions.Projects) },
+              { label: 'Tasks',         perms: Object.values(Permissions.Tasks) },
+              { label: 'Comments',      perms: Object.values(Permissions.Comments) },
+              { label: 'Reports',       perms: Object.values(Permissions.Reports) },
+            ] as const).map((group) => (
+              <div key={group.label}>
+                <p className="text-xs font-semibold text-surface-500 uppercase
+                              tracking-wider mb-1.5">
+                  {group.label}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {group.perms.map((perm) => {
+                    const granted = permissions.includes(perm)
+                    return (
+                      <span
+                        key={perm}
+                        className={cn(
+                          'text-[10px] px-2 py-0.5 rounded-full border font-medium',
+                          granted
+                            ? 'bg-green-900/30 text-green-400 border-green-800/50'
+                            : 'bg-surface-800 text-surface-600 border-surface-700/50'
+                        )}
+                      >
+                        {perm.split('.').pop()}
+                      </span>
+                    )
+                  })}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-24">
-              <Spinner size="sm" />
-            </div>
-          )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

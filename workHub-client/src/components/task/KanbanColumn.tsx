@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { KanbanCard } from './KanbanCard'
 import { KanbanCardSkeleton } from './KanbanCardSkeleton'
-import { useAuthStore } from '@/stores/authStore'
+import { Can } from '@/components/ui/Can'
 import { cn } from '@/utils'
 import type { Task } from '@/types'
 
@@ -76,7 +76,6 @@ export function KanbanColumn({
   onEdit,
   onAddTask,
 }: KanbanColumnProps) {
-  const { isAdminOrOwner } = useAuthStore()
   const [isCollapsed, setIsCollapsed] = useState(false)
 
   return (
@@ -160,20 +159,22 @@ export function KanbanColumn({
             </div>
           )}
 
-          {/* Add task button — only on Todo column, Admin/Owner */}
-          {column.id === 'Todo' && isAdminOrOwner() && onAddTask && (
-            <button
-              onClick={onAddTask}
-              className="flex items-center gap-2 w-full px-3 py-2.5
-                         text-sm text-surface-500 hover:text-surface-300
-                         hover:bg-surface-700/50 rounded-xl border border-dashed
-                         border-surface-700 hover:border-surface-600
-                         transition-all mt-1"
-            >
-              <Plus className="w-4 h-4" />
-              Add task
-            </button>
-          )}
+          {/* Add task button — only on Todo column */}
+          <Can permission="tasks.create">
+            {column.id === 'Todo' && onAddTask && (
+              <button
+                onClick={onAddTask}
+                className="flex items-center gap-2 w-full px-3 py-2.5
+                           text-sm text-surface-500 hover:text-surface-300
+                           hover:bg-surface-700/50 rounded-xl border border-dashed
+                           border-surface-700 hover:border-surface-600
+                           transition-all mt-1"
+              >
+                <Plus className="w-4 h-4" />
+                Add task
+              </button>
+            )}
+          </Can>
         </div>
       )}
 

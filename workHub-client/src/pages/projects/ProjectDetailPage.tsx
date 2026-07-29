@@ -9,6 +9,8 @@ import { StatusBadge }      from '@/components/ui/StatusBadge'
 import { ProgressBar }      from '@/components/ui/ProgressBar'
 import { EmptyState }       from '@/components/ui/EmptyState'
 import { QueryError }       from '@/components/ui/QueryError'
+import { Can }              from '@/components/ui/Can'
+import { usePermission }    from '@/hooks/usePermission'
 import { ViewToggle, type ViewMode } from '@/components/ui/ViewToggle'
 import { TaskRow }          from '@/components/task/TaskRow'
 import { TaskRowSkeleton }  from '@/components/task/TaskRowSkeleton'
@@ -17,7 +19,6 @@ import { CreateTaskModal }  from '@/components/task/CreateTaskModal'
 import { EditTaskModal }    from '@/components/task/EditTaskModal'
 import { useProject }       from '@/hooks/useProjects'
 import { useTasks }         from '@/hooks/useTasks'
-import { useAuthStore }     from '@/stores/authStore'
 import { cn }               from '@/utils'
 import type { Task }        from '@/types'
 
@@ -41,7 +42,8 @@ const PRIORITY_FILTERS = [
 
 export default function ProjectDetailPage() {
   const { projectId }     = useParams<{ projectId: string }>()
-  const { isAdminOrOwner } = useAuthStore()
+  const canCreateTask = usePermission('tasks.create')
+  const canDeleteTask = usePermission('tasks.delete')
 
   // ── View + filter state ───────────────────────────────────────
   const [view,           setView]           = useState<ViewMode>('list')
@@ -141,7 +143,7 @@ export default function ProjectDetailPage() {
             {/* View toggle */}
             <ViewToggle view={view} onChange={setView} />
 
-            {isAdminOrOwner() && (
+            <Can permission="tasks.create">
               <Button
                 className="flex items-center gap-2"
                 onClick={() => setCreateModalOpen(true)}
@@ -149,7 +151,7 @@ export default function ProjectDetailPage() {
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline">Add Task</span>
               </Button>
-            )}
+            </Can>
           </div>
         </div>
       </div>
@@ -369,11 +371,11 @@ export default function ProjectDetailPage() {
                   : 'Add the first task to get this project started'
               }
               actionLabel={
-                isAdminOrOwner() && !search && !statusFilter && !priorityFilter
+                canCreateTask && !search && !statusFilter && !priorityFilter
                   ? '+ Add Task' : undefined
               }
               onAction={
-                isAdminOrOwner() && !search && !statusFilter && !priorityFilter
+                canCreateTask && !search && !statusFilter && !priorityFilter
                   ? () => setCreateModalOpen(true) : undefined
               }
             />

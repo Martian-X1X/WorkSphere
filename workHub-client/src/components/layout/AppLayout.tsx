@@ -3,8 +3,10 @@ import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { MobileMenu } from './MobileMenu'
 import { useLayout } from '@/hooks/useLayout'
+import { useAuthContext } from '@/hooks/useAuth'
 
 export function AppLayout() {
+  useAuthContext()
   const { mobileMenuOpen, setMobileMenuOpen } = useLayout()
 
   return (

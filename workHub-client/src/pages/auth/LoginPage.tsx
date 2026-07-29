@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { AuthLayout } from '@/components/layout/AuthLayout'
@@ -11,12 +11,14 @@ import { Input } from '@/components/ui/Input'
 import type { AxiosResponse } from 'axios'
 import { authService } from '@/features/auth/auth.service'
 import { useAuthStore } from '@/stores/authStore'
+import { queryKeys } from '@/lib/queryKeys'
 import { loginSchema, type LoginFormData } from '@/lib/schemas'
 import { getApiError } from '@/shared/utils'
 import type { ApiResponse, AuthResponse } from '@/types'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { setAuth } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
 
@@ -28,7 +30,6 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      // ✅ Pre-fill with seed credentials for easy dev testing
       email: 'demo.owner@worksphere.io',
       password: 'Demo@Owner#2026',
     },
@@ -39,8 +40,9 @@ export default function LoginPage() {
     onSuccess: (response) => {
       const { user, accessToken, refreshToken } = response.data.data
       setAuth(user, accessToken, refreshToken)
+      queryClient.invalidateQueries({ queryKey: queryKeys.auth.context() })
       toast.success(`Welcome back, ${user.firstName}!`)
-      navigate('/dashboard')
+      navigate('/dashboard', { replace: true })
     },
     onError: (error) => {
       const message = getApiError(error)

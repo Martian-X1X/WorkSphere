@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProjectCard } from '@/components/project/ProjectCard'
 
+import { Can } from '@/components/ui/Can'
+import { usePermission } from '@/hooks/usePermission'
 import { CreateProjectModal } from '@/components/project/CreateProjectModal'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/utils'
@@ -37,7 +39,7 @@ const SORT_OPTIONS = [
 ] as const
 
 export default function ProjectsPage() {
-  const { isAdminOrOwner } = useAuthStore()
+  const canCreateProject = usePermission('projects.create')
 
   // ── UI state ──────────────────────────────────────────────────────
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -94,7 +96,7 @@ const allProjects = allProjectData?.items ?? []
           </p>
         </div>
 
-        {isAdminOrOwner() && (
+        <Can permission="projects.create">
           <Button
             onClick={() => setCreateModalOpen(true)}
             className="flex items-center gap-2 flex-shrink-0"
@@ -103,7 +105,7 @@ const allProjects = allProjectData?.items ?? []
             <span className="hidden sm:inline">New Project</span>
             <span className="sm:hidden">New</span>
           </Button>
-        )}
+        </Can>
       </div>
 
       {/* ── Filters bar ─────────────────────────────────────────── */}
@@ -239,12 +241,12 @@ const allProjects = allProjectData?.items ?? []
               : 'Create your first project to get started'
           }
           actionLabel={
-            isAdminOrOwner() && !search && !statusFilter
+            canCreateProject && !search && !statusFilter
               ? '+ New Project'
               : undefined
           }
           onAction={
-            isAdminOrOwner() && !search && !statusFilter
+            canCreateProject && !search && !statusFilter
               ? () => setCreateModalOpen(true)
               : undefined
           }

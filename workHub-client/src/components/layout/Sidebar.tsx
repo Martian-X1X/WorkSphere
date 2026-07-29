@@ -1,5 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'
+import { Avatar } from '@/components/ui/Avatar'
+import { RoleBadge } from '@/components/ui/RoleBadge'
 import { NavItem } from './NavItem'
 import { navSections } from './navConfig'
 import { useLayout } from '@/hooks/useLayout'
@@ -12,7 +14,7 @@ interface SidebarProps {
 
 export function Sidebar({ onNavClick }: SidebarProps) {
   const { sidebarOpen, toggleSidebar } = useLayout()
-  const { user, isAdminOrOwner } = useAuthStore()
+  const { user, hasPermission, isAdminOrOwner } = useAuthStore()
 
   return (
     <aside
@@ -59,9 +61,9 @@ export function Sidebar({ onNavClick }: SidebarProps) {
       {/* ── Navigation ───────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 space-y-1 px-2">
         {navSections.map((section, sectionIdx) => {
-          // Filter items based on role
           const visibleItems = section.items.filter(
-            item => !item.adminOnly || isAdminOrOwner()
+            item => (!item.permission || hasPermission(item.permission)) &&
+                    (!item.adminOnly || isAdminOrOwner())
           )
 
           if (visibleItems.length === 0) return null
@@ -99,32 +101,20 @@ export function Sidebar({ onNavClick }: SidebarProps) {
         'border-t border-surface-800 p-3 flex-shrink-0',
         !sidebarOpen && 'flex justify-center'
       )}>
-        {sidebarOpen ? (
-          <div className="flex items-center gap-2 min-w-0">
-            {/* Avatar */}
-            <div className="w-7 h-7 rounded-full bg-primary-700 flex items-center
-                            justify-center flex-shrink-0">
-              <span className="text-white text-xs font-semibold">
-                {user?.firstName?.[0]}{user?.lastName?.[0]}
-              </span>
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-medium text-surface-200 truncate">
-                {user?.fullName}
+        <div className="flex items-center gap-2.5 min-w-0">
+          <Avatar name={user?.fullName ?? 'User'} size="sm" />
+          {sidebarOpen && (
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-surface-200 truncate">
+                {user?.fullName?.split(' ')[0]}
               </p>
-              <p className="text-[10px] text-surface-500 truncate">
-                {user?.role}
-              </p>
+              <RoleBadge
+                role={(user?.role as 'Owner' | 'Admin' | 'Member') ?? 'Member'}
+                size="sm"
+              />
             </div>
-          </div>
-        ) : (
-          <div className="w-7 h-7 rounded-full bg-primary-700 flex items-center
-                          justify-center">
-            <span className="text-white text-xs font-semibold">
-              {user?.firstName?.[0]}{user?.lastName?.[0]}
-            </span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </aside>
   )
