@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -18,8 +18,10 @@ import type { ApiResponse, AuthResponse } from '@/types'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const queryClient = useQueryClient()
   const { setAuth } = useAuthStore()
+  const from = (location.state as { from?: string })?.from || '/dashboard'
   const [showPassword, setShowPassword] = useState(false)
 
   const {
@@ -42,7 +44,7 @@ export default function LoginPage() {
       setAuth(user, accessToken, refreshToken)
       queryClient.invalidateQueries({ queryKey: queryKeys.auth.context() })
       toast.success(`Welcome back, ${user.firstName}!`)
-      navigate('/dashboard', { replace: true })
+      navigate(from, { replace: true })
     },
     onError: (error) => {
       const message = getApiError(error)

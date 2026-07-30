@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { authService } from '@/features/auth/auth.service'
 import { useAuthStore } from '@/stores/authStore'
@@ -9,7 +9,9 @@ import type { LoginRequest } from '@/types'
 
 export function useLogin() {
   const navigate = useNavigate()
+  const location = useLocation()
   const setAuth = useAuthStore((s) => s.setAuth)
+  const from = (location.state as { from?: string })?.from || ROUTES.DASHBOARD
 
   return useMutation({
     mutationFn: (data: LoginRequest) => authService.login(data),
@@ -17,7 +19,7 @@ export function useLogin() {
       const { accessToken, refreshToken, user } = response.data.data
       setAuth(user, accessToken, refreshToken)
       toast.success(`Welcome back, ${user.firstName}!`)
-      navigate(ROUTES.DASHBOARD, { replace: true })
+      navigate(from, { replace: true })
     },
     onError: (error) => {
       toast.error(getApiError(error))

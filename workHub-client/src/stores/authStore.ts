@@ -3,10 +3,11 @@ import { persist } from 'zustand/middleware'
 import type { User } from '@/types'
 
 interface AuthState {
-  user:          User | null
-  accessToken:   string | null
-  refreshToken:  string | null
-  permissions:   string[]
+  user:            User | null
+  accessToken:     string | null
+  refreshToken:    string | null
+  permissions:     string[]
+  isAuthenticated: boolean
 
   setAuth: (user: User, accessToken: string, refreshToken: string) => void
   setPermissions: (permissions: string[]) => void
@@ -21,15 +22,16 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      user:         null,
-      accessToken:  null,
-      refreshToken: null,
-      permissions:  [],
+      user:            null,
+      accessToken:     null,
+      refreshToken:    null,
+      permissions:     [],
+      isAuthenticated: false,
 
       setAuth: (user, accessToken, refreshToken) => {
         localStorage.setItem('accessToken', accessToken)
         localStorage.setItem('refreshToken', refreshToken)
-        set({ user, accessToken, refreshToken })
+        set({ user, accessToken, refreshToken, isAuthenticated: true })
       },
 
       setPermissions: (permissions) => set({ permissions }),
@@ -37,7 +39,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
-        set({ user: null, accessToken: null, refreshToken: null, permissions: [] })
+        set({ user: null, accessToken: null, refreshToken: null, permissions: [], isAuthenticated: false })
       },
 
       hasPermission: (permission) => {
@@ -57,10 +59,11 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'worksphere-auth',
       partialize: (state) => ({
-        user:        state.user,
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
-        permissions: state.permissions,
+        user:            state.user,
+        accessToken:     state.accessToken,
+        refreshToken:    state.refreshToken,
+        permissions:     state.permissions,
+        isAuthenticated: state.isAuthenticated,
       }),
     }
   )
