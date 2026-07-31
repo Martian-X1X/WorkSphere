@@ -734,7 +734,7 @@ Client                    AuthController              AuthService               
 > No new migration required on Day 6 — no schema changes, only new service and controller code.
  
 --- 
- ### ✅ Day 7 — Password Hashing Service
+### ✅ Day 7 — Password Hashing Service
  
 > 🎯 **Goal:** Extract all password logic into a dedicated, injectable `IPasswordService` with full policy enforcement, common password detection, and silent rehash support
  
@@ -3156,9 +3156,84 @@ My Tasks query — two separate DB queries merged in memory:
 > 12 tests passing · Alice sees 3 Primary + 1 Collaborator tasks · Cross-org blocked
  
 ---
- 
-### ✅ Day 23 — Task Comments
- 
+
+### ✅ Day 23 — Task Status System
+
+Full status workflow on every task, driven by the `WorkTaskStatus` enum:
+
+```
+Todo → InProgress → InReview → Done → Cancelled
+```
+
+| Feature | Description |
+|---|---|
+| `PATCH /api/tasks/{id}/status` | Change status — `CompletedAt` auto-set when → Done |
+| Reopen | Done → InProgress clears `CompletedAt` automatically |
+| Member rule | Members can only change status of tasks assigned to them |
+| Permission | Owner/Admin can change any task's status |
+
+---
+
+### ✅ Day 24 — Priority & Deadlines
+
+Priority levels + due dates on every task:
+
+```
+Priority:  Low / Medium / High / Urgent
+Deadlines: StartDate, DueDate (nullable timestamps)
+```
+
+| Feature | Description |
+|---|---|
+| `Priority` enum | Color-coded in UI (grey/blue/orange/red) |
+| `DueDate` | Set deadlines on tasks — shown in list + kanban cards |
+| Cross-field validation | `DueDate` cannot be before `StartDate` |
+| Overdue detection | Red highlight when `DueDate` passes while not Done |
+
+---
+
+### ✅ Day 25 — Filtering & Sorting
+
+Server-side query parameters on all project + task list endpoints:
+
+```
+?status=todo&priority=high&search=cms&sort=newest&page=1&pageSize=20
+```
+
+| Param | Applies to |
+|---|---|
+| `status` | Projects (Active/OnHold/Completed/Archived) · Tasks (all 5 states) |
+| `priority` | Tasks — Low/Medium/High/Urgent |
+| `search` | Project name · Task title |
+| `sort` | Newest/Oldest/Name A–Z/Name Z–A/Due date |
+| `assignee` | Tasks filtered by assigned user |
+
+> All filtering executed in LINQ → translated to SQL by EF Core — no client-side filtering.
+
+---
+
+### ✅ Day 26 — Pagination
+
+Reusable `PagedResult<T>` response wrapper on every list endpoint:
+
+```json
+{
+  "items": [],
+  "totalCount": 25,
+  "page": 2,
+  "pageSize": 20,
+  "totalPages": 2,
+  "hasNextPage": false,
+  "hasPreviousPage": true
+}
+```
+
+> `Skip((page - 1) * pageSize).Take(pageSize)` — never returns unbounded result sets.
+
+---
+
+### ✅ Day 27 — Task Comments
+
 All roles can comment. Delete rules differ:
  
 ```
@@ -3314,40 +3389,115 @@ worksphere-client/
  
 ---
  
-### ✅ Day 34 — Login + Register Pages
- 
+### ✅ Day 34 — Folder Structure
+
+Feature-based folder layout — every feature owns its pages, components, and hooks:
+
+```
+src/
+├── components/            # Reusable UI — cards, modals, skeletons, layout shell
+├── pages/                 # Route-level pages — Dashboard, Projects, Tasks, Members…
+├── lib/                   # Axios client, query client, query keys
+├── stores/                # Zustand auth store (persisted)
+├── hooks/                 # TanStack Query custom hooks per resource
+├── types/                 # TypeScript interfaces matching backend DTOs
+├── utils/                 # cn(), formatters, badge helpers
+└── index.css              # Tailwind + `btn-primary`, `card`, `badge-*` component classes
+```
+
+> Consistent one-feature-per-file rule keeps the codebase scalable as the feature set grows.
+
+---
+
+### ✅ Day 35 — Routing Setup
+
+Centralized React Router v6 configuration:
+
+```tsx
+<Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+  <Route path="/dashboard" element={<DashboardPage />} />
+  <Route path="/projects"  element={<ProjectsPage />} />
+  <Route path="/tasks"     element={<MyTasksPage />} />
+  <Route path="/members"   element={<MembersPage />} />
+  <Route path="/activity"  element={<ActivityPage />} />
+  <Route path="/settings"  element={<SettingsPage />} />
+</Route>
+```
+
+- Public routes (`/login`, `/register`, `/invite/:token`) live outside the protected shell
+- Unknown paths → 404 fallback
+- Breadcrumb auto-derives from the active route
+
+---
+
+### ✅ Day 36 — Auth Pages UI
+
 Full auth flow with client-side validation (Zod) + server-side error handling (TanStack Mutation):
- 
+
 **Login Page**
 - React Hook Form + Zod schema
 - Pre-filled with seed credentials (dev convenience)
 - Show/hide password toggle
 - API errors shown as field-level messages (not just toasts)
+
 **Register Page**
 - Live password strength indicator (5 rules, green checkmarks)
 - Confirm password cross-field validation
 - `organizationName` field — creates new tenant on success
+
 **Auth Flow:**
 ```
 Submit form → Zod validates → POST /api/auth/login
   → Success: setAuth() → localStorage tokens → toast → /dashboard
   → Failure: field errors from API response → shown inline
 ```
- 
-**Protected Routes:**
+
+> 10 tests passing · Client + server validation both working
+
+---
+
+### ✅ Day 37 — Connect Auth APIs
+
+Axios layer wiring the frontend to the auth endpoints:
+
+| File / Piece | Purpose |
+|---|---|
+| `src/lib/api.ts` | Axios instance — base URL, JWT interceptor, 401 auto-refresh |
+| `authService` | `login()`, `register()`, `refresh()`, `revoke()`, `getContext()` |
+| Response interceptor | Unwraps the `ApiResponse<T>` envelope → `data` directly |
+| 401 handling | Silently calls `/api/auth/refresh`, then retries the original request once |
+
+---
+
+### ✅ Day 38 — Token Storage + Auth Context
+
+Zustand auth store persisting session + role state:
+
+- `accessToken` + `refreshToken` persisted to `localStorage`
+- `setAuth()` / `clearAuth()` actions
+- `hasPermission(perm)` — checks current role against the permission list
+- `isAdminOrOwner()` — convenience role guard
+- `user` snapshot (id, name, email, role, org) hydrated from `/api/auth/context`
+
+---
+
+### ✅ Day 39 — Protected Routes
+
+Route guard redirecting unauthenticated users:
+
 ```
 ProtectedRoute wraps AppLayout
   ↓
 Not authenticated → <Navigate to="/login" state={{ from: location }} />
 Authenticated     → render children (AppLayout + Outlet)
 ```
- 
-> 10 tests passing · Client + server validation both working · Token persisted in Zustand + localStorage
+
+> After login, the user is redirected back to the page they originally tried to visit (`state.from`).
  
 ---
  
-### ✅ Day 35 — Dashboard Layout Shell
- 
+### ✅ Day 40 — Dashboard Layout
+
 The persistent shell that **every future page lives inside:**
  
 ```
@@ -3459,20 +3609,6 @@ The persistent shell that **every future page lives inside:**
 | `GET` | `/api/activity` | 🔒 Any |
  
 </details>
----
-
----
-
-### ✅ Days 36–40 — Auth Pages + Routing + Dashboard (Phase 3 Foundation)
-
-| Day | Deliverable | Highlights |
-|---|---|---|
-| **36** | Auth Pages UI | Login + Register with Zod validation, password strength indicator, seed credential pre-fill |
-| **37** | Connect Auth APIs | Axios instance with JWT interceptor, auto-refresh on 401, `authService` |
-| **38** | Token Storage + Auth Context | Zustand store with localStorage persistence, `hasPermission()`, `isAdminOrOwner()` |
-| **39** | Protected Routes | `ProtectedRoute` component, redirect to `/login` with `from` state |
-| **40** | Dashboard Layout Shell | `AppLayout` (Outlet), `Sidebar` (collapsible), `Header` (breadcrumb), `UserMenu`, `MobileMenu` |
-
 ---
 
 ### ✅ Day 41 — Organization UI
