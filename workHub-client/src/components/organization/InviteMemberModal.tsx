@@ -6,7 +6,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { organizationService } from '@/services/organization.service'
-import { getApiError } from '@/utils'
+import { classifyError } from '@/lib/errors'
 
 interface InviteMemberModalProps {
   open: boolean
@@ -31,12 +31,22 @@ export function InviteMemberModal({ open, onClose }: InviteMemberModalProps) {
       handleClose()
     },
     onError: (error) => {
-      const message = getApiError(error)
-      if (message.toLowerCase().includes('email') ||
-          message.toLowerCase().includes('already')) {
-        setEmailError(message)
+      const classified = classifyError(error)
+      const messages = classified.type === 'validation' &&
+                       classified.errors.length > 1
+        ? classified.errors
+        : [classified.message]
+
+      const emailError = messages.find((m) =>
+        m.toLowerCase().includes('email') ||
+        m.toLowerCase().includes('already'))
+
+      if (emailError) {
+        setEmailError(emailError)
+      } else if (messages.length > 1) {
+        toast.error(messages.join('\n'), { duration: 6000 })
       } else {
-        toast.error(message)
+        toast.error(classified.message)
       }
     },
   })

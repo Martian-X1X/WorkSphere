@@ -1,6 +1,7 @@
 ﻿import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { format, formatDistanceToNow, isPast } from "date-fns"
+import { classifyError } from "@/lib/errors"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -77,12 +78,12 @@ export function getRoleColor(role: string | undefined): string {
 }
 
 export function getApiError(error: unknown): string {
-  if (!error) return "An unexpected error occurred"
-  const axiosError = error as {
-    response?: { data?: { message?: string; errors?: string[] } }
-  }
-  const data = axiosError.response?.data
-  if (data?.errors?.length) return data.errors[0]
-  if (data?.message) return data.message
-  return "An unexpected error occurred"
+  return classifyError(error).message
+}
+
+export function getApiErrors(error: unknown): string[] {
+  const classified = classifyError(error)
+  return classified.errors.length > 0
+    ? classified.errors
+    : [classified.message]
 }

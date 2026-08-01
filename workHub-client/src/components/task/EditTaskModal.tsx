@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { TaskFormFields } from './TaskFormFields'
 import { taskService } from '@/services/task.service'
 import { taskSchema, type TaskFormData } from '@/lib/schemas'
-import { getApiError } from '@/utils'
+import { classifyError } from '@/lib/errors'
 import type { Task } from '@/types'
 
 interface EditTaskModalProps {
@@ -82,7 +82,15 @@ export function EditTaskModal({ task, open, onClose }: EditTaskModalProps) {
       toast.success('Task updated successfully!')
       onClose()
     },
-    onError: (error) => toast.error(getApiError(error)),
+    onError: (error) => {
+      const classified = classifyError(error)
+      if (classified.type === 'validation' && classified.errors.length > 1) {
+        // Multiple errors — show each as separate toast or combined
+        toast.error(classified.errors.join('\n'), { duration: 6000 })
+      } else {
+        toast.error(classified.message)
+      }
+    },
   })
 
   if (!task) return null

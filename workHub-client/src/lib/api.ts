@@ -1,82 +1,164 @@
-import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
+import axios, {
+  type AxiosError,
+  type InternalAxiosRequestConfig,
+} from 'axios'
+import { classifyError } from './errors'
+import { showErrorToast, dismissOfflineToast } from './toastManager'
 
-// ── Base URL — Vite proxy handles /api → localhost:5210 ────────────
+// ── Axios instance ─────────────────────────────────────────────────
 const api = axios.create({
   baseURL: '/api',
+  timeout: 15000,                    // 15 second timeout
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
 })
 
-// ── Request interceptor — attach JWT token ─────────────────────────
+// ── Track if refresh is in progress ───────────────────────────────
+let isRefreshing = false
+let refreshQueue: Array<{
+  resolve: (token: string) => void
+  reject:  (err: unknown)  => void
+}> = []
+
+// Process all queued requests with new token
+function processQueue(error: unknown, token: string | null) {
+  refreshQueue.forEach(({ resolve, reject }) => {
+    if (error) reject(error)
+    else resolve(token!)
+  })
+  refreshQueue = []
+}
+
+// ── Request interceptor ────────────────────────────────────────────
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('accessToken')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+    // Attach JWT from Zustand persisted state
+    const stored = localStorage.getItem('worksphere-auth')
+    if (stored) {
+      try {
+        const state      = JSON.parse(stored)?.state
+        const token      = state?.accessToken
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`
+        }
+      } catch {
+        // Corrupted storage — ignore
+      }
     }
     return config
   },
   (error) => Promise.reject(error)
 )
 
-// ── Response interceptor — handle 401, refresh tokens ─────────────
+// ── Response interceptor ───────────────────────────────────────────
 api.interceptors.response.use(
-  (response) => response,
+  // ── Success ──────────────────────────────────────────────────────
+  (response) => {
+    // If we were offline and got a successful response → dismiss toast
+    dismissOfflineToast()
+    return response
+  },
+
+  // ── Error ────────────────────────────────────────────────────────
   async (error: AxiosError) => {
-    const original = error.config as InternalAxiosRequestConfig & {
+    const status = error.response?.status
+    const config = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean
     }
 
-    // ✅ Token expired — try refresh
-    if (error.response?.status === 401 && !original._retry) {
-      original._retry = true
+    // ── 401 — Try token refresh ───────────────────────────────────
+    if (status === 401 && !config._retry) {
+      // If already refreshing, queue this request
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          refreshQueue.push({ resolve, reject })
+        }).then((token) => {
+          config.headers.Authorization = `Bearer ${token}`
+          return api(config)
+        })
+      }
+
+      config._retry = true
+      isRefreshing  = true
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken')
-        if (!refreshToken) {
-          // No refresh token — force logout
-          localStorage.clear()
-          window.location.href = '/login'
-          return Promise.reject(error)
-        }
+        // Get refresh token from persisted Zustand state
+        const stored = localStorage.getItem('worksphere-auth')
+        const state  = JSON.parse(stored ?? '{}')?.state
+        const refreshToken = state?.refreshToken
 
-        const { data } = await axios.post('/api/auth/refresh', {
-          refreshToken,
-        })
+        if (!refreshToken) throw new Error('No refresh token available')
 
-        const newToken = data.data.accessToken
-        const newRefresh = data.data.refreshToken
+        // Call refresh endpoint directly (bypass interceptor)
+        const res = await axios.post('/api/auth/refresh', { refreshToken })
+        const { accessToken: newAccess, refreshToken: newRefresh } =
+          res.data.data
 
-        localStorage.setItem('accessToken', newToken)
-        localStorage.setItem('refreshToken', newRefresh)
+        // Update Zustand persisted state
+        const parsed = JSON.parse(stored!)
+        parsed.state.accessToken  = newAccess
+        parsed.state.refreshToken = newRefresh
+        localStorage.setItem('worksphere-auth', JSON.stringify(parsed))
 
-        original.headers.Authorization = `Bearer ${newToken}`
-        return api(original)
-      } catch {
-        // Refresh failed — force logout
-        localStorage.clear()
+        // Retry original request + all queued requests
+        config.headers.Authorization = `Bearer ${newAccess}`
+        processQueue(null, newAccess)
+        isRefreshing = false
+
+        return api(config)
+      } catch (refreshError) {
+        // Refresh failed → logout user
+        processQueue(refreshError, null)
+        isRefreshing = false
+
+        // Clear auth state
+        localStorage.removeItem('worksphere-auth')
+
+        // Redirect to login
         window.location.href = '/login'
-        return Promise.reject(error)
+        return Promise.reject(refreshError)
       }
     }
 
-    // ── 403 — Permission denied ─────────────────────────────────
-    // Don't redirect here — let components handle it
-    // The global queryClient error handler will show a toast
-    if (error.response?.status === 403) {
-      // Fire a custom event that components can listen to
-      window.dispatchEvent(new CustomEvent('worksphere:forbidden', {
-        detail: { url: original.url }
-      }))
+    // ── 403 — Fire forbidden event ────────────────────────────────
+    if (status === 403) {
+      window.dispatchEvent(
+        new CustomEvent('worksphere:forbidden', {
+          detail: {
+            url:     config.url,
+            message: (error.response?.data as { message?: string })?.message,
+          },
+        })
+      )
     }
 
-    // ── 404 — Not found ─────────────────────────────────────────
-    // Silently ignore — components show their own empty states
+    // ── Classify and show toast for all other errors ──────────────
+    // Don't show toast for:
+    // - 401 (handled above or will redirect)
+    // - 404 (components handle empty state)
+    // - 400/422 (form components show validation errors)
+    if (status !== 401 && status !== 404 && status !== 400 && status !== 422) {
+      const classified = classifyError(error)
+      showErrorToast(classified)
+    }
 
     return Promise.reject(error)
   }
 )
+
+// ── Online/Offline detection ───────────────────────────────────────
+window.addEventListener('online',  dismissOfflineToast)
+window.addEventListener('offline', () => {
+  showErrorToast({
+    type:          'network',
+    statusCode:    null,
+    message:       'No internet connection',
+    errors:        [],
+    correlationId: null,
+    canRetry:      true,
+    isUserError:   false,
+  })
+})
 
 export default api

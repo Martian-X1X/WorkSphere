@@ -2,6 +2,8 @@ import { Menu, Bell } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { UserMenu } from './UserMenu'
 import { useLayout } from '@/hooks/useLayout'
+import { useApiHealth } from '@/hooks/useApiHealth'
+import { cn } from '@/utils'
 
 // ── Map paths to breadcrumb labels ────────────────────────────────
 const breadcrumbMap: Record<string, string> = {
@@ -17,6 +19,7 @@ const breadcrumbMap: Record<string, string> = {
 export function Header() {
   const location = useLocation()
   const { setMobileMenuOpen } = useLayout()
+  const { status, isOffline } = useApiHealth()
 
   // Build breadcrumb from current path
   const pathSegments = location.pathname.split('/').filter(Boolean)
@@ -61,8 +64,30 @@ export function Header() {
         </div>
       </div>
 
-      {/* ── Right — notifications + user menu ────────────── */}
+      {/* ── Right — health indicator + notifications + user menu ── */}
       <div className="flex items-center gap-1 sm:gap-2">
+
+        {/* API health indicator */}
+        <div
+          className="flex items-center gap-1.5"
+          title={
+            status === 'healthy'  ? 'API connected'    :
+            status === 'offline'  ? 'API unreachable'  :
+            'Checking connection...'
+          }
+        >
+          <span className={cn(
+            'w-2 h-2 rounded-full transition-colors',
+            status === 'healthy'  && 'bg-green-400',
+            status === 'offline'  && 'bg-red-400 animate-pulse',
+            status === 'unknown'  && 'bg-surface-600',
+          )} />
+          {isOffline && (
+            <span className="text-xs text-red-400 hidden sm:inline">
+              Offline
+            </span>
+          )}
+        </div>
 
         {/* Notifications bell (placeholder for future) */}
         <button

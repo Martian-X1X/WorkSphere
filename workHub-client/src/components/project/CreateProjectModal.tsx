@@ -8,7 +8,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { projectService } from '@/services/project.service'
-import { getApiError } from '@/utils'
+import { classifyError } from '@/lib/errors'
 
 const schema = z
   .object({
@@ -62,7 +62,13 @@ export function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
       onClose()
     },
     onError: (error: unknown) => {
-      toast.error(getApiError(error))
+      const classified = classifyError(error)
+      if (classified.type === 'validation' && classified.errors.length > 1) {
+        // Multiple errors — show each as separate toast or combined
+        toast.error(classified.errors.join('\n'), { duration: 6000 })
+      } else {
+        toast.error(classified.message)
+      }
     },
   })
 
