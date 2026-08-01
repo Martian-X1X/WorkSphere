@@ -62,6 +62,19 @@ api.interceptors.response.use(
       }
     }
 
+    // ── 403 — Permission denied ─────────────────────────────────
+    // Don't redirect here — let components handle it
+    // The global queryClient error handler will show a toast
+    if (error.response?.status === 403) {
+      // Fire a custom event that components can listen to
+      window.dispatchEvent(new CustomEvent('worksphere:forbidden', {
+        detail: { url: original.url }
+      }))
+    }
+
+    // ── 404 — Not found ─────────────────────────────────────────
+    // Silently ignore — components show their own empty states
+
     return Promise.reject(error)
   }
 )

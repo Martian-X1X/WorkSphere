@@ -1,5 +1,6 @@
 import { AlertCircle, RefreshCw, WifiOff } from 'lucide-react'
 import { getApiError } from '@/utils'
+import ForbiddenPage from '@/pages/errors/ForbiddenPage'
 
 interface QueryErrorProps {
   error: unknown
@@ -19,6 +20,16 @@ export function QueryError({
 
   const status  = axiosError?.response?.status
   const isOffline = axiosError?.code === 'ERR_NETWORK'
+
+  // 403 → show dedicated forbidden UI
+  if (status === 403) {
+    return (
+      <ForbiddenPage
+        inline
+        message="You do not have permission to view this content."
+      />
+    )
+  }
 
   const message = isOffline
     ? 'No internet connection. Check your network and try again.'
