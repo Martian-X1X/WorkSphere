@@ -1,0 +1,151 @@
+2026-08-02 09:47:44.464 +06:00 [WRN] [] Entity 'Organization' has a global query filter defined and is the required end of a relationship with the entity 'ActivityLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-08-02 09:47:44.484 +06:00 [WRN] [] Entity 'User' has a global query filter defined and is the required end of a relationship with the entity 'TaskAssignee'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-08-02 09:47:44.488 +06:00 [WRN] [] Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data; this mode should only be enabled during development.
+2026-08-02 09:47:44.800 +06:00 [INF] [] Executed DbCommand (15ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-08-02 09:47:45.064 +06:00 [INF] [] Executed DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2026-08-02 09:47:45.086 +06:00 [INF] [] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2026-08-02 09:47:45.088 +06:00 [INF] [] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-08-02 09:47:45.106 +06:00 [INF] [] Starting database seeding...
+2026-08-02 09:47:45.284 +06:00 [INF] [] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted"))
+2026-08-02 09:47:45.296 +06:00 [INF] [] Database already seeded — skipping.
+2026-08-02 09:47:45.466 +06:00 [INF] [] Now listening on: http://localhost:5210
+2026-08-02 09:47:45.467 +06:00 [INF] [] Application started. Press Ctrl+C to shut down.
+2026-08-02 09:47:45.467 +06:00 [INF] [] Hosting environment: Development
+2026-08-02 09:47:45.467 +06:00 [INF] [] Content root path: C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API
+2026-08-02 09:48:26.522 +06:00 [WRN] [0HNNG93KA1IOD:00000001] Failed to determine the https port for redirect.
+2026-08-02 09:48:26.698 +06:00 [DBG] [0HNNG93KA1IOD:00000001] [0HNNG93KA1IOD:00000001] GET /health → 200 (200.2ms)
+2026-08-02 09:48:26.700 +06:00 [WRN] [0HNNG93KA1IOE:00000001] [0HNNG93KA1IOE:00000001] GET /api/auth/context → 401 (205.0ms)
+2026-08-02 09:48:26.711 +06:00 [WRN] [0HNNG93KA1IOF:00000001] [0HNNG93KA1IOF:00000001] GET /api/auth/context → 401 (5.0ms)
+2026-08-02 09:48:27.107 +06:00 [INF] [0HNNG93KA1IOG:00000001] Executed DbCommand (17ms) [Parameters=[@__refreshToken_0='fc6rMV7+t4Npo5XoAAgsVIUEmuPlvwtheQVnAPldTWKL2kqD2jTi1HCswHVPvrF9h4joire5LjMbhTSGp23L+w=='], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."RefreshToken" = @__refreshToken_0
+LIMIT 1
+2026-08-02 09:48:27.352 +06:00 [DBG] [0HNNG93KA1IOG:00000001] JWT access token generated for user "00000000-0000-0000-0002-000000000001" — expires "2026-08-02T04:03:27.3329146Z"
+2026-08-02 09:48:27.354 +06:00 [DBG] [0HNNG93KA1IOG:00000001] Refresh token generated — expires "2026-08-09T03:48:27.3540223Z"
+2026-08-02 09:48:27.524 +06:00 [INF] [0HNNG93KA1IOG:00000001] Executed DbCommand (7ms) [Parameters=[@p4='00000000-0000-0000-0002-000000000001', @p0='2026-08-02T03:48:27.3550628Z' (Nullable = true) (DbType = DateTime), @p1='2hLBKIR0DwXcpf8Ny0eWy23xIbScmJRD7WxcD3EfHh/p70nfCbcnTMav8DcNDTGC4VZKrBvDirHCO62BJCPt3Q==', @p2='2026-08-09T03:48:27.3549177Z' (Nullable = true) (DbType = DateTime), @p3='2026-08-02T03:48:27.4315066Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Users" SET "LastLoginAt" = @p0, "RefreshToken" = @p1, "RefreshTokenExpiry" = @p2, "UpdatedAt" = @p3
+WHERE "Id" = @p4;
+2026-08-02 09:48:27.538 +06:00 [INF] [0HNNG93KA1IOG:00000001] Refresh token rotated for user "00000000-0000-0000-0002-000000000001"
+2026-08-02 09:48:27.569 +06:00 [INF] [0HNNG93KA1IOG:00000001] [0HNNG93KA1IOG:00000001] POST /api/auth/refresh → 200 (859.9ms)
+2026-08-02 09:48:27.644 +06:00 [INF] [0HNNG93KA1IOH:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-08-02 09:48:27.681 +06:00 [INF] [0HNNG93KA1IOH:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+FROM "Organizations" AS o
+WHERE NOT (o."IsDeleted") AND o."Id" = @___currentUser_OrganizationId_0
+LIMIT 1
+2026-08-02 09:48:27.694 +06:00 [INF] [0HNNG93KA1IOH:00000001] [0HNNG93KA1IOH:00000001] GET /api/auth/context → 200 (118.9ms)
+2026-08-02 09:48:27.710 +06:00 [INF] [0HNNG93KA1IOI:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-08-02 09:48:27.716 +06:00 [INF] [0HNNG93KA1IOI:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+FROM "Organizations" AS o
+WHERE NOT (o."IsDeleted") AND o."Id" = @___currentUser_OrganizationId_0
+LIMIT 1
+2026-08-02 09:48:27.717 +06:00 [INF] [0HNNG93KA1IOI:00000001] [0HNNG93KA1IOI:00000001] GET /api/auth/context → 200 (19.4ms)
+2026-08-02 09:58:13.001 +06:00 [DBG] [0HNNG93KA1IOJ:00000001] [0HNNG93KA1IOJ:00000001] GET /health → 200 (77.4ms)
+2026-08-02 09:58:15.902 +06:00 [WRN] [0HNNG93KA1IOK:00000001] Permission check failed — no role claim in token for projects.view
+2026-08-02 09:58:15.902 +06:00 [WRN] [0HNNG93KA1IOL:00000001] Permission check failed — no role claim in token for projects.view
+2026-08-02 09:58:15.903 +06:00 [WRN] [0HNNG93KA1IOL:00000001] [0HNNG93KA1IOL:00000001] GET /api/projects → 401 (3.0ms)
+2026-08-02 09:58:15.903 +06:00 [WRN] [0HNNG93KA1IOK:00000001] [0HNNG93KA1IOK:00000001] GET /api/projects → 401 (3.1ms)
+2026-08-02 09:58:15.983 +06:00 [INF] [0HNNG93KA1IOM:00000001] Executed DbCommand (11ms) [Parameters=[@__refreshToken_0='fc6rMV7+t4Npo5XoAAgsVIUEmuPlvwtheQVnAPldTWKL2kqD2jTi1HCswHVPvrF9h4joire5LjMbhTSGp23L+w=='], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."RefreshToken" = @__refreshToken_0
+LIMIT 1
+2026-08-02 09:58:15.985 +06:00 [WRN] [0HNNG93KA1IOM:00000001] Refresh token not found — possible token theft attempt
+2026-08-02 09:58:15.987 +06:00 [WRN] [0HNNG93KA1IOM:00000001] [0HNNG93KA1IOM:00000001] POST /api/auth/refresh → 401 (76.6ms)
+2026-08-02 09:58:19.076 +06:00 [INF] [0HNNG93KA1ION:00000001] Executed DbCommand (2ms) [Parameters=[@__email_0='demo.owner@worksphere.io'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Email" = @__email_0
+LIMIT 1
+2026-08-02 09:58:20.092 +06:00 [DBG] [0HNNG93KA1ION:00000001] JWT access token generated for user "00000000-0000-0000-0002-000000000001" — expires "2026-08-02T04:13:20.0922956Z"
+2026-08-02 09:58:20.093 +06:00 [DBG] [0HNNG93KA1ION:00000001] Refresh token generated — expires "2026-08-09T03:58:20.0932625Z"
+2026-08-02 09:58:20.099 +06:00 [INF] [0HNNG93KA1ION:00000001] Executed DbCommand (4ms) [Parameters=[@p4='00000000-0000-0000-0002-000000000001', @p0='2026-08-02T03:58:20.0935294Z' (Nullable = true) (DbType = DateTime), @p1='taqzTH7uTFyOJXlk/IF1hPeFtQ0HOE77KeVIL5w6qg7lY5UuUsDkdjPaEXDyfUUuM6rkG4Fx7ZZ3dYp2bRNrrg==', @p2='2026-08-09T03:58:20.0935277Z' (Nullable = true) (DbType = DateTime), @p3='2026-08-02T03:58:20.0939120Z' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Users" SET "LastLoginAt" = @p0, "RefreshToken" = @p1, "RefreshTokenExpiry" = @p2, "UpdatedAt" = @p3
+WHERE "Id" = @p4;
+2026-08-02 09:58:20.100 +06:00 [INF] [0HNNG93KA1ION:00000001] User "00000000-0000-0000-0002-000000000001" logged in from org "00000000-0000-0000-0001-000000000001"
+2026-08-02 09:58:20.101 +06:00 [INF] [0HNNG93KA1ION:00000001] [0HNNG93KA1ION:00000001] POST /api/auth/login → 200 (1068.6ms)
+2026-08-02 09:58:20.146 +06:00 [INF] [0HNNG93KA1IOP:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-08-02 09:58:20.151 +06:00 [INF] [0HNNG93KA1IOP:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+FROM "Organizations" AS o
+WHERE NOT (o."IsDeleted") AND o."Id" = @___currentUser_OrganizationId_0
+LIMIT 1
+2026-08-02 09:58:20.152 +06:00 [INF] [0HNNG93KA1IOP:00000001] [0HNNG93KA1IOP:00000001] GET /api/auth/context → 200 (8.4ms)
+2026-08-02 09:58:20.185 +06:00 [DBG] [0HNNG93KA1IOO:00000001] [0HNNG93KA1IOO:00000001] GET /health → 200 (46.2ms)
+2026-08-02 09:58:20.186 +06:00 [INF] [0HNNG93KA1IOQ:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_UserId_0='00000000-0000-0000-0002-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."CreatedAt", u."DeletedAt", u."Email", u."EmailVerificationExpiry", u."EmailVerificationToken", u."FirstName", u."IsActive", u."IsDeleted", u."IsEmailVerified", u."LastLoginAt", u."LastName", u."OrganizationId", u."PasswordHash", u."PasswordResetExpiry", u."PasswordResetToken", u."ProfilePictureUrl", u."RefreshToken", u."RefreshTokenExpiry", u."Role", u."UpdatedAt", o0."Id", o0."CreatedAt", o0."DeletedAt", o0."Description", o0."IsActive", o0."IsDeleted", o0."LogoUrl", o0."Name", o0."Plan", o0."Slug", o0."UpdatedAt"
+FROM "Users" AS u
+INNER JOIN (
+    SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+    FROM "Organizations" AS o
+    WHERE NOT (o."IsDeleted")
+) AS o0 ON u."OrganizationId" = o0."Id"
+WHERE NOT (u."IsDeleted") AND u."Id" = @___currentUser_UserId_0
+LIMIT 1
+2026-08-02 09:58:20.189 +06:00 [INF] [0HNNG93KA1IOQ:00000001] Executed DbCommand (1ms) [Parameters=[@___currentUser_OrganizationId_0='00000000-0000-0000-0001-000000000001'], CommandType='"Text"', CommandTimeout='30']
+SELECT o."Id", o."CreatedAt", o."DeletedAt", o."Description", o."IsActive", o."IsDeleted", o."LogoUrl", o."Name", o."Plan", o."Slug", o."UpdatedAt"
+FROM "Organizations" AS o
+WHERE NOT (o."IsDeleted") AND o."Id" = @___currentUser_OrganizationId_0
+LIMIT 1
+2026-08-02 09:58:20.191 +06:00 [INF] [0HNNG93KA1IOQ:00000001] [0HNNG93KA1IOQ:00000001] GET /api/auth/context → 200 (7.4ms)
+2026-08-02 11:49:08.756 +06:00 [INF] [] Application is shutting down...

@@ -1,5 +1,6 @@
 import { type UseFormReturn } from 'react-hook-form'
 import { Input } from '@/components/ui/Input'
+import { TextareaField } from '@/components/ui/FormField'
 import { AssigneeSelect } from './AssigneeSelect'
 import { type TaskFormData } from '@/lib/schemas'
 import { cn } from '@/utils'
@@ -32,24 +33,15 @@ export function TaskFormFields({ form }: TaskFormFieldsProps) {
       />
 
       {/* Description */}
-      <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-surface-300">
-          Description
-          <span className="text-surface-600 font-normal ml-1">(optional)</span>
-        </label>
-        <textarea
-          rows={3}
-          placeholder="What needs to be done?"
-          className={cn(
-            'input-field resize-none',
-            errors.description && 'border-red-500 focus:ring-red-500'
-          )}
-          {...register('description')}
-        />
-        {errors.description && (
-          <p className="text-xs text-red-400">⚠ {errors.description.message}</p>
-        )}
-      </div>
+      <TextareaField
+        label="Description"
+        optional
+        placeholder="What needs to be done?"
+        maxLength={4000}
+        value={watch('description') ?? ''}
+        error={errors.description?.message}
+        {...register('description')}
+      />
 
       {/* Priority + Assignee */}
       <div className="grid grid-cols-2 gap-3">

@@ -13,7 +13,7 @@ import { authService } from '@/features/auth/auth.service'
 import { useAuthStore } from '@/stores/authStore'
 import { queryKeys } from '@/lib/queryKeys'
 import { loginSchema, type LoginFormData } from '@/lib/schemas'
-import { getApiError } from '@/shared/utils'
+import { classifyError } from '@/lib/errors'
 import type { ApiResponse, AuthResponse } from '@/types'
 
 export default function LoginPage() {
@@ -30,7 +30,9 @@ export default function LoginPage() {
     formState: { errors },
     setError,
   } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+    resolver:          zodResolver(loginSchema),
+    mode:              'onBlur',          // validate on blur
+    reValidateMode:    'onChange',        // clear error as user types
     defaultValues: {
       email: 'demo.owner@worksphere.io',
       password: 'Demo@Owner#2026',
@@ -47,14 +49,13 @@ export default function LoginPage() {
       navigate(from, { replace: true })
     },
     onError: (error) => {
-      const message = getApiError(error)
+      const classified = classifyError(error)
 
-      // Show field-level error for wrong credentials
-      if (message.toLowerCase().includes('email or password')) {
-        setError('email', { message: 'Invalid email or password' })
-        setError('password', { message: 'Invalid email or password' })
+      // 401 from the login endpoint = wrong credentials
+      if (classified.statusCode === 401) {
+        setError('password', { message: 'Incorrect email or password' })
       } else {
-        toast.error(message)
+        toast.error(classified.message)
       }
     },
   })
@@ -66,7 +67,7 @@ export default function LoginPage() {
       title="Welcome back"
       subtitle="Sign in to your WorkSphere account"
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
 
         {/* Email */}
         <Input

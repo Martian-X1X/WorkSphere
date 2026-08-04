@@ -22,7 +22,9 @@ export function EditTaskModal({ task, open, onClose }: EditTaskModalProps) {
   const queryClient = useQueryClient()
 
   const form = useForm<TaskFormData>({
-    resolver: zodResolver(taskSchema),
+    resolver:          zodResolver(taskSchema),
+    mode:              'onBlur',
+    reValidateMode:    'onChange',
     defaultValues: {
       title: '',
       description: '',
@@ -33,7 +35,7 @@ export function EditTaskModal({ task, open, onClose }: EditTaskModalProps) {
     },
   })
 
-  const { handleSubmit, reset } = form
+  const { handleSubmit, reset, formState: { isValid } } = form
 
   // ✅ Pre-fill form when task changes
   useEffect(() => {
@@ -73,7 +75,7 @@ export function EditTaskModal({ task, open, onClose }: EditTaskModalProps) {
         estimatedMinutes: estimatedMinutes || undefined,
     })
     },
-    onSuccess: (res) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', task!.projectId] })
       queryClient.invalidateQueries({ queryKey: ['task', task!.id] })
       queryClient.invalidateQueries({ queryKey: ['project', task!.projectId] })
@@ -97,7 +99,7 @@ export function EditTaskModal({ task, open, onClose }: EditTaskModalProps) {
 
   return (
     <Modal open={open} onClose={onClose} title="Edit Task" size="md">
-      <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-5">
+      <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-5" noValidate>
         <TaskFormFields form={form} />
 
         <div className="flex gap-2 pt-1">
@@ -113,6 +115,7 @@ export function EditTaskModal({ task, open, onClose }: EditTaskModalProps) {
             type="submit"
             className="flex-1 flex items-center justify-center gap-2"
             loading={mutation.isPending}
+            disabled={!isValid || mutation.isPending}
           >
             <Save className="w-4 h-4" />
             {mutation.isPending ? 'Saving...' : 'Save Changes'}

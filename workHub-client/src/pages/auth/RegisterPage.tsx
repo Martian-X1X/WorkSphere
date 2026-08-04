@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react'
@@ -53,14 +53,14 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors },
     setError,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   })
 
-  const password = watch('password', '')
+  const password = useWatch({ control, name: 'password' }) ?? ''
 
   const registerMutation = useMutation<AxiosResponse<ApiResponse<AuthResponse>>, Error, RegisterFormData>({
     mutationFn: (data: RegisterFormData) =>
@@ -94,7 +94,7 @@ export default function RegisterPage() {
       title="Create your account"
       subtitle="Start your 14-day free trial. No credit card required."
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
 
         {/* Name row */}
         <div className="grid grid-cols-2 gap-3">

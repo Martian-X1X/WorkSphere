@@ -24,7 +24,9 @@ export function CreateTaskModal({
   const queryClient = useQueryClient()
 
   const form = useForm<TaskFormData>({
-    resolver: zodResolver(taskSchema),
+    resolver:          zodResolver(taskSchema),
+    mode:              'onBlur',
+    reValidateMode:    'onChange',
     defaultValues: {
       title: '',
       description: '',
@@ -35,7 +37,7 @@ export function CreateTaskModal({
     },
   })
 
-  const { handleSubmit, reset, formState: { errors } } = form
+  const { handleSubmit, reset, formState: { isValid } } = form
 
   const mutation = useMutation({
     mutationFn: (data: TaskFormData) => {
@@ -82,7 +84,7 @@ export function CreateTaskModal({
 
   return (
     <Modal open={open} onClose={handleClose} title="New Task" size="md">
-      <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-5">
+      <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-5" noValidate>
         <TaskFormFields form={form} />
 
         <div className="flex gap-2 pt-1">
@@ -98,6 +100,7 @@ export function CreateTaskModal({
             type="submit"
             className="flex-1 flex items-center justify-center gap-2"
             loading={mutation.isPending}
+            disabled={!isValid || mutation.isPending}
           >
             <CheckSquare className="w-4 h-4" />
             {mutation.isPending ? 'Creating...' : 'Create Task'}

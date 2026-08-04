@@ -1,39 +1,22 @@
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import toast from 'react-hot-toast'
+import { z } from 'zod'
 import { FolderPlus } from 'lucide-react'
-import { Modal } from '@/components/ui/Modal'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import toast from 'react-hot-toast'
+import { Modal }         from '@/components/ui/Modal'
+import { Button }        from '@/components/ui/Button'
+import { Input }         from '@/components/ui/Input'
+import { TextareaField } from '@/components/ui/FormField'
 import { projectService } from '@/services/project.service'
-import { classifyError } from '@/lib/errors'
+import { projectSchema, type ProjectFormData } from '@/lib/schemas'
+import { getApiError } from '@/utils'
+import { queryKeys }  from '@/lib/queryKeys'
 
-const schema = z
-  .object({
-    name: z
-      .string()
-      .min(1, 'Project name is required')
-      .max(200, 'Name cannot exceed 200 characters'),
-    description: z.string().max(2000).optional(),
-    startDate: z.string().optional(),
-    dueDate: z.string().optional(),
-  })
-  .refine(
-    (d) => {
-      if (d.startDate && d.dueDate) {
-        return new Date(d.dueDate) > new Date(d.startDate)
-      }
-      return true
-    },
-    { message: 'Due date must be after start date', path: ['dueDate'] }
-  )
-
-type FormData = z.infer<typeof schema>
+type ProjectFormValues = z.input<typeof projectSchema>
 
 interface CreateProjectModalProps {
-  open: boolean
+  open:    boolean
   onClose: () => void
 }
 
@@ -44,44 +27,57 @@ export function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
-  } = useForm<FormData>({ resolver: zodResolver(schema) })
+    control,
+    formState: { errors, isValid },
+  } = useForm<ProjectFormValues, unknown, ProjectFormData>({
+    resolver:          zodResolver(projectSchema),
+    mode:              'onBlur',          // validate on field blur
+    reValidateMode:    'onChange',        // re-validate on change after first blur
+    defaultValues: {
+      name:        '',
+      description: '',
+      startDate:   '',
+      dueDate:     '',
+    },
+  })
+
+  const description = useWatch({ control, name: 'description' }) ?? ''
+  const dueDate     = useWatch({ control, name: 'dueDate' })
+
+  // Due date in past warning (not an error)
+  const dueDateWarning = (() => {
+    if (!dueDate) return undefined
+    const due = new Date(dueDate)
+    if (due < new Date()) return 'This date is in the past'
+    return undefined
+  })()
 
   const mutation = useMutation({
-  mutationFn: (data: FormData) =>
-    projectService.createProject({
-      name: data.name.trim(),
-      description: data.description?.trim() || undefined,
-      startDate: data.startDate?.trim() || undefined,
-      dueDate: data.dueDate?.trim() || undefined,
-    }),
+    mutationFn: (data: ProjectFormData) =>
+      projectService.createProject({
+        name:        data.name.trim(),
+        description: data.description?.trim() || undefined,
+        startDate:   data.startDate || undefined,
+        dueDate:     data.dueDate   || undefined,
+      }),
     onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.lists() })
+      queryClient.invalidateQueries({ queryKey: ['activity'] })
       toast.success(`Project "${res.data.data.name}" created!`)
       reset()
       onClose()
     },
-    onError: (error: unknown) => {
-      const classified = classifyError(error)
-      if (classified.type === 'validation' && classified.errors.length > 1) {
-        // Multiple errors — show each as separate toast or combined
-        toast.error(classified.errors.join('\n'), { duration: 6000 })
-      } else {
-        toast.error(classified.message)
-      }
-    },
+    onError: (error) => toast.error(getApiError(error)),
   })
 
-  const handleClose = () => {
-    reset()
-    onClose()
-  }
+  const handleClose = () => { reset(); onClose() }
 
   return (
     <Modal open={open} onClose={handleClose} title="New Project" size="md">
       <form
         onSubmit={handleSubmit((d) => mutation.mutate(d))}
         className="space-y-4"
+        noValidate
       >
         {/* Name */}
         <Input
@@ -93,36 +89,31 @@ export function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
         />
 
         {/* Description */}
-        <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-surface-300">
-            Description
-            <span className="text-surface-600 font-normal ml-1">(optional)</span>
-          </label>
-          <textarea
-            rows={3}
-            placeholder="What is this project about?"
-            className="input-field resize-none"
-            {...register('description')}
-          />
-          {errors.description && (
-            <p className="text-xs text-red-400">
-              ⚠ {errors.description.message}
-            </p>
-          )}
-        </div>
+        <TextareaField
+          label="Description"
+          optional
+          placeholder="What is this project about?"
+          maxLength={2000}
+          value={description}
+          error={errors.description?.message}
+          {...register('description')}
+        />
 
         {/* Dates */}
         <div className="grid grid-cols-2 gap-3">
           <Input
             label="Start date"
             type="date"
+            optional
             error={errors.startDate?.message}
             {...register('startDate')}
           />
           <Input
             label="Due date"
             type="date"
+            optional
             error={errors.dueDate?.message}
+            warning={!errors.dueDate ? dueDateWarning : undefined}
             {...register('dueDate')}
           />
         </div>
@@ -131,16 +122,17 @@ export function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
         <div className="flex gap-2 pt-2">
           <Button
             variant="secondary"
-            className="flex-1"
             type="button"
+            className="flex-1"
             onClick={handleClose}
           >
             Cancel
           </Button>
           <Button
-            className="flex-1 flex items-center justify-center gap-2"
             type="submit"
+            className="flex-1 flex items-center justify-center gap-2"
             loading={mutation.isPending}
+            disabled={!isValid || mutation.isPending}
           >
             <FolderPlus className="w-4 h-4" />
             {mutation.isPending ? 'Creating...' : 'Create Project'}
