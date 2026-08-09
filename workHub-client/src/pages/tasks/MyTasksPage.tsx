@@ -12,7 +12,6 @@ import { TaskRowSkeleton } from '@/components/task/TaskRowSkeleton'
 import { MyTaskRow }       from '@/components/task/MyTaskRow'
 import { EditTaskModal }   from '@/components/task/EditTaskModal'
 import { useMyTasks }      from '@/hooks/useTasks'
-import { useAuthStore }    from '@/stores/authStore'
 import { isOverdue, cn }   from '@/utils'
 import type { Task }       from '@/types'
 
@@ -35,8 +34,6 @@ const PRIORITY_FILTERS = [
 ]
 
 export default function MyTasksPage() {
-  const { user } = useAuthStore()
-
   // ── Filter state ─────────────────────────────────────────────────
   const [statusFilter,   setStatusFilter]   = useState('')
   const [priorityFilter, setPriorityFilter] = useState('')

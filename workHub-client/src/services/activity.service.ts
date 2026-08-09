@@ -1,5 +1,5 @@
 import api from '@/lib/api'
-import type { ApiResponse, PagedResult, ActivityLog } from '@/types'
+import type { ApiResponse, ActivityLog } from '@/types'
 
 export interface ActivityQueryParams {
   page?:     number
@@ -12,7 +12,7 @@ export const activityService = {
     const query = new URLSearchParams()
     if (params.page)     query.set('page',     String(params.page))
     if (params.pageSize) query.set('pageSize', String(params.pageSize))
-    return api.get<ApiResponse<PagedResult<ActivityLog>>>(
+    return api.get<ApiResponse<ActivityLog[]>>(
       `/activity?${query.toString()}`
     )
   },

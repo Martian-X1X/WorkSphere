@@ -15,6 +15,11 @@ export const queryKeys = {
     context: () => ['auth', 'context'] as const,
   },
 
+  // ── User profile ─────────────────────────────────────────────────
+  user: {
+    profile: () => ['user', 'profile'] as const,
+  },
+
   // ── Organization ──────────────────────────────────────────────────
   org: {
     detail:  () => ['org', 'detail'] as const,

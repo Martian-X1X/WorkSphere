@@ -3,7 +3,7 @@ import { Mail, Clock, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { RoleBadge } from '@/components/ui/RoleBadge'
 import { organizationService } from '@/services/organization.service'
-import { formatDate, formatRelative, getApiError } from '@/utils'
+import { formatDate, getApiError } from '@/utils'
 import type { Invite } from '@/types'
 
 interface InviteRowProps {

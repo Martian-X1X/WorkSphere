@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WorkHub.API.Authorization;
 using WorkHub.Application.Authorization;
 using WorkHub.Application.DTOs.Common;
+using WorkHub.Application.DTOs.Users;
 using WorkHub.Application.Interfaces;
 
 namespace WorkHub.API.Controllers;
@@ -15,15 +16,18 @@ public class UsersController : ControllerBase
 {
     private readonly ICurrentUserService _currentUser;
     private readonly IPermissionService _permissionService;
+    private readonly IUserService _userService;
     private readonly ILogger<UsersController> _logger;
 
     public UsersController(
         ICurrentUserService currentUser,
         IPermissionService permissionService,
+        IUserService userService,
         ILogger<UsersController> logger)
     {
         _currentUser = currentUser;
         _permissionService = permissionService;
+        _userService = userService;
         _logger = logger;
     }
 
@@ -142,5 +146,91 @@ public class UsersController : ControllerBase
             canExportReports  = _permissionService.CurrentUserHasPermission(Permissions.Reports.Export),
             canViewBilling    = _permissionService.CurrentUserHasPermission(Permissions.Organizations.ViewBilling),
         }, "Permission matrix for current user."));
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // PROFILE
+    // ────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Get the current user's full profile with activity stats.
+    /// </summary>
+    [HttpGet("me/profile")]
+    [ProducesResponseType(typeof(ApiResponse<ProfileDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<ProfileDto>), 404)]
+    [ProducesResponseType(401)]
+    public async Task<IActionResult> GetProfile()
+    {
+        var result = await _userService.GetProfileAsync();
+
+        if (!result.Success)
+            return NotFound(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Update the current user's first + last name.
+    /// </summary>
+    [HttpPut("me/profile")]
+    [ProducesResponseType(typeof(ApiResponse<ProfileDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<ProfileDto>), 400)]
+    [ProducesResponseType(typeof(ApiResponse<ProfileDto>), 404)]
+    [ProducesResponseType(401)]
+    public async Task<IActionResult> UpdateProfile(
+        [FromBody] UpdateProfileDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+            return BadRequest(ApiResponse<ProfileDto>.Fail(errors));
+        }
+
+        var result = await _userService.UpdateProfileAsync(dto);
+
+        if (!result.Success)
+        {
+            if (result.Message.Contains("not found"))
+                return NotFound(result);
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Change the current user's password.
+    /// Invalidates all existing sessions (refresh tokens).
+    /// </summary>
+    [HttpPatch("me/password")]
+    [ProducesResponseType(typeof(ApiResponse<object>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 404)]
+    [ProducesResponseType(401)]
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ChangePasswordDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+            return BadRequest(ApiResponse<object>.Fail(errors));
+        }
+
+        var result = await _userService.ChangePasswordAsync(dto);
+
+        if (!result.Success)
+        {
+            if (result.Message.Contains("not found"))
+                return NotFound(result);
+            return BadRequest(result);
+        }
+
+        return Ok(result);
     }
 }

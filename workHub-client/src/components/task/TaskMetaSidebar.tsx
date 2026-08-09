@@ -5,7 +5,6 @@ import {
 } from 'lucide-react'
 import { Avatar } from '@/components/ui/Avatar'
 import { PriorityBadge } from '@/components/ui/PriorityBadge'
-import { RoleBadge } from '@/components/ui/RoleBadge'
 import { formatDate, formatDateTime, formatRelative, formatMinutes, isOverdue, cn } from '@/utils'
 import type { Task, TaskAssignee } from '@/types'
 

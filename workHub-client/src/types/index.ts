@@ -259,6 +259,39 @@ export interface AuthContext {
   permissions: string[]
 }
 
+// ──────────────────────────────────────────────────────────────────
+// User Profile types
+// ──────────────────────────────────────────────────────────────────
+export interface UserProfile {
+  id:                string
+  firstName:         string
+  lastName:          string
+  fullName:          string
+  email:             string
+  role:              string
+  organizationId:    string
+  organizationName:  string
+  profilePictureUrl: string | null
+  isEmailVerified:   boolean
+  lastLoginAt:       string | null
+  createdAt:         string
+  tasksAssigned:     number
+  commentsCount:     number
+  projectsCount:     number
+  activityCount:     number
+}
+
+export interface UpdateProfileRequest {
+  firstName: string
+  lastName:  string
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string
+  newPassword:     string
+  confirmPassword: string
+}
+
 // ── Organization types (extend existing) ──────────────────────────
 export interface UpdateOrganizationRequest {
   name: string

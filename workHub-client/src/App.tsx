@@ -18,6 +18,7 @@ import MyTasksPage    from '@/pages/tasks/MyTasksPage'
 import MembersPage    from '@/pages/members/MembersPage'
 import ActivityPage   from '@/pages/activity/ActivityPage'
 import SettingsPage   from '@/pages/settings/SettingsPage'
+import ProfilePage    from '@/pages/profile/ProfilePage'
 import ProjectDetailPage from '@/pages/projects/ProjectDetailPage'
 import TaskDetailPage from '@/pages/tasks/TaskDetailPage'
 
@@ -66,6 +67,7 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/activity"  element={<ActivityPage />} />
           <Route path="/tasks"     element={<MyTasksPage />} />
+          <Route path="/profile"   element={<ProfilePage />} />
 
           {/* ── Requires projects.view ───────────────────────── */}
           <Route path="/projects" element={

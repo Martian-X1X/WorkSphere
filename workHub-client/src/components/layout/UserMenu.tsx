@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 import { useAuthStore } from '@/stores/authStore'
 import { authService } from '@/services/auth.service'
 import { RoleBadge } from '@/components/ui/RoleBadge'
-import { getRoleColor, cn } from '@/utils'
+import { cn } from '@/utils'
 
 export function UserMenu() {
   const navigate = useNavigate()
@@ -98,7 +98,7 @@ export function UserMenu() {
                          rounded-lg transition-colors text-left"
             >
               <User className="w-4 h-4 text-surface-500" />
-              Your profile
+              My Profile
             </button>
 
             {isAdminOrOwner() && (

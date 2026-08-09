@@ -12,8 +12,8 @@ interface KanbanCardProps {
   onEdit: (task: Task) => void
 }
 
-export function KanbanCard({ task, projectId, onEdit }: KanbanCardProps) {
-  const { isAdminOrOwner, user } = useAuthStore()
+export function KanbanCard({ task, onEdit }: KanbanCardProps) {
+  const { isAdminOrOwner } = useAuthStore()
   const overdue = isOverdue(task.dueDate, task.status)
   const isDone      = task.status === 'Done'
   const isCancelled = task.status === 'Cancelled'

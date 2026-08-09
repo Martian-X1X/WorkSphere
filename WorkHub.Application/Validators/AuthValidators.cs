@@ -1,5 +1,6 @@
 using FluentValidation;
 using WorkHub.Application.DTOs.Auth;
+using WorkHub.Application.DTOs.Users;
 
 namespace WorkHub.Application.Validators;
 
@@ -63,5 +64,46 @@ public class RevokeTokenRequestValidator : AbstractValidator<RevokeTokenRequestD
     {
         RuleFor(x => x.RefreshToken)
             .NotEmpty().WithMessage("Refresh token is required");
+    }
+}
+
+public class UpdateProfileValidator : AbstractValidator<UpdateProfileDto>
+{
+    public UpdateProfileValidator()
+    {
+        RuleFor(x => x.FirstName)
+            .NotEmpty().WithMessage("First name is required")
+            .MaximumLength(50).WithMessage("First name cannot exceed 50 characters")
+            .Matches(@"^[\p{L}\s'\-]+$")
+            .WithMessage("First name can only contain letters, spaces, hyphens, and apostrophes");
+
+        RuleFor(x => x.LastName)
+            .NotEmpty().WithMessage("Last name is required")
+            .MaximumLength(50).WithMessage("Last name cannot exceed 50 characters")
+            .Matches(@"^[\p{L}\s'\-]+$")
+            .WithMessage("Last name can only contain letters, spaces, hyphens, and apostrophes");
+    }
+}
+
+public class ChangePasswordValidator : AbstractValidator<ChangePasswordDto>
+{
+    public ChangePasswordValidator()
+    {
+        RuleFor(x => x.CurrentPassword)
+            .NotEmpty().WithMessage("Current password is required");
+
+        RuleFor(x => x.NewPassword)
+            .NotEmpty().WithMessage("New password is required")
+            .MinimumLength(8).WithMessage("Password must be at least 8 characters")
+            .MaximumLength(128).WithMessage("Password cannot exceed 128 characters");
+
+        RuleFor(x => x.ConfirmPassword)
+            .NotEmpty().WithMessage("Please confirm your new password")
+            .Equal(x => x.NewPassword)
+            .WithMessage("Passwords do not match");
+
+        RuleFor(x => x.NewPassword)
+            .NotEqual(x => x.CurrentPassword)
+            .WithMessage("New password must be different from your current password");
     }
 }

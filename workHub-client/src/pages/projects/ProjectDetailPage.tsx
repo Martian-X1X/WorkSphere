@@ -43,7 +43,6 @@ const PRIORITY_FILTERS = [
 export default function ProjectDetailPage() {
   const { projectId }     = useParams<{ projectId: string }>()
   const canCreateTask = usePermission('tasks.create')
-  const canDeleteTask = usePermission('tasks.delete')
 
   // ── View + filter state ───────────────────────────────────────
   const [view,           setView]           = useState<ViewMode>('list')

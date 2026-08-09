@@ -161,3 +161,49 @@ export const orgUpdateSchema = z.object({
 })
 
 export type OrgUpdateFormData = z.infer<typeof orgUpdateSchema>
+
+// ── Profile update schema ──────────────────────────────────────────
+export const updateProfileSchema = z.object({
+  firstName: z
+    .string()
+    .min(1, 'First name is required')
+    .max(50, 'First name cannot exceed 50 characters')
+    .trim(),
+  lastName: z
+    .string()
+    .min(1, 'Last name is required')
+    .max(50, 'Last name cannot exceed 50 characters')
+    .trim(),
+})
+
+export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>
+
+// ── Change password schema ─────────────────────────────────────────
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z
+      .string()
+      .min(1, 'Current password is required'),
+    newPassword: z
+      .string()
+      .min(8,   'Password must be at least 8 characters')
+      .max(128, 'Password cannot exceed 128 characters')
+      .refine((v) => /[A-Z]/.test(v),        'Must contain at least one uppercase letter')
+      .refine((v) => /[a-z]/.test(v),        'Must contain at least one lowercase letter')
+      .refine((v) => /[0-9]/.test(v),        'Must contain at least one number')
+      .refine((v) => /[^A-Za-z0-9]/.test(v), 'Must contain at least one special character')
+      .refine((v) => !/\s/.test(v),          'Password cannot contain spaces'),
+    confirmPassword: z
+      .string()
+      .min(1, 'Please confirm your password'),
+  })
+  .refine((d) => d.newPassword === d.confirmPassword, {
+    message: 'Passwords do not match',
+    path:    ['confirmPassword'],
+  })
+  .refine((d) => d.currentPassword !== d.newPassword, {
+    message: 'New password must be different from current password',
+    path:    ['newPassword'],
+  })
+
+export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>

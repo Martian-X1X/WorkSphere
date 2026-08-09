@@ -16,8 +16,7 @@ interface MemberRowProps {
 }
 
 export function MemberRow({ member, onChangeRole }: MemberRowProps) {
-  const { user, isOwner } = useAuthStore()
-  const { hasPermission } = useAuthStore()
+  const { user } = useAuthStore()
   const canChangeRole = usePermission('members.changerole')
   const canDeactivate = usePermission('members.remove')
   const queryClient = useQueryClient()

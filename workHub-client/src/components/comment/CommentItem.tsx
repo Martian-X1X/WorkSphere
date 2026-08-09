@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Pencil, Trash2, MoreHorizontal } from 'lucide-react'
 import { Avatar } from '@/components/ui/Avatar'
 import { CommentForm } from './CommentForm'
-import { useAuthStore } from '@/stores/authStore'
 import { usePermission } from '@/hooks/usePermission'
 import { formatRelative, formatDateTime, cn } from '@/utils'
 import type { Comment } from '@/types'
@@ -21,7 +20,6 @@ interface CommentItemProps {
 
 export function CommentItem({
   comment,
-  taskId,
   onEdit,
   onDelete,
   isEditing,

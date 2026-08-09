@@ -1,5 +1,14 @@
 ﻿import api from "@/lib/api"
-import type { ApiResponse, AuthResponse, LoginRequest, RegisterRequest, AuthContext } from "@/types"
+import type {
+  ApiResponse,
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+  AuthContext,
+  UserProfile,
+  UpdateProfileRequest,
+  ChangePasswordRequest,
+} from "@/types"
 
 export const authService = {
   login: (data: LoginRequest) =>
@@ -16,4 +25,14 @@ export const authService = {
 
   getContext: () =>
     api.get<ApiResponse<AuthContext>>("/auth/context"),
+
+  // ── Profile ──────────────────────────────────────────────────────
+  getProfile: () =>
+    api.get<ApiResponse<UserProfile>>("/users/me/profile"),
+
+  updateProfile: (data: UpdateProfileRequest) =>
+    api.put<ApiResponse<UserProfile>>("/users/me/profile", data),
+
+  changePassword: (data: ChangePasswordRequest) =>
+    api.patch<ApiResponse<null>>("/users/me/password", data),
 }

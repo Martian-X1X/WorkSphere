@@ -287,6 +287,8 @@ try
     builder.Services.AddScoped<ITaskService, TaskService>();
     builder.Services.AddScoped<ICommentService, CommentService>();
     builder.Services.AddScoped<IActivityService, ActivityService>();
+    builder.Services.AddScoped<ISearchService, SearchService>();
+    builder.Services.AddScoped<IUserService, UserService>();
     // ─── Seeder ───────────────────────────────────────────────────────
     builder.Services.AddScoped<DataSeeder>();
 

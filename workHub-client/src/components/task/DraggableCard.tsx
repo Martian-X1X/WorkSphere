@@ -22,7 +22,6 @@ export function DraggableCard({
     listeners,     // mouse/touch/keyboard event handlers
     setNodeRef,    // attach to DOM element
     transform,     // current drag transform (x, y offset)
-    active,        // currently dragging something?
   } = useDraggable({
     id:   task.id,           // unique drag ID
     data: {

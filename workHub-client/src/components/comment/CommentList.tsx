@@ -3,9 +3,7 @@ import { MessageSquare } from 'lucide-react'
 import { CommentItem } from './CommentItem'
 import { CommentForm } from './CommentForm'
 import { useComments, useCreateComment, useUpdateComment, useDeleteComment } from '@/hooks/useComments'
-import { Avatar } from '@/components/ui/Avatar'
 import { useAuthStore } from '@/stores/authStore'
-import { cn } from '@/utils'
 
 // ── Skeleton ───────────────────────────────────────────────────────
 function CommentSkeleton() {
@@ -37,7 +35,6 @@ export function CommentList({ taskId }: CommentListProps) {
 
   // ── Active edit state ────────────────────────────────────────────
   const [editingId,      setEditingId]      = useState<string | null>(null)
-  const [editingContent, setEditingContent] = useState('')
   const [deletingId,     setDeletingId]     = useState<string | null>(null)
 
   // ── Hooks ────────────────────────────────────────────────────────
@@ -55,20 +52,17 @@ export function CommentList({ taskId }: CommentListProps) {
     await createMutation.mutateAsync(content)
   }
 
-  const handleStartEdit = (commentId: string, content: string) => {
+  const handleStartEdit = (commentId: string) => {
     setEditingId(commentId)
-    setEditingContent(content)
   }
 
   const handleCancelEdit = () => {
     setEditingId(null)
-    setEditingContent('')
   }
 
   const handleEdit = async (commentId: string, content: string) => {
     await updateMutation.mutateAsync({ commentId, content })
     setEditingId(null)
-    setEditingContent('')
   }
 
   const handleDelete = (commentId: string) => {
