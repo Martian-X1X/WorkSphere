@@ -89,6 +89,25 @@ public class InvitesController : ControllerBase
     }
 
     /// <summary>
+    /// Resend a pending invite — generates a fresh token and resets expiry.
+    /// Owner and Admin only.
+    /// </summary>
+    [HttpPost("organizations/me/invites/{inviteId:guid}/resend")]
+    [Authorize(Policy = PolicyNames.CanInviteMembers)]
+    [ProducesResponseType(typeof(ApiResponse<InviteResponseDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<InviteResponseDto>), 400)]
+    [ProducesResponseType(401), ProducesResponseType(403)]
+    public async Task<IActionResult> ResendInvite(Guid inviteId)
+    {
+        var result = await _inviteService.ResendInviteAsync(inviteId);
+
+        if (!result.Success)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Preview an invite — public endpoint, no auth required.
     /// Shows org name, inviter name, role, expiry.
     /// </summary>

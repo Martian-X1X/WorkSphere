@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Mail, Clock, X } from 'lucide-react'
+import { Mail, Clock, X, Copy, RefreshCw, Check } from 'lucide-react'
+import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { RoleBadge } from '@/components/ui/RoleBadge'
 import { organizationService } from '@/services/organization.service'
 import { formatDate, getApiError } from '@/utils'
+import { queryKeys } from '@/lib/queryKeys'
 import type { Invite } from '@/types'
 
 interface InviteRowProps {
@@ -12,17 +14,47 @@ interface InviteRowProps {
 
 export function InviteRow({ invite }: InviteRowProps) {
   const queryClient = useQueryClient()
+  const [copied, setCopied] = useState(false)
+  const isExpired = new Date(invite.expiresAt) < new Date()
+  const isPending = invite.status === 'Pending' && !isExpired
 
+  // ── Cancel mutation ───────────────────────────────────────────────
   const cancelMutation = useMutation({
     mutationFn: () => organizationService.cancelInvite(invite.id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['invites'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.org.invites() })
       toast.success('Invite cancelled')
     },
     onError: (error) => toast.error(getApiError(error)),
   })
 
-  const isExpired = new Date(invite.expiresAt) < new Date()
+  // ── Resend mutation ───────────────────────────────────────────────
+  const resendMutation = useMutation({
+    mutationFn: () => organizationService.resendInvite(invite.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.org.invites() })
+      toast.success('Invite resent — new link is valid for 7 days')
+    },
+    onError: (error) => toast.error(getApiError(error)),
+  })
+
+  // ── Copy link ─────────────────────────────────────────────────────
+  const handleCopyLink = async () => {
+    const inviteLink = invite.inviteLink
+    if (!inviteLink) {
+      toast.error('No invite link available')
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(inviteLink)
+      setCopied(true)
+      toast.success('Invite link copied!')
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      toast.error('Could not copy link')
+    }
+  }
 
   return (
     <div className="flex items-center gap-3 py-3 px-4
@@ -33,7 +65,7 @@ export function InviteRow({ invite }: InviteRowProps) {
         <Mail className="w-4 h-4 text-surface-400" />
       </div>
 
-      {/* Email */}
+      {/* Email + meta */}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-surface-200 truncate">
           {invite.inviteeEmail}
@@ -59,25 +91,53 @@ export function InviteRow({ invite }: InviteRowProps) {
       {/* Status */}
       <span className={`hidden sm:inline text-xs font-medium px-2 py-0.5
                        rounded-full border ${
-        invite.status === 'Pending' && !isExpired
+        isPending
           ? 'bg-yellow-900/30 text-yellow-400 border-yellow-800/50'
           : 'bg-surface-700 text-surface-500 border-surface-600'
       }`}>
         {isExpired ? 'Expired' : invite.status}
       </span>
 
-      {/* Cancel button */}
-      {invite.status === 'Pending' && !isExpired && (
-        <button
-          onClick={() => cancelMutation.mutate()}
-          disabled={cancelMutation.isPending}
-          className="p-1.5 text-surface-600 hover:text-red-400
-                     hover:bg-red-900/20 rounded-lg transition-colors
-                     opacity-0 group-hover:opacity-100 flex-shrink-0"
-          title="Cancel invite"
-        >
-          <X className="w-4 h-4" />
-        </button>
+      {/* Actions — visible on hover */}
+      {isPending && (
+        <div className="flex items-center gap-1 opacity-0
+                        group-hover:opacity-100 transition-opacity">
+          {/* Copy link */}
+          <button
+            onClick={handleCopyLink}
+            className="p-1.5 text-surface-600 hover:text-surface-300
+                       hover:bg-surface-700 rounded-lg transition-colors"
+            title="Copy invite link"
+          >
+            {copied
+              ? <Check className="w-3.5 h-3.5 text-green-400" />
+              : <Copy  className="w-3.5 h-3.5" />}
+          </button>
+
+          {/* Resend */}
+          <button
+            onClick={() => resendMutation.mutate()}
+            disabled={resendMutation.isPending}
+            className="p-1.5 text-surface-600 hover:text-blue-400
+                       hover:bg-blue-900/20 rounded-lg transition-colors"
+            title="Resend invite (new link)"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${
+              resendMutation.isPending ? 'animate-spin' : ''
+            }`} />
+          </button>
+
+          {/* Cancel */}
+          <button
+            onClick={() => cancelMutation.mutate()}
+            disabled={cancelMutation.isPending}
+            className="p-1.5 text-surface-600 hover:text-red-400
+                       hover:bg-red-900/20 rounded-lg transition-colors"
+            title="Cancel invite"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
       )}
     </div>
   )

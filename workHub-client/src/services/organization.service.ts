@@ -5,6 +5,8 @@ import type {
   Organization,
   Member,
   Invite,
+  InvitePreview,
+  AuthResponse,
   CreateInviteRequest,
   ChangeMemberRoleRequest,
 } from '@/types'
@@ -50,5 +52,22 @@ export const organizationService = {
   cancelInvite: (inviteId: string) =>
     api.delete<ApiResponse<object>>(
       `/organizations/me/invites/${inviteId}`
+    ),
+
+  // ── Public invite endpoints (no auth needed) ─────────────────────
+  previewInvite: (token: string) =>
+    api.get<ApiResponse<InvitePreview>>(`/invites/${token}`),
+
+  acceptInvite: (token: string, data: {
+    firstName: string
+    lastName:  string
+    password:  string
+  }) =>
+    api.post<ApiResponse<AuthResponse>>(`/invites/${token}/accept`, data),
+
+  resendInvite: (inviteId: string) =>
+    api.post<ApiResponse<Invite>>(
+      `/organizations/me/invites/${inviteId}/resend`,
+      {}
     ),
 }

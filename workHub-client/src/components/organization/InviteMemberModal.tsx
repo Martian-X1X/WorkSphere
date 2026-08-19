@@ -1,11 +1,12 @@
+import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Mail, UserCheck } from 'lucide-react'
+import { Mail, UserCheck, CheckCircle2, Copy } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Modal }            from '@/components/ui/Modal'
-import { Button }           from '@/components/ui/Button'
-import { Input }            from '@/components/ui/Input'
+import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
 import { organizationService } from '@/services/organization.service'
 import { inviteSchema, type InviteFormData } from '@/lib/schemas'
 import { getApiError, cn } from '@/utils'
@@ -29,6 +30,10 @@ const ROLE_CONFIG: {
 
 export function InviteMemberModal({ open, onClose }: InviteMemberModalProps) {
   const queryClient = useQueryClient()
+  const [createdInvite, setCreatedInvite] = useState<{
+    email: string
+    link:  string
+  } | null>(null)
 
   const {
     register,
@@ -46,11 +51,12 @@ export function InviteMemberModal({ open, onClose }: InviteMemberModalProps) {
   const mutation = useMutation({
     mutationFn: (data: InviteFormData) =>
       organizationService.createInvite(data),
-    onSuccess: (_, variables) => {
+    onSuccess: (res, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.org.invites() })
       queryClient.invalidateQueries({ queryKey: queryKeys.org.detail() })
-      toast.success(`Invite sent to ${variables.email}`)
-      handleClose()
+
+      const inviteLink = res.data.data.inviteLink
+      setCreatedInvite({ email: variables.email, link: inviteLink })
     },
     onError: (error) => {
       const message = getApiError(error)
@@ -65,8 +71,63 @@ export function InviteMemberModal({ open, onClose }: InviteMemberModalProps) {
     },
   })
 
-  const handleClose = () => { reset(); onClose() }
+  const handleClose = () => {
+    setCreatedInvite(null)
+    reset()
+    onClose()
+  }
 
+  // ── Success state: show invite link ──────────────────────────────
+  if (createdInvite) {
+    return (
+      <Modal open={open} onClose={handleClose} title="Invite Sent!" size="sm">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 p-3 bg-green-900/20
+                          border border-green-800/30 rounded-xl">
+            <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-surface-100">
+                Invite sent to {createdInvite.email}
+              </p>
+              <p className="text-xs text-surface-500 mt-0.5">
+                Share the link below or they'll receive instructions
+              </p>
+            </div>
+          </div>
+
+          {/* Invite link */}
+          <div className="space-y-1.5">
+            <label className="text-xs text-surface-500">Invite link</label>
+            <div className="flex items-center gap-2">
+              <input
+                readOnly
+                value={createdInvite.link}
+                className="input-field text-xs flex-1 text-surface-400"
+              />
+              <button
+                onClick={async () => {
+                  await navigator.clipboard.writeText(createdInvite.link)
+                  toast.success('Copied!')
+                }}
+                className="flex-shrink-0 p-2 bg-surface-700
+                           hover:bg-surface-600 rounded-lg
+                           text-surface-400 hover:text-surface-200
+                           transition-colors"
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <Button className="w-full justify-center" onClick={handleClose}>
+            Done
+          </Button>
+        </div>
+      </Modal>
+    )
+  }
+
+  // ── Form state ────────────────────────────────────────────────────
   return (
     <Modal open={open} onClose={handleClose} title="Invite Team Member" size="sm">
       <form
@@ -119,7 +180,7 @@ export function InviteMemberModal({ open, onClose }: InviteMemberModalProps) {
             )}
           />
           {errors.role && (
-            <p className="text-xs text-red-400">⚠ {errors.role.message}</p>
+            <p className="text-xs text-red-400">{errors.role.message}</p>
           )}
         </div>
 

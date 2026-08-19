@@ -20,4 +20,7 @@ public interface IInviteService
 
     /// <summary>Cancel a pending invite — Owner/Admin only</summary>
     Task<ApiResponse<object>> CancelInviteAsync(Guid inviteId);
+
+    /// <summary>Resend/regenerate a pending invite with a fresh token and expiry</summary>
+    Task<ApiResponse<InviteResponseDto>> ResendInviteAsync(Guid inviteId);
 }

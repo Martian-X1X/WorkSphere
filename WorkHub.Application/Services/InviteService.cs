@@ -373,4 +373,64 @@ public class InviteService : IInviteService
             return ApiResponse<object>.Fail("An unexpected error occurred.");
         }
     }
+
+    // ════════════════════════════════════════════════════════════
+    // RESEND INVITE
+    // ════════════════════════════════════════════════════════════
+    public async Task<ApiResponse<InviteResponseDto>> ResendInviteAsync(Guid inviteId)
+    {
+        try
+        {
+            var orgId = _currentUser.OrganizationId;
+
+            var invite = await _context.OrganizationInvites
+                .FirstOrDefaultAsync(i =>
+                    i.Id             == inviteId &&
+                    i.OrganizationId == orgId    &&
+                    !i.IsDeleted);
+
+            if (invite == null)
+                return ApiResponse<InviteResponseDto>.Fail("Invite not found.");
+
+            var guard = _orgScopeGuard.Check(invite.OrganizationId);
+            if (!guard.Allowed)
+                return ApiResponse<InviteResponseDto>.Fail(guard.Reason!);
+
+            if (invite.Status != InviteStatus.Pending)
+                return ApiResponse<InviteResponseDto>.Fail(
+                    "Only pending invites can be resent.");
+
+            // Generate a fresh token + reset expiry
+            var tokenBytes = new byte[32];
+            RandomNumberGenerator.Fill(tokenBytes);
+            invite.Token     = Convert.ToBase64String(tokenBytes)
+                .Replace("+", "-").Replace("/", "_").Replace("=", "");
+            invite.ExpiresAt = DateTime.UtcNow.AddDays(InviteExpiryDays);
+
+            await _context.SaveChangesAsync();
+
+            var baseUrl = "https://worksphere.io";
+
+            _logger.LogInformation(
+                "Invite {InviteId} resent by {UserId}",
+                inviteId, _currentUser.UserId);
+
+            return ApiResponse<InviteResponseDto>.Ok(new InviteResponseDto
+            {
+                Id            = invite.Id,
+                InviteeEmail  = invite.InviteeEmail,
+                Role          = invite.Role,
+                Status        = invite.Status,
+                InviteLink    = $"{baseUrl}/invite/{invite.Token}",
+                ExpiresAt     = invite.ExpiresAt,
+                CreatedAt     = invite.CreatedAt,
+                InvitedByName = _currentUser.FullName ?? "Someone"
+            }, "Invite resent successfully. A new link has been generated.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error resending invite {InviteId}", inviteId);
+            return ApiResponse<InviteResponseDto>.Fail("An unexpected error occurred.");
+        }
+    }
 }

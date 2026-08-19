@@ -8,8 +8,9 @@ import { ProtectedRoute }  from '@/components/layout/ProtectedRoute'
 import { PermissionRoute } from '@/components/layout/PermissionRoute'
 
 // Auth pages (use AuthLayout internally)
-import LoginPage    from '@/pages/auth/LoginPage'
-import RegisterPage from '@/pages/auth/RegisterPage'
+import LoginPage        from '@/pages/auth/LoginPage'
+import RegisterPage     from '@/pages/auth/RegisterPage'
+import AcceptInvitePage from '@/pages/auth/AcceptInvitePage'
 
 // App pages (render inside AppLayout)
 import DashboardPage  from '@/pages/dashboard/DashboardPage'
@@ -52,8 +53,9 @@ export default function App() {
       <ForbiddenListener />
       <Routes>
         {/* ── Public routes (no shell) ────────────────────── */}
-        <Route path="/login"    element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login"           element={<LoginPage />} />
+        <Route path="/register"        element={<RegisterPage />} />
+        <Route path="/invite/:token"   element={<AcceptInvitePage />} />
 
         {/* ── Protected routes (inside AppLayout shell) ───── */}
         <Route

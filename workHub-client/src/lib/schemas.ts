@@ -121,6 +121,15 @@ export const inviteSchema = z.object({
 
 export type InviteFormData = z.infer<typeof inviteSchema>
 
+// ── Accept invite schema ───────────────────────────────────────────
+export const acceptInviteSchema = z.object({
+  firstName: nameField('First name'),
+  lastName:  nameField('Last name'),
+  password:  passwordField,
+})
+
+export type AcceptInviteFormData = z.infer<typeof acceptInviteSchema>
+
 // ── Change role schema ─────────────────────────────────────────────
 export const changeRoleSchema = z.object({
   role: z.enum(['Owner', 'Admin', 'Member'], 'Please select a role'),
