@@ -336,3 +336,6 @@ C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\WorkH
 C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\WorkHub.Application.pdb
 C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\WorkHub.Infrastructure.pdb
 C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\WorkHub.Domain.pdb
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\BouncyCastle.Cryptography.dll
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\MailKit.dll
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\MimeKit.dll

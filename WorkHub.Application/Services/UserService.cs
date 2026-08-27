@@ -11,15 +11,18 @@ public class UserService : IUserService
     private readonly AppDbContext        _context;
     private readonly ICurrentUserService _currentUser;
     private readonly IPasswordService    _passwordService;
+    private readonly IEmailService       _emailService;
 
     public UserService(
         AppDbContext        context,
         ICurrentUserService currentUser,
-        IPasswordService    passwordService)
+        IPasswordService    passwordService,
+        IEmailService       emailService)
     {
         _context         = context;
         _currentUser     = currentUser;
         _passwordService = passwordService;
+        _emailService    = emailService;
     }
 
     // ── Get full profile with stats ──────────────────────────────────
@@ -116,6 +119,15 @@ public class UserService : IUserService
         user.RefreshTokenExpiry = null;
 
         await _context.SaveChangesAsync();
+
+        // Fire-and-forget security notification
+        _ = Task.Run(async () =>
+        {
+            await _emailService.SendPasswordChangedEmailAsync(
+                toEmail:  user.Email,
+                fullName: user.FullName
+            );
+        });
 
         return ApiResponse<object>.Ok(null!, "Password changed successfully. Please sign in again.");
     }

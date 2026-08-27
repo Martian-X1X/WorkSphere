@@ -1,0 +1,30 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## User secrets
+**/secrets.json
+
+## Logs
+logs/
+
+## IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+## OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+## NuGet
+*.nupkg
+**/packages/
+!**/packages/build/

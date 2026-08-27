@@ -271,6 +271,24 @@ try
         }
     });
 
+    // ─── Email service — smart registration ───────────────────────────
+    var smtpHost = builder.Configuration["SmtpSettings:Host"];
+
+    if (!string.IsNullOrWhiteSpace(smtpHost))
+    {
+        builder.Services.Configure<SmtpSettings>(
+            builder.Configuration.GetSection("SmtpSettings"));
+        builder.Services.Configure<AppSettings>(
+            builder.Configuration.GetSection("AppSettings"));
+        builder.Services.AddScoped<IEmailService, MailKitEmailService>();
+        Log.Information("Email service: MailKit SMTP ({Host})", smtpHost);
+    }
+    else
+    {
+        builder.Services.AddScoped<IEmailService, NullEmailService>();
+        Log.Warning("Email service: NullEmailService (no SMTP configured)");
+    }
+
     // ─── Application Services ─────────────────────────────────────────
     builder.Services.AddScoped<ISlugService, SlugService>();
     builder.Services.AddScoped<IPasswordService, PasswordService>();

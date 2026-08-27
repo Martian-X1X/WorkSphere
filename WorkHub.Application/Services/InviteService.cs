@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using WorkHub.Application.Authorization;
 using WorkHub.Infrastructure.Data;
 using WorkHub.Application.DTOs.Auth;
@@ -18,6 +19,8 @@ public class InviteService : IInviteService
     private readonly IJwtService _jwtService;
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly OrgScopeGuard _orgScopeGuard;
+    private readonly IEmailService _emailService;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<InviteService> _logger;
 
     // Invite expires after 7 days
@@ -30,6 +33,8 @@ public class InviteService : IInviteService
         IJwtService jwtService,
         IRefreshTokenService refreshTokenService,
         OrgScopeGuard orgScopeGuard,
+        IEmailService emailService,
+        IConfiguration configuration,
         ILogger<InviteService> logger)
     {
         _context = context;
@@ -38,6 +43,8 @@ public class InviteService : IInviteService
         _jwtService = jwtService;
         _refreshTokenService = refreshTokenService;
         _orgScopeGuard = orgScopeGuard;
+        _emailService = emailService;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -110,7 +117,22 @@ public class InviteService : IInviteService
             var org = await _context.Organizations
                 .FirstOrDefaultAsync(o => o.Id == _currentUser.OrganizationId);
 
-            var inviteLink = $"https://worksphere.io/invite/{token}";
+            var baseUrl    = _configuration["AppSettings:BaseUrl"] ?? "http://localhost:5173";
+            var inviteLink = $"{baseUrl}/invite/{token}";
+
+            // Fire-and-forget — don't await, don't block response
+            _ = Task.Run(async () =>
+            {
+                await _emailService.SendInviteEmailAsync(
+                    toEmail:          invite.InviteeEmail,
+                    toName:           dto.Email.Split('@')[0],
+                    invitedByName:    _currentUser.FullName ?? "A teammate",
+                    organizationName: org?.Name ?? "the organization",
+                    role:             invite.Role,
+                    inviteLink:       inviteLink,
+                    expiresAt:        invite.ExpiresAt
+                );
+            });
 
             return ApiResponse<InviteResponseDto>.Ok(new InviteResponseDto
             {
@@ -301,6 +323,16 @@ public class InviteService : IInviteService
             // ─── Generate JWT ──────────────────────────────────
             var accessToken = _jwtService.GenerateAccessToken(user);
             var expiry = _jwtService.GetAccessTokenExpiry();
+
+            // Fire-and-forget welcome email
+            _ = Task.Run(async () =>
+            {
+                await _emailService.SendWelcomeEmailAsync(
+                    toEmail:          user.Email,
+                    fullName:         user.FullName,
+                    organizationName: invite.Organization.Name
+                );
+            });
 
             _logger.LogInformation(
                 "Invite accepted: {Email} joined org {OrgId} as {Role}",
