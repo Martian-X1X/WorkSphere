@@ -20,6 +20,7 @@ public class InviteService : IInviteService
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly OrgScopeGuard _orgScopeGuard;
     private readonly IEmailService _emailService;
+    private readonly INotificationService _notificationService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<InviteService> _logger;
 
@@ -34,6 +35,7 @@ public class InviteService : IInviteService
         IRefreshTokenService refreshTokenService,
         OrgScopeGuard orgScopeGuard,
         IEmailService emailService,
+        INotificationService notificationService,
         IConfiguration configuration,
         ILogger<InviteService> logger)
     {
@@ -44,6 +46,7 @@ public class InviteService : IInviteService
         _refreshTokenService = refreshTokenService;
         _orgScopeGuard = orgScopeGuard;
         _emailService = emailService;
+        _notificationService = notificationService;
         _configuration = configuration;
         _logger = logger;
     }
@@ -331,6 +334,28 @@ public class InviteService : IInviteService
                     toEmail:          user.Email,
                     fullName:         user.FullName,
                     organizationName: invite.Organization.Name
+                );
+            });
+
+            // ✅ Notify inviter that their invite was accepted
+            _ = Task.Run(async () =>
+            {
+                await _notificationService.NotifyInviteAcceptedAsync(
+                    inviterUserId:   invite.InvitedByUserId,
+                    organizationId:  invite.OrganizationId,
+                    newMemberName:   $"{dto.FirstName} {dto.LastName}",
+                    newMemberEmail:  invite.InviteeEmail
+                );
+            });
+
+            // ✅ Notify org admins that a member joined
+            _ = Task.Run(async () =>
+            {
+                await _notificationService.NotifyMemberJoinedAsync(
+                    organizationId:  invite.OrganizationId,
+                    newMemberName:   $"{dto.FirstName} {dto.LastName}",
+                    newMemberId:     user.Id,
+                    role:            invite.Role
                 );
             });
 

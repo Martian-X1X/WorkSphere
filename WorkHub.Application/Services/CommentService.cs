@@ -16,6 +16,7 @@ public class CommentService : ICommentService
     private readonly IPermissionService _permissionService;
     private readonly OrgScopeGuard _orgScopeGuard;
     private readonly IActivityService _activityService;
+    private readonly INotificationService _notificationService;
     private readonly ILogger<CommentService> _logger;
 
     public CommentService(
@@ -24,6 +25,7 @@ public class CommentService : ICommentService
         IPermissionService permissionService,
         OrgScopeGuard orgScopeGuard,
         IActivityService activityService,
+        INotificationService notificationService,
         ILogger<CommentService> logger)
     {
         _context = context;
@@ -31,6 +33,7 @@ public class CommentService : ICommentService
         _permissionService = permissionService;
         _orgScopeGuard = orgScopeGuard;
         _activityService = activityService;
+        _notificationService = notificationService;
         _logger = logger;
     }
 
@@ -137,6 +140,24 @@ public class CommentService : ICommentService
                 comment.Id,
                 entityName: taskTitle,
                 projectId: taskId); // store taskId in ProjectId for easy task-level querying
+
+            // ✅ Fire-and-forget notification to task assignee
+            _ = Task.Run(async () =>
+            {
+                // Notify the task's primary assignee (if not the commenter)
+                if (task.AssignedToUserId.HasValue &&
+                    task.AssignedToUserId != _currentUser.UserId)
+                {
+                    await _notificationService.NotifyCommentAddedAsync(
+                        taskOwnerId:     task.AssignedToUserId.Value,
+                        organizationId:  task.OrganizationId,
+                        taskTitle:       task.Title,
+                        taskId:          task.Id,
+                        commenterName:   _currentUser.FullName ?? "Someone",
+                        commenterUserId: _currentUser.UserId
+                    );
+                }
+            });
 
             // ── Reload with navigation props ───────────────────
             var created = await _context.Comments

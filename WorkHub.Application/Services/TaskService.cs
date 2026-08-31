@@ -16,6 +16,7 @@ public class TaskService : ITaskService
     private readonly IPermissionService _permissionService;
     private readonly OrgScopeGuard _orgScopeGuard;
     private readonly IActivityService _activityService;
+    private readonly INotificationService _notificationService;
     private readonly ILogger<TaskService> _logger;
 
     public TaskService(
@@ -24,6 +25,7 @@ public class TaskService : ITaskService
         IPermissionService permissionService,
         OrgScopeGuard orgScopeGuard,
         IActivityService activityService,
+        INotificationService notificationService,
         ILogger<TaskService> logger)
     {
         _context = context;
@@ -31,6 +33,7 @@ public class TaskService : ITaskService
         _permissionService = permissionService;
         _orgScopeGuard = orgScopeGuard;
         _activityService = activityService;
+        _notificationService = notificationService;
         _logger = logger;
     }
 
@@ -529,6 +532,23 @@ public class TaskService : ITaskService
             if (task.AssignedToUserId.HasValue)
                 await _context.Entry(task)
                     .Reference(t => t.AssignedTo).LoadAsync();
+
+            // ✅ Fire-and-forget notification
+            if (dto.UserId.HasValue && task.AssignedToUserId.HasValue)
+            {
+                _ = Task.Run(async () =>
+                {
+                    await _notificationService.NotifyTaskAssignedAsync(
+                        assigneeUserId:   task.AssignedToUserId.Value,
+                        organizationId:   task.OrganizationId,
+                        taskTitle:        task.Title,
+                        taskId:           task.Id,
+                        projectName:      task.Project?.Name ?? "Unknown Project",
+                        assignedByUserId: _currentUser.UserId,
+                        assignedByName:   _currentUser.FullName ?? "Someone"
+                    );
+                });
+            }
 
             var message = dto.UserId.HasValue
                 ? "Task assigned successfully."

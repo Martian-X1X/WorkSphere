@@ -35,6 +35,7 @@ public class DataSeeder
             await SeedOrganizationsAndUsersAsync();
             await SeedProjectsAsync();
             await SeedTasksAsync(); // ← ADD
+            await SeedNotificationsAsync(); // ← ADD
 
             _logger.LogInformation("✅ Database seeding completed successfully.");
         }
@@ -460,5 +461,169 @@ public class DataSeeder
 
         _logger.LogInformation(
             "Seeded: {Count} projects (Demo: 3, Acme: 1)", projects.Count);
+    }
+
+    private async Task SeedNotificationsAsync()
+    {
+        var now = DateTime.UtcNow;
+
+        var notifications = new List<Notification>
+        {
+            // ── For DemoAdmin (Demo Owner assigned a task) ────────
+            new()
+            {
+                Id = Guid.Parse("00000000-0000-0000-0005-000000000001"),
+                UserId = SeedReference.UserIds.DemoAdmin,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                Type = NotificationTypes.TaskAssigned,
+                Title = "New task assigned to you",
+                Message = "Demo Owner assigned you to \"Create UI mockups for homepage\"",
+                EntityType = NotificationEntityTypes.Task,
+                EntityId = SeedReference.TaskIds.DesignMockups,
+                ActionUrl = $"/tasks/{SeedReference.TaskIds.DesignMockups}",
+                CreatedByUserId = SeedReference.UserIds.DemoOwner,
+                CreatedByName = "Demo Owner",
+                IsRead = false,
+                CreatedAt = now.AddHours(-2),
+                Metadata = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    projectName = "Website Redesign",
+                    taskTitle = "Create UI mockups for homepage",
+                }),
+            },
+            new()
+            {
+                Id = Guid.Parse("00000000-0000-0000-0005-000000000002"),
+                UserId = SeedReference.UserIds.DemoAdmin,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                Type = NotificationTypes.ProjectCreated,
+                Title = "New project created",
+                Message = "Demo Owner created project \"Mobile App v2\"",
+                EntityType = NotificationEntityTypes.Project,
+                EntityId = SeedReference.ProjectIds.MobileAppV2,
+                ActionUrl = $"/projects/{SeedReference.ProjectIds.MobileAppV2}",
+                CreatedByUserId = SeedReference.UserIds.DemoOwner,
+                CreatedByName = "Demo Owner",
+                IsRead = false,
+                CreatedAt = now.AddHours(-26),
+                Metadata = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    projectName = "Mobile App v2",
+                }),
+            },
+
+            // ── For DemoMember1 (Alice) ────────────────────────────
+            new()
+            {
+                Id = Guid.Parse("00000000-0000-0000-0005-000000000003"),
+                UserId = SeedReference.UserIds.DemoMember1,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                Type = NotificationTypes.TaskAssigned,
+                Title = "New task assigned to you",
+                Message = "Demo Owner assigned you to \"Build authentication module\"",
+                EntityType = NotificationEntityTypes.Task,
+                EntityId = SeedReference.TaskIds.AuthModule,
+                ActionUrl = $"/tasks/{SeedReference.TaskIds.AuthModule}",
+                CreatedByUserId = SeedReference.UserIds.DemoOwner,
+                CreatedByName = "Demo Owner",
+                IsRead = false,
+                CreatedAt = now.AddHours(-3),
+                Metadata = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    projectName = "Mobile App v2",
+                    taskTitle = "Build authentication module",
+                }),
+            },
+            new()
+            {
+                Id = Guid.Parse("00000000-0000-0000-0005-000000000004"),
+                UserId = SeedReference.UserIds.DemoMember1,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                Type = NotificationTypes.CommentAdded,
+                Title = "New comment on your task",
+                Message = "Demo Admin commented on \"Create UI mockups for homepage\"",
+                EntityType = NotificationEntityTypes.Task,
+                EntityId = SeedReference.TaskIds.DesignMockups,
+                ActionUrl = $"/tasks/{SeedReference.TaskIds.DesignMockups}",
+                CreatedByUserId = SeedReference.UserIds.DemoAdmin,
+                CreatedByName = "Demo Admin",
+                IsRead = true,
+                ReadAt = now.AddHours(-1),
+                CreatedAt = now.AddHours(-5),
+                Metadata = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    taskTitle = "Create UI mockups for homepage",
+                }),
+            },
+            new()
+            {
+                Id = Guid.Parse("00000000-0000-0000-0005-000000000005"),
+                UserId = SeedReference.UserIds.DemoMember1,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                Type = NotificationTypes.TaskStatusChanged,
+                Title = "Your task is due soon",
+                Message = "Your task \"Run SEO audit on current site\" is due within 24 hours",
+                EntityType = NotificationEntityTypes.Task,
+                EntityId = SeedReference.TaskIds.SeoAudit,
+                ActionUrl = $"/tasks/{SeedReference.TaskIds.SeoAudit}",
+                CreatedByUserId = SeedReference.UserIds.DemoOwner,
+                CreatedByName = "Demo Owner",
+                IsRead = false,
+                CreatedAt = now.AddDays(-2),
+                Metadata = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    projectName = "Website Redesign",
+                    taskTitle = "Run SEO audit on current site",
+                }),
+            },
+
+            // ── For DemoMember2 (Bob) ──────────────────────────────
+            new()
+            {
+                Id = Guid.Parse("00000000-0000-0000-0005-000000000006"),
+                UserId = SeedReference.UserIds.DemoMember2,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                Type = NotificationTypes.InviteAccepted,
+                Title = "Your invite was accepted",
+                Message = "Carol White (acme.member@worksphere.io) accepted your invite",
+                EntityType = NotificationEntityTypes.Member,
+                ActionUrl = "/members",
+                CreatedByName = "Carol White",
+                IsRead = false,
+                CreatedAt = now.AddHours(-6),
+                Metadata = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    memberName = "Carol White",
+                    memberEmail = "acme.member@worksphere.io",
+                }),
+            },
+            new()
+            {
+                Id = Guid.Parse("00000000-0000-0000-0005-000000000007"),
+                UserId = SeedReference.UserIds.DemoMember2,
+                OrganizationId = SeedReference.OrgIds.Demo,
+                Type = NotificationTypes.ProjectCreated,
+                Title = "New project created",
+                Message = "Demo Owner created project \"Website Redesign\"",
+                EntityType = NotificationEntityTypes.Project,
+                EntityId = SeedReference.ProjectIds.WebsiteRedesign,
+                ActionUrl = $"/projects/{SeedReference.ProjectIds.WebsiteRedesign}",
+                CreatedByUserId = SeedReference.UserIds.DemoOwner,
+                CreatedByName = "Demo Owner",
+                IsRead = true,
+                ReadAt = now.AddDays(-3),
+                CreatedAt = now.AddDays(-3),
+                Metadata = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    projectName = "Website Redesign",
+                }),
+            },
+        };
+
+        _context.Notifications.AddRange(notifications);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "Seeded: {Count} notifications", notifications.Count);
     }
 }

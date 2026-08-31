@@ -17,6 +17,7 @@ public class ProjectService : IProjectService
     private readonly OrgScopeGuard _orgScopeGuard;
     private readonly ILogger<ProjectService> _logger;
     private readonly IActivityService _activityService;
+    private readonly INotificationService _notificationService;
 
     public ProjectService(
         AppDbContext context,
@@ -24,6 +25,7 @@ public class ProjectService : IProjectService
         IPermissionService permissionService,
         OrgScopeGuard orgScopeGuard,
         IActivityService activityService,
+        INotificationService notificationService,
         ILogger<ProjectService> logger)
     {
         _context = context;
@@ -31,6 +33,7 @@ public class ProjectService : IProjectService
         _permissionService = permissionService;
         _orgScopeGuard = orgScopeGuard;
         _activityService = activityService;
+        _notificationService = notificationService;
         _logger = logger;
     }
 
@@ -195,6 +198,18 @@ public class ProjectService : IProjectService
             ActivityEntityType.Project,
             project.Id,
             entityName: project.Name);
+
+            // ✅ Fire-and-forget notification to all other members
+            _ = Task.Run(async () =>
+            {
+                await _notificationService.NotifyProjectCreatedAsync(
+                    organizationId:  project.OrganizationId,
+                    projectName:     project.Name,
+                    projectId:       project.Id,
+                    createdByUserId: _currentUser.UserId,
+                    createdByName:   _currentUser.FullName ?? "Someone"
+                );
+            });
 
             // ── Reload with navigation props for response ──────
             var created = await _context.Projects

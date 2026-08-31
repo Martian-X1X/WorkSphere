@@ -18,6 +18,7 @@ public class AppDbContext : DbContext
       public DbSet<TaskAssignee> TaskAssignees { get; set; }
       public DbSet<Comment> Comments { get; set; }
       public DbSet<ActivityLog> ActivityLogs { get; set; }
+      public DbSet<Notification> Notifications { get; set; }
 
       // ✅ Auto-update timestamps + handle soft delete
       public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -293,6 +294,69 @@ public class AppDbContext : DbContext
                   // Note: No FK to User — we store userName as a snapshot.
                   // If user is deleted, activity logs remain intact.
                   // This is the correct pattern for audit trails.
+            });
+
+            // ── Notification ───────────────────────────────────────────────
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                  entity.ToTable("Notifications");
+
+                  entity.HasKey(n => n.Id);
+
+                  // ── Indexes ────────────────────────────────────────────
+                  // Primary query: "get my unread notifications"
+                  entity.HasIndex(n => new { n.UserId, n.IsRead })
+                        .HasDatabaseName("IX_Notifications_UserId_IsRead");
+
+                  // Feed query: "get my notifications newest first"
+                  entity.HasIndex(n => new { n.UserId, n.CreatedAt })
+                        .HasDatabaseName("IX_Notifications_UserId_CreatedAt")
+                        .IsDescending(false, true);  // CreatedAt DESC
+
+                  // Tenant isolation
+                  entity.HasIndex(n => n.OrganizationId)
+                        .HasDatabaseName("IX_Notifications_OrganizationId");
+
+                  // ── Column config ──────────────────────────────────────
+                  entity.Property(n => n.Type)
+                        .HasMaxLength(100)
+                        .IsRequired();
+
+                  entity.Property(n => n.Title)
+                        .HasMaxLength(200)
+                        .IsRequired();
+
+                  entity.Property(n => n.Message)
+                        .HasMaxLength(500)
+                        .IsRequired();
+
+                  entity.Property(n => n.EntityType)
+                        .HasMaxLength(50);
+
+                  entity.Property(n => n.ActionUrl)
+                        .HasMaxLength(500);
+
+                  entity.Property(n => n.CreatedByName)
+                        .HasMaxLength(200);
+
+                  entity.Property(n => n.Metadata)
+                        .HasColumnType("jsonb");
+
+                  // ── Relationships ──────────────────────────────────────
+                  entity.HasOne(n => n.User)
+                        .WithMany()
+                        .HasForeignKey(n => n.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);  // delete notifs when user deleted
+
+                  entity.HasOne(n => n.Organization)
+                        .WithMany()
+                        .HasForeignKey(n => n.OrganizationId)
+                        .OnDelete(DeleteBehavior.Cascade);  // delete notifs when org deleted
+
+                  entity.HasOne(n => n.CreatedBy)
+                        .WithMany()
+                        .HasForeignKey(n => n.CreatedByUserId)
+                        .OnDelete(DeleteBehavior.SetNull);  // keep notif if actor deleted
             });
 
       }
