@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
 using WorkHub.Infrastructure.Data;
 using WorkHub.Application.DTOs.Notifications;
 using WorkHub.Application.Interfaces;
@@ -11,15 +12,108 @@ public class NotificationService : INotificationService
     private readonly AppDbContext        _context;
     private readonly ICurrentUserService _currentUser;
     private readonly ILogger<NotificationService> _logger;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     public NotificationService(
-        AppDbContext        context,
-        ICurrentUserService currentUser,
-        ILogger<NotificationService> logger)
+        AppDbContext             context,
+        ICurrentUserService      currentUser,
+        ILogger<NotificationService> logger,
+        IServiceScopeFactory     scopeFactory)
     {
-        _context     = context;
-        _currentUser = currentUser;
-        _logger      = logger;
+        _context      = context;
+        _currentUser  = currentUser;
+        _logger       = logger;
+        _scopeFactory = scopeFactory;
+    }
+
+    // ── Fire-and-forget safe create ─────────────────────────────────
+    // Creates its own DI scope so it works after the HTTP request ends.
+    private void CreateInBackground(CreateNotificationDto dto)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var context     = scope.ServiceProvider
+                                       .GetRequiredService<AppDbContext>();
+
+                var notification = new Notification
+                {
+                    UserId          = dto.UserId,
+                    OrganizationId  = dto.OrganizationId,
+                    Type            = dto.Type,
+                    Title           = dto.Title,
+                    Message         = dto.Message,
+                    EntityType      = dto.EntityType,
+                    EntityId        = dto.EntityId,
+                    ActionUrl       = dto.ActionUrl,
+                    CreatedByUserId = dto.CreatedByUserId,
+                    CreatedByName   = dto.CreatedByName,
+                    Metadata        = dto.Metadata,
+                    IsRead          = false,
+                    CreatedAt       = DateTime.UtcNow,
+                };
+
+                context.Notifications.Add(notification);
+                await context.SaveChangesAsync();
+
+                _logger.LogDebug(
+                    "Background notification saved for user {UserId}: {Type}",
+                    dto.UserId, dto.Type);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Background notification failed for user {UserId}: {Type}",
+                    dto.UserId, dto.Type);
+            }
+        });
+    }
+
+    private void CreateManyInBackground(
+        IEnumerable<Guid>     userIds,
+        CreateNotificationDto template)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var context     = scope.ServiceProvider
+                                       .GetRequiredService<AppDbContext>();
+
+                var now           = DateTime.UtcNow;
+                var notifications = userIds.Select(userId => new Notification
+                {
+                    UserId          = userId,
+                    OrganizationId  = template.OrganizationId,
+                    Type            = template.Type,
+                    Title           = template.Title,
+                    Message         = template.Message,
+                    EntityType      = template.EntityType,
+                    EntityId        = template.EntityId,
+                    ActionUrl       = template.ActionUrl,
+                    CreatedByUserId = template.CreatedByUserId,
+                    CreatedByName   = template.CreatedByName,
+                    Metadata        = template.Metadata,
+                    IsRead          = false,
+                    CreatedAt       = now,
+                }).ToList();
+
+                context.Notifications.AddRange(notifications);
+                await context.SaveChangesAsync();
+
+                _logger.LogDebug(
+                    "Background bulk notifications saved for {Count} users: {Type}",
+                    notifications.Count, template.Type);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Background bulk notification failed: {Type}", template.Type);
+            }
+        });
     }
 
     // ── Create single notification ─────────────────────────────────
@@ -230,7 +324,7 @@ public class NotificationService : INotificationService
 
     // ── Domain helpers ─────────────────────────────────────────────
 
-    public async Task NotifyTaskAssignedAsync(
+    public Task NotifyTaskAssignedAsync(
         Guid   assigneeUserId,
         Guid   organizationId,
         string taskTitle,
@@ -240,9 +334,9 @@ public class NotificationService : INotificationService
         string assignedByName)
     {
         // Don't notify if you assigned yourself
-        if (assigneeUserId == assignedByUserId) return;
+        if (assigneeUserId == assignedByUserId) return Task.CompletedTask;
 
-        await CreateAsync(new CreateNotificationDto
+        CreateInBackground(new CreateNotificationDto
         {
             UserId          = assigneeUserId,
             OrganizationId  = organizationId,
@@ -260,9 +354,11 @@ public class NotificationService : INotificationService
                 taskTitle,
             }),
         });
+
+        return Task.CompletedTask;
     }
 
-    public async Task NotifyCommentAddedAsync(
+    public Task NotifyCommentAddedAsync(
         Guid   taskOwnerId,
         Guid   organizationId,
         string taskTitle,
@@ -271,9 +367,9 @@ public class NotificationService : INotificationService
         Guid   commenterUserId)
     {
         // Don't notify if you commented on your own task
-        if (taskOwnerId == commenterUserId) return;
+        if (taskOwnerId == commenterUserId) return Task.CompletedTask;
 
-        await CreateAsync(new CreateNotificationDto
+        CreateInBackground(new CreateNotificationDto
         {
             UserId          = taskOwnerId,
             OrganizationId  = organizationId,
@@ -287,6 +383,8 @@ public class NotificationService : INotificationService
             CreatedByName   = commenterName,
             Metadata        = JsonSerializer.Serialize(new { taskTitle }),
         });
+
+        return Task.CompletedTask;
     }
 
     public async Task NotifyMemberJoinedAsync(
@@ -296,43 +394,54 @@ public class NotificationService : INotificationService
         string role)
     {
         // Notify all Owner + Admin members
-        var adminUserIds = await _context.Users
-            .Where(u =>
-                u.OrganizationId == organizationId &&
-                u.IsActive       == true           &&
-                u.Id             != newMemberId    &&
-                (u.Role == UserRole.Owner || u.Role == UserRole.Admin))
-            .Select(u => u.Id)
-            .ToListAsync();
-
-        if (adminUserIds.Count == 0) return;
-
-        await CreateForUsersAsync(adminUserIds, new CreateNotificationDto
+        try
         {
-            OrganizationId  = organizationId,
-            Type            = NotificationTypes.MemberJoined,
-            Title           = "New team member joined",
-            Message         = $"{newMemberName} joined as {role}",
-            EntityType      = NotificationEntityTypes.Member,
-            EntityId        = newMemberId,
-            ActionUrl       = "/members",
-            CreatedByUserId = newMemberId,
-            CreatedByName   = newMemberName,
-            Metadata        = JsonSerializer.Serialize(new
+            using var scope  = _scopeFactory.CreateScope();
+            var context      = scope.ServiceProvider
+                                    .GetRequiredService<AppDbContext>();
+
+            var adminUserIds = await context.Users
+                .Where(u =>
+                    u.OrganizationId == organizationId &&
+                    u.IsActive       == true           &&
+                    u.Id             != newMemberId    &&
+                    (u.Role == UserRole.Owner || u.Role == UserRole.Admin))
+                .Select(u => u.Id)
+                .ToListAsync();
+
+            if (adminUserIds.Count == 0) return;
+
+            CreateManyInBackground(adminUserIds, new CreateNotificationDto
             {
-                role,
-                memberName = newMemberName,
-            }),
-        });
+                OrganizationId  = organizationId,
+                Type            = NotificationTypes.MemberJoined,
+                Title           = "New team member joined",
+                Message         = $"{newMemberName} joined as {role}",
+                EntityType      = NotificationEntityTypes.Member,
+                EntityId        = newMemberId,
+                ActionUrl       = "/members",
+                CreatedByUserId = newMemberId,
+                CreatedByName   = newMemberName,
+                Metadata        = JsonSerializer.Serialize(new
+                {
+                    role,
+                    memberName = newMemberName,
+                }),
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to notify member joined: {Name}", newMemberName);
+        }
     }
 
-    public async Task NotifyInviteAcceptedAsync(
+    public Task NotifyInviteAcceptedAsync(
         Guid   inviterUserId,
         Guid   organizationId,
         string newMemberName,
         string newMemberEmail)
     {
-        await CreateAsync(new CreateNotificationDto
+        CreateInBackground(new CreateNotificationDto
         {
             UserId          = inviterUserId,
             OrganizationId  = organizationId,
@@ -348,6 +457,8 @@ public class NotificationService : INotificationService
                 memberEmail = newMemberEmail,
             }),
         });
+
+        return Task.CompletedTask;
     }
 
     public async Task NotifyProjectCreatedAsync(
@@ -358,28 +469,40 @@ public class NotificationService : INotificationService
         string createdByName)
     {
         // Notify all members EXCEPT the creator
-        var memberIds = await _context.Users
-            .Where(u =>
-                u.OrganizationId == organizationId &&
-                u.IsActive       == true           &&
-                u.Id             != createdByUserId)
-            .Select(u => u.Id)
-            .ToListAsync();
-
-        if (memberIds.Count == 0) return;
-
-        await CreateForUsersAsync(memberIds, new CreateNotificationDto
+        try
         {
-            OrganizationId  = organizationId,
-            Type            = NotificationTypes.ProjectCreated,
-            Title           = "New project created",
-            Message         = $"{createdByName} created project \"{projectName}\"",
-            EntityType      = NotificationEntityTypes.Project,
-            EntityId        = projectId,
-            ActionUrl       = $"/projects/{projectId}",
-            CreatedByUserId = createdByUserId,
-            CreatedByName   = createdByName,
-            Metadata        = JsonSerializer.Serialize(new { projectName }),
-        });
+            using var scope = _scopeFactory.CreateScope();
+            var context     = scope.ServiceProvider
+                                   .GetRequiredService<AppDbContext>();
+
+            var memberIds   = await context.Users
+                .Where(u =>
+                    u.OrganizationId == organizationId &&
+                    u.IsActive       == true           &&
+                    u.Id             != createdByUserId)
+                .Select(u => u.Id)
+                .ToListAsync();
+
+            if (memberIds.Count == 0) return;
+
+            CreateManyInBackground(memberIds, new CreateNotificationDto
+            {
+                OrganizationId  = organizationId,
+                Type            = NotificationTypes.ProjectCreated,
+                Title           = "New project created",
+                Message         = $"{createdByName} created project \"{projectName}\"",
+                EntityType      = NotificationEntityTypes.Project,
+                EntityId        = projectId,
+                ActionUrl       = $"/projects/{projectId}",
+                CreatedByUserId = createdByUserId,
+                CreatedByName   = createdByName,
+                Metadata        = JsonSerializer.Serialize(new { projectName }),
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Failed to notify project created: {Name}", projectName);
+        }
     }
 }

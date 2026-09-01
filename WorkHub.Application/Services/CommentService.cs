@@ -142,22 +142,18 @@ public class CommentService : ICommentService
                 projectId: taskId); // store taskId in ProjectId for easy task-level querying
 
             // ✅ Fire-and-forget notification to task assignee
-            _ = Task.Run(async () =>
+            if (task.AssignedToUserId.HasValue &&
+                task.AssignedToUserId != _currentUser.UserId)
             {
-                // Notify the task's primary assignee (if not the commenter)
-                if (task.AssignedToUserId.HasValue &&
-                    task.AssignedToUserId != _currentUser.UserId)
-                {
-                    await _notificationService.NotifyCommentAddedAsync(
-                        taskOwnerId:     task.AssignedToUserId.Value,
-                        organizationId:  task.OrganizationId,
-                        taskTitle:       task.Title,
-                        taskId:          task.Id,
-                        commenterName:   _currentUser.FullName ?? "Someone",
-                        commenterUserId: _currentUser.UserId
-                    );
-                }
-            });
+                await _notificationService.NotifyCommentAddedAsync(
+                    taskOwnerId:     task.AssignedToUserId.Value,
+                    organizationId:  task.OrganizationId,
+                    taskTitle:       task.Title,
+                    taskId:          task.Id,
+                    commenterName:   _currentUser.FullName ?? "Someone",
+                    commenterUserId: _currentUser.UserId
+                );
+            }
 
             // ── Reload with navigation props ───────────────────
             var created = await _context.Comments

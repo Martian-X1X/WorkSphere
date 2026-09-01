@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "uD4RsYHRJCs=",
+  "dgSpecHash": "mBxpzuuQkJQ=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.API\\WorkHub.API.csproj",
+  "projectFilePath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\Workhub.API\\WorkHub.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Abdul\\.nuget\\packages\\bcrypt.net-next\\4.1.0\\bcrypt.net-next.4.1.0.nupkg.sha512",
     "C:\\Users\\Abdul\\.nuget\\packages\\bouncycastle.cryptography\\2.2.1\\bouncycastle.cryptography.2.2.1.nupkg.sha512",

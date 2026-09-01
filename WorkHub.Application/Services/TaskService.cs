@@ -515,6 +515,34 @@ public class TaskService : ITaskService
             task.AssignedToUserId = dto.UserId;
             await _context.SaveChangesAsync();
 
+            // ── TEMP DEBUG ─────────────────────────────────────────────────────
+            Console.WriteLine($"[DEBUG] AssignTaskAsync fired. Task={taskId}, AssignedTo={task.AssignedToUserId}");
+
+            try
+            {
+                var testNotif = new WorkHub.Domain.Entities.Notification
+                {
+                    Id             = Guid.NewGuid(),
+                    UserId         = task.AssignedToUserId ?? _currentUser.UserId,
+                    OrganizationId = task.OrganizationId,
+                    Type           = "TaskAssigned",
+                    Title          = "DEBUG TEST",
+                    Message        = $"Direct insert at {DateTime.UtcNow:O}",
+                    IsRead         = false,
+                    CreatedAt      = DateTime.UtcNow,
+                };
+
+                _context.Notifications.Add(testNotif);
+                var saved = await _context.SaveChangesAsync();
+                Console.WriteLine($"[DEBUG] Notification rows saved: {saved}, Id={testNotif.Id}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DEBUG ERROR] {ex.GetType().Name}: {ex.Message}");
+                Console.WriteLine($"[DEBUG INNER] {ex.InnerException?.Message}");
+            }
+            // ── END TEMP DEBUG ─────────────────────────────────────────────────
+
             var action = dto.UserId.HasValue
                 ? ActivityAction.TaskAssigned
                 : ActivityAction.TaskUnassigned;
@@ -536,18 +564,15 @@ public class TaskService : ITaskService
             // ✅ Fire-and-forget notification
             if (dto.UserId.HasValue && task.AssignedToUserId.HasValue)
             {
-                _ = Task.Run(async () =>
-                {
-                    await _notificationService.NotifyTaskAssignedAsync(
-                        assigneeUserId:   task.AssignedToUserId.Value,
-                        organizationId:   task.OrganizationId,
-                        taskTitle:        task.Title,
-                        taskId:           task.Id,
-                        projectName:      task.Project?.Name ?? "Unknown Project",
-                        assignedByUserId: _currentUser.UserId,
-                        assignedByName:   _currentUser.FullName ?? "Someone"
-                    );
-                });
+                await _notificationService.NotifyTaskAssignedAsync(
+                    assigneeUserId:   task.AssignedToUserId.Value,
+                    organizationId:   task.OrganizationId,
+                    taskTitle:        task.Title,
+                    taskId:           task.Id,
+                    projectName:      task.Project?.Name ?? "Unknown Project",
+                    assignedByUserId: _currentUser.UserId,
+                    assignedByName:   _currentUser.FullName ?? "Someone"
+                );
             }
 
             var message = dto.UserId.HasValue

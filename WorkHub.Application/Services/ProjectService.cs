@@ -200,16 +200,13 @@ public class ProjectService : IProjectService
             entityName: project.Name);
 
             // ✅ Fire-and-forget notification to all other members
-            _ = Task.Run(async () =>
-            {
-                await _notificationService.NotifyProjectCreatedAsync(
-                    organizationId:  project.OrganizationId,
-                    projectName:     project.Name,
-                    projectId:       project.Id,
-                    createdByUserId: _currentUser.UserId,
-                    createdByName:   _currentUser.FullName ?? "Someone"
-                );
-            });
+            await _notificationService.NotifyProjectCreatedAsync(
+                organizationId:  project.OrganizationId,
+                projectName:     project.Name,
+                projectId:       project.Id,
+                createdByUserId: _currentUser.UserId,
+                createdByName:   _currentUser.FullName ?? "Someone"
+            );
 
             // ── Reload with navigation props for response ──────
             var created = await _context.Projects

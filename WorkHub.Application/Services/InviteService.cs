@@ -338,26 +338,20 @@ public class InviteService : IInviteService
             });
 
             // ✅ Notify inviter that their invite was accepted
-            _ = Task.Run(async () =>
-            {
-                await _notificationService.NotifyInviteAcceptedAsync(
-                    inviterUserId:   invite.InvitedByUserId,
-                    organizationId:  invite.OrganizationId,
-                    newMemberName:   $"{dto.FirstName} {dto.LastName}",
-                    newMemberEmail:  invite.InviteeEmail
-                );
-            });
+            await _notificationService.NotifyInviteAcceptedAsync(
+                inviterUserId:   invite.InvitedByUserId,
+                organizationId:  invite.OrganizationId,
+                newMemberName:   $"{dto.FirstName} {dto.LastName}",
+                newMemberEmail:  invite.InviteeEmail
+            );
 
             // ✅ Notify org admins that a member joined
-            _ = Task.Run(async () =>
-            {
-                await _notificationService.NotifyMemberJoinedAsync(
-                    organizationId:  invite.OrganizationId,
-                    newMemberName:   $"{dto.FirstName} {dto.LastName}",
-                    newMemberId:     user.Id,
-                    role:            invite.Role
-                );
-            });
+            await _notificationService.NotifyMemberJoinedAsync(
+                organizationId:  invite.OrganizationId,
+                newMemberName:   $"{dto.FirstName} {dto.LastName}",
+                newMemberId:     user.Id,
+                role:            invite.Role
+            );
 
             _logger.LogInformation(
                 "Invite accepted: {Email} joined org {OrgId} as {Role}",
