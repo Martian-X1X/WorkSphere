@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using WorkHub.API.Authorization;
 using WorkHub.Application.Authorization;
 using WorkHub.Infrastructure.Data;
@@ -60,41 +61,50 @@ try
     builder.Services.AddHttpContextAccessor();
 
     // ─── Swagger with JWT support ─────────────────────────────────────
-    builder.Services.AddSwaggerGen(c =>
+    builder.Services.AddSwaggerGen(options =>
     {
-        c.SwaggerDoc("v1", new()
+        options.SwaggerDoc("v1", new OpenApiInfo
         {
-            Title = "WorkSphere API",
-            Version = "v1",
-            Description = "Multi-tenant project management platform API"
+            Title       = "WorkSphere API",
+            Version     = "v1",
+            Description = "Multi-tenant project management platform API",
         });
 
-        // Add JWT Bearer button to Swagger UI
-        c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        // JWT Bearer auth in Swagger
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
-            Name = "Authorization",
-            Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-            Scheme = "Bearer",
+            Name         = "Authorization",
+            Type         = SecuritySchemeType.ApiKey,
+            Scheme       = "Bearer",
             BearerFormat = "JWT",
-            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-            Description = "Enter your JWT token. Example: eyJhbGci..."
+            In           = ParameterLocation.Header,
+            Description  = "Enter: Bearer {your JWT token}",
         });
 
-        c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
         {
-        {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
             {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                new OpenApiSecurityScheme
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id   = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
         });
+
+        // Include XML comments if available
+        var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        if (File.Exists(xmlPath))
+            options.IncludeXmlComments(xmlPath);
     });
+
+    // ─── Response caching (used by per-user endpoints e.g. /count) ────
+    builder.Services.AddResponseCaching();
 
     // ─── Settings binding ─────────────────────────────────────────────
     builder.Services.Configure<JwtSettings>(
@@ -384,6 +394,7 @@ try
     app.UseAuthentication(); // ← BEFORE Authorization
     app.UseAuthorization();  // ← AFTER Authentication
     app.UseTenantValidation();
+    app.UseResponseCaching();
 
     app.MapHealthChecks("/health");
     app.MapControllers();

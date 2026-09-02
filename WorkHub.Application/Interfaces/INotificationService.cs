@@ -41,6 +41,9 @@ public interface INotificationService
     /// <summary>Delete a specific notification.</summary>
     Task DeleteAsync(Guid notificationId);
 
+    /// <summary>Delete ALL notifications for the current user.</summary>
+    Task DeleteAllAsync();
+
     // ── Helpers (used by other services) ──────────────────────────
     /// <summary>
     /// Notify a user that they were assigned to a task.

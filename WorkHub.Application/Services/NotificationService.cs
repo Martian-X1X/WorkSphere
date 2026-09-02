@@ -322,6 +322,19 @@ public class NotificationService : INotificationService
             .ExecuteDeleteAsync();
     }
 
+    // ── Delete all ────────────────────────────────────────────────────
+    public async Task DeleteAllAsync()
+    {
+        var userId = _currentUser.UserId;
+        var orgId  = _currentUser.OrganizationId;
+
+        await _context.Notifications
+            .Where(n =>
+                n.UserId         == userId &&
+                n.OrganizationId == orgId)
+            .ExecuteDeleteAsync();
+    }
+
     // ── Domain helpers ─────────────────────────────────────────────
 
     public Task NotifyTaskAssignedAsync(
