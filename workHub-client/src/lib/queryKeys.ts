@@ -73,4 +73,12 @@ export const queryKeys = {
     byTask: (taskId: string) =>
       ['activity', 'task', taskId] as const,
   },
+
+  // ── Notifications ───────────────────────────────────────────────
+  notifications: {
+    all:   () => ['notifications'] as const,
+    feed:  (unreadOnly?: boolean) =>
+      ['notifications', 'feed', { unreadOnly: unreadOnly ?? false }] as const,
+    count: () => ['notifications', 'count'] as const,
+  },
 } as const

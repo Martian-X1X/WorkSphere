@@ -337,7 +337,7 @@ public class NotificationService : INotificationService
 
     // ── Domain helpers ─────────────────────────────────────────────
 
-    public Task NotifyTaskAssignedAsync(
+    public async Task NotifyTaskAssignedAsync(
         Guid   assigneeUserId,
         Guid   organizationId,
         string taskTitle,
@@ -347,9 +347,9 @@ public class NotificationService : INotificationService
         string assignedByName)
     {
         // Don't notify if you assigned yourself
-        if (assigneeUserId == assignedByUserId) return Task.CompletedTask;
+        if (assigneeUserId == assignedByUserId) return;
 
-        CreateInBackground(new CreateNotificationDto
+        await CreateAsync(new CreateNotificationDto
         {
             UserId          = assigneeUserId,
             OrganizationId  = organizationId,
@@ -367,8 +367,6 @@ public class NotificationService : INotificationService
                 taskTitle,
             }),
         });
-
-        return Task.CompletedTask;
     }
 
     public Task NotifyCommentAddedAsync(

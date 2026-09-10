@@ -263,6 +263,21 @@ public class TaskService : ITaskService
                 .Include(t => t.SubTasks)
                 .FirstAsync(t => t.Id == task.Id);
 
+            // ── Notify assignee when task is created with an assignee ──
+            if (task.AssignedToUserId.HasValue &&
+                task.AssignedToUserId.Value != _currentUser.UserId)
+            {
+                await _notificationService.NotifyTaskAssignedAsync(
+                    assigneeUserId:   task.AssignedToUserId.Value,
+                    organizationId:   task.OrganizationId,
+                    taskTitle:        task.Title,
+                    taskId:           task.Id,
+                    projectName:      created.Project?.Name ?? "Unknown Project",
+                    assignedByUserId: _currentUser.UserId,
+                    assignedByName:   _currentUser.FullName ?? "Someone"
+                );
+            }
+
             _logger.LogInformation(
                 "Task {TaskId} '{Title}' created in project {ProjectId} by {UserId}",
                 task.Id, task.Title, projectId, _currentUser.UserId);
@@ -514,34 +529,6 @@ public class TaskService : ITaskService
             var previousAssignee = task.AssignedToUserId;
             task.AssignedToUserId = dto.UserId;
             await _context.SaveChangesAsync();
-
-            // ── TEMP DEBUG ─────────────────────────────────────────────────────
-            Console.WriteLine($"[DEBUG] AssignTaskAsync fired. Task={taskId}, AssignedTo={task.AssignedToUserId}");
-
-            try
-            {
-                var testNotif = new WorkHub.Domain.Entities.Notification
-                {
-                    Id             = Guid.NewGuid(),
-                    UserId         = task.AssignedToUserId ?? _currentUser.UserId,
-                    OrganizationId = task.OrganizationId,
-                    Type           = "TaskAssigned",
-                    Title          = "DEBUG TEST",
-                    Message        = $"Direct insert at {DateTime.UtcNow:O}",
-                    IsRead         = false,
-                    CreatedAt      = DateTime.UtcNow,
-                };
-
-                _context.Notifications.Add(testNotif);
-                var saved = await _context.SaveChangesAsync();
-                Console.WriteLine($"[DEBUG] Notification rows saved: {saved}, Id={testNotif.Id}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[DEBUG ERROR] {ex.GetType().Name}: {ex.Message}");
-                Console.WriteLine($"[DEBUG INNER] {ex.InnerException?.Message}");
-            }
-            // ── END TEMP DEBUG ─────────────────────────────────────────────────
 
             var action = dto.UserId.HasValue
                 ? ActivityAction.TaskAssigned

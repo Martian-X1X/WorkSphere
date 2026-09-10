@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/stores/authStore'
-import { LogOut, Bell } from 'lucide-react'
+import { LogOut } from 'lucide-react'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 
 export default function Topbar() {
   const user = useAuthStore((s) => s.user)
@@ -14,9 +15,7 @@ export default function Topbar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <button className="text-surface-400 hover:text-surface-200 transition-colors">
-          <Bell className="w-5 h-5" />
-        </button>
+        <NotificationBell />
 
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white text-sm font-medium">

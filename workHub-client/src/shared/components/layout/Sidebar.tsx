@@ -5,6 +5,7 @@ import {
   Users,
   Settings,
   LogOut,
+  Bell,
 } from 'lucide-react'
 import { ROUTES } from '@/router/routes'
 import { useAuthStore } from '@/stores/authStore'
@@ -14,6 +15,7 @@ const navItems = [
   { to: ROUTES.DASHBOARD, label: 'Dashboard', icon: LayoutDashboard },
   { to: ROUTES.PROJECTS, label: 'Projects', icon: FolderKanban },
   { to: ROUTES.TEAM, label: 'Team', icon: Users },
+  { to: ROUTES.NOTIFICATIONS, label: 'Notifications', icon: Bell },
   { to: ROUTES.SETTINGS, label: 'Settings', icon: Settings },
 ]
 

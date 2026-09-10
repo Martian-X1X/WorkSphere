@@ -1,6 +1,7 @@
-import { Menu, Bell } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { UserMenu } from './UserMenu'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { useLayout } from '@/hooks/useLayout'
 import { useApiHealth } from '@/hooks/useApiHealth'
 import { cn } from '@/utils'
@@ -89,17 +90,8 @@ export function Header() {
           )}
         </div>
 
-        {/* Notifications bell (placeholder for future) */}
-        <button
-          className="relative p-1.5 text-surface-500 hover:text-surface-300
-                     hover:bg-surface-800 rounded-lg transition-colors"
-          aria-label="Notifications"
-        >
-          <Bell className="w-4 h-4" />
-          {/* Notification dot */}
-          <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-primary-500
-                           rounded-full" />
-        </button>
+        {/* Notifications bell with live badge + dropdown */}
+        <NotificationBell />
 
         {/* User avatar + dropdown */}
         <UserMenu />

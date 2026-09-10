@@ -22,6 +22,7 @@ import SettingsPage   from '@/pages/settings/SettingsPage'
 import ProfilePage    from '@/pages/profile/ProfilePage'
 import ProjectDetailPage from '@/pages/projects/ProjectDetailPage'
 import TaskDetailPage from '@/pages/tasks/TaskDetailPage'
+import NotificationsPage from '@/pages/notifications/NotificationsPage'
 
 // Error pages
 import ForbiddenPage from '@/pages/errors/ForbiddenPage'
@@ -70,6 +71,7 @@ export default function App() {
           <Route path="/activity"  element={<ActivityPage />} />
           <Route path="/tasks"     element={<MyTasksPage />} />
           <Route path="/profile"   element={<ProfilePage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
 
           {/* ── Requires projects.view ───────────────────────── */}
           <Route path="/projects" element={

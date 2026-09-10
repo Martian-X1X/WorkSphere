@@ -6,6 +6,7 @@ export const ROUTES = {
   PROJECT_DETAIL: '/projects/:projectId',
   TASK_DETAIL: '/projects/:projectId/tasks/:taskId',
   TEAM: '/team',
+  NOTIFICATIONS: '/notifications',
   SETTINGS: '/settings',
   ACCEPT_INVITE: '/invites/:token',
 } as const
