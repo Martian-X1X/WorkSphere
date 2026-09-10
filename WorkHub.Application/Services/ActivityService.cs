@@ -74,6 +74,7 @@ public class ActivityService : IActivityService
         pageSize = Math.Clamp(pageSize, 1, 100);
 
         var logs = await _context.ActivityLogs
+            .AsNoTracking()
             .Where(l => l.OrganizationId == _currentUser.OrganizationId)
             .OrderByDescending(l => l.CreatedAt)
             .Skip((page - 1) * pageSize)
@@ -94,6 +95,7 @@ public class ActivityService : IActivityService
 
         // All activity where ProjectId matches OR the entity IS the project
         var logs = await _context.ActivityLogs
+            .AsNoTracking()
             .Where(l =>
                 l.OrganizationId == _currentUser.OrganizationId &&
                 (l.ProjectId == projectId ||
@@ -118,6 +120,7 @@ public class ActivityService : IActivityService
 
         // Task events + comment events on this task
         var logs = await _context.ActivityLogs
+            .AsNoTracking()
             .Where(l =>
                 l.OrganizationId == _currentUser.OrganizationId &&
                 (l.EntityId == taskId ||

@@ -63,6 +63,7 @@ public class CommentService : ICommentService
 
             // ── Query comments ─────────────────────────────────
             var baseQuery = _context.Comments
+                .AsNoTracking()
                 .Include(c => c.CreatedBy)
                 .Where(c => c.TaskId == taskId);
 

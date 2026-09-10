@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using WorkHub.Infrastructure.Data;
+using WorkHub.Infrastructure.Services;
 using WorkHub.Application.DTOs.Notifications;
 using WorkHub.Application.Interfaces;
 using WorkHub.Domain.Entities;
@@ -13,17 +14,22 @@ public class NotificationService : INotificationService
     private readonly ICurrentUserService _currentUser;
     private readonly ILogger<NotificationService> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ICacheService       _cache;
+
+    private static readonly TimeSpan CountCacheDuration = TimeSpan.FromSeconds(10);
 
     public NotificationService(
         AppDbContext             context,
         ICurrentUserService      currentUser,
         ILogger<NotificationService> logger,
-        IServiceScopeFactory     scopeFactory)
+        IServiceScopeFactory     scopeFactory,
+        ICacheService            cache)
     {
         _context      = context;
         _currentUser  = currentUser;
         _logger       = logger;
         _scopeFactory = scopeFactory;
+        _cache        = cache;
     }
 
     // ── Fire-and-forget safe create ─────────────────────────────────
@@ -57,6 +63,8 @@ public class NotificationService : INotificationService
 
                 context.Notifications.Add(notification);
                 await context.SaveChangesAsync();
+
+                InvalidateCountCache(dto.UserId);
 
                 _logger.LogDebug(
                     "Background notification saved for user {UserId}: {Type}",
@@ -104,6 +112,9 @@ public class NotificationService : INotificationService
                 context.Notifications.AddRange(notifications);
                 await context.SaveChangesAsync();
 
+                foreach (var userId in userIds)
+                    InvalidateCountCache(userId);
+
                 _logger.LogDebug(
                     "Background bulk notifications saved for {Count} users: {Type}",
                     notifications.Count, template.Type);
@@ -140,6 +151,8 @@ public class NotificationService : INotificationService
 
             _context.Notifications.Add(notification);
             await _context.SaveChangesAsync();
+
+            InvalidateCountCache(dto.UserId);
 
             _logger.LogDebug(
                 "Notification created for user {UserId}: {Type}",
@@ -182,6 +195,9 @@ public class NotificationService : INotificationService
             _context.Notifications.AddRange(notifications);
             await _context.SaveChangesAsync();
 
+            foreach (var userId in userIds)
+                InvalidateCountCache(userId);
+
             _logger.LogDebug(
                 "Bulk notifications created for {Count} users: {Type}",
                 notifications.Count, template.Type);
@@ -203,6 +219,7 @@ public class NotificationService : INotificationService
         var orgId  = _currentUser.OrganizationId;
 
         var query = _context.Notifications
+            .AsNoTracking()
             .Where(n =>
                 n.UserId         == userId &&
                 n.OrganizationId == orgId)
@@ -250,28 +267,45 @@ public class NotificationService : INotificationService
     }
 
     // ── Get count ──────────────────────────────────────────────────
+    // Polled every 30s by the bell badge → cached for 10s + single
+    // conditional-aggregation query (COUNT(*) + COUNT(CASE WHEN ...)).
     public async Task<NotificationCountDto> GetCountAsync()
     {
         var userId = _currentUser.UserId;
         var orgId  = _currentUser.OrganizationId;
 
-        var total  = await _context.Notifications
-            .CountAsync(n =>
-                n.UserId         == userId &&
-                n.OrganizationId == orgId);
+        var cacheKey = $"notif-count:{userId}";
 
-        var unread = await _context.Notifications
-            .CountAsync(n =>
-                n.UserId         == userId &&
-                n.OrganizationId == orgId  &&
-                !n.IsRead);
+        // Cache miss → hit the DB
+        var cached = _cache.Get<NotificationCountDto>(cacheKey);
+        if (cached != null) return cached;
 
-        return new NotificationCountDto
+        var result = await _context.Notifications
+            .AsNoTracking()
+            .Where(n =>
+                n.UserId         == userId &&
+                n.OrganizationId == orgId)
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                Total  = g.Count(),
+                Unread = g.Count(n => !n.IsRead),
+            })
+            .FirstOrDefaultAsync();
+
+        var dto = new NotificationCountDto
         {
-            UnreadCount = unread,
-            TotalCount  = total,
+            TotalCount  = result?.Total  ?? 0,
+            UnreadCount = result?.Unread ?? 0,
         };
+
+        _cache.Set(cacheKey, dto, CountCacheDuration);
+
+        return dto;
     }
+
+    private void InvalidateCountCache(Guid userId)
+        => _cache.Remove($"notif-count:{userId}");
 
     // ── Mark as read ───────────────────────────────────────────────
     public async Task MarkAsReadAsync(Guid notificationId)
@@ -289,6 +323,7 @@ public class NotificationService : INotificationService
             notification.IsRead = true;
             notification.ReadAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
+            InvalidateCountCache(userId);
         }
     }
 
@@ -308,6 +343,8 @@ public class NotificationService : INotificationService
                 .SetProperty(n => n.IsRead, true)
                 .SetProperty(n => n.ReadAt, now)
             );
+
+        InvalidateCountCache(userId);
     }
 
     // ── Delete ─────────────────────────────────────────────────────
@@ -320,6 +357,8 @@ public class NotificationService : INotificationService
                 n.Id     == notificationId &&
                 n.UserId == userId)
             .ExecuteDeleteAsync();
+
+        InvalidateCountCache(userId);
     }
 
     // ── Delete all ────────────────────────────────────────────────────
@@ -333,6 +372,8 @@ public class NotificationService : INotificationService
                 n.UserId         == userId &&
                 n.OrganizationId == orgId)
             .ExecuteDeleteAsync();
+
+        InvalidateCountCache(userId);
     }
 
     // ── Domain helpers ─────────────────────────────────────────────

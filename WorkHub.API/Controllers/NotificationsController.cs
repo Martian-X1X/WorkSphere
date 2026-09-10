@@ -49,6 +49,11 @@ public class NotificationsController : ControllerBase
         var feed = await _notificationService.GetFeedAsync(
             page, pageSize, unreadOnly);
 
+        Response.Headers.Append("X-Total-Count", feed.TotalCount.ToString());
+        Response.Headers.Append("X-Page-Number", page.ToString());
+        Response.Headers.Append("X-Page-Size", pageSize.ToString());
+        Response.Headers.Append("X-Has-More", feed.HasMore.ToString().ToLower());
+
         return Ok(ApiResponse<NotificationFeedDto>.Ok(
             feed,
             $"{feed.TotalCount} notification(s) found."
@@ -61,10 +66,11 @@ public class NotificationsController : ControllerBase
     /// Optimized for frequent polling (bell badge).
     /// </summary>
     [HttpGet("count")]
-    [ResponseCache(Duration = 10, VaryByHeader = "Authorization")]
     [ProducesResponseType(typeof(ApiResponse<NotificationCountDto>), 200)]
     public async Task<IActionResult> GetCount()
     {
+        // Count is cached server-side (10s) in NotificationService —
+        // no ResponseCache attribute needed (avoids per-token body caching).
         var count = await _notificationService.GetCountAsync();
 
         return Ok(ApiResponse<NotificationCountDto>.Ok(

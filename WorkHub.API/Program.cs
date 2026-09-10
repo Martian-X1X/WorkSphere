@@ -1,12 +1,15 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WorkHub.API.Authorization;
 using WorkHub.Application.Authorization;
 using WorkHub.Infrastructure.Data;
+using WorkHub.Infrastructure.Interceptors;
+using WorkHub.Infrastructure.Services;
 using WorkHub.Application.Interfaces;
 using WorkHub.API.Middleware;
 using WorkHub.Application.Services;
@@ -47,6 +50,40 @@ try
             // and use our own ApiResponse<T> format via the pipeline
             options.SuppressModelStateInvalidFilter = true;
         });
+
+    // ─── Response compression — Brotli primary, Gzip fallback ────────
+    // Reduces JSON payload sizes by 60-80% on the wire.
+    builder.Services.AddResponseCompression(options =>
+    {
+        options.EnableForHttps = true;   // safe for API — no CRIME attack risk
+        options.Providers.Add<BrotliCompressionProvider>();    // best ratio
+        options.Providers.Add<GzipCompressionProvider>();      // fallback
+        options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+        {
+            "application/json",
+            "application/javascript",
+            "text/html",
+            "text/css",
+            "text/plain",
+        });
+    });
+
+    builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+    {
+        options.Level = System.IO.Compression.CompressionLevel.Fastest;
+    });
+
+    builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+    {
+        options.Level = System.IO.Compression.CompressionLevel.SmallestSize;
+    });
+
+    // ─── Memory cache — for frequent reads (e.g. notification count) ──
+    builder.Services.AddMemoryCache(options =>
+    {
+        options.SizeLimit = 1024;   // max 1024 cache entries
+    });
+    builder.Services.AddSingleton<ICacheService, MemoryCacheService>();
 
     // ── FluentValidation ──────────────────────────────────────────
     builder.Services.AddFluentValidationAutoValidation();
@@ -263,16 +300,26 @@ try
     builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 
     // ─── Database ─────────────────────────────────────────────────────
-    builder.Services.AddDbContext<AppDbContext>(options =>
+    builder.Services.AddSingleton<SlowQueryInterceptor>();
+
+    builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
     {
         options.UseNpgsql(
             builder.Configuration.GetConnectionString("DefaultConnection"),
-            npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 3,
-                maxRetryDelay: TimeSpan.FromSeconds(5),
-                errorCodesToAdd: null
-            )
+            npgsqlOptions =>
+            {
+                npgsqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorCodesToAdd: null
+                );
+                npgsqlOptions.CommandTimeout(30);
+            }
         );
+
+        // Slow query interceptor — warns on any query > 500ms
+        options.AddInterceptors(
+            serviceProvider.GetRequiredService<SlowQueryInterceptor>());
 
         if (builder.Environment.IsDevelopment())
         {
@@ -379,6 +426,7 @@ try
     // ─── Middleware pipeline — ORDER IS CRITICAL ──────────────────────
     app.UseGlobalExceptionHandler(); // ← FIRST — catches everything
     app.UseRequestLogging();         // ← SECOND — logs all requests
+    app.UseResponseCompression();    // ← compress responses (before any response is written)
 
     if (app.Environment.IsDevelopment())
     {

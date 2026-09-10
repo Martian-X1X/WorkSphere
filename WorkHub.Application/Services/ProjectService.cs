@@ -50,10 +50,10 @@ public class ProjectService : IProjectService
             query.PageSize = Math.Clamp(query.PageSize, 1, 100);
 
             // ── Base query — always scoped to current org ──────
+            // AsNoTracking: pure read path. Projected to DTO via Select
+            // → single SQL statement with JOINs (no N+1, no tracking overhead).
             var baseQuery = _context.Projects
-                .Include(p => p.CreatedBy)
-                .Include(p => p.ProjectLead)
-                .Include(p => p.Tasks)
+                .AsNoTracking()
                 .Where(p => p.OrganizationId == _currentUser.OrganizationId);
 
             // ── Filter by status ───────────────────────────────
@@ -99,11 +99,40 @@ public class ProjectService : IProjectService
             var projects = await baseQuery
                 .Skip((query.Page - 1) * query.PageSize)
                 .Take(query.PageSize)
+                .Select(p => new ProjectDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Status = p.Status,
+                    OrganizationId = p.OrganizationId,
+                    CreatedByUserId = p.CreatedByUserId,
+                    CreatedByName = p.CreatedBy != null
+                        ? p.CreatedBy.FirstName + " " + p.CreatedBy.LastName
+                        : "Unknown",
+                    ProjectLeadUserId = p.ProjectLeadUserId,
+                    ProjectLeadName = p.ProjectLead != null
+                        ? p.ProjectLead.FirstName + " " + p.ProjectLead.LastName
+                        : null,
+                    StartDate = p.StartDate,
+                    DueDate = p.DueDate,
+                    CreatedAt = p.CreatedAt,
+                    UpdatedAt = p.UpdatedAt,
+                    TaskSummary = new TaskSummaryDto
+                    {
+                        Total      = p.Tasks.Count(t => !t.IsDeleted),
+                        Todo       = p.Tasks.Count(t => !t.IsDeleted && t.Status == WorkTaskStatus.Todo),
+                        InProgress = p.Tasks.Count(t => !t.IsDeleted && t.Status == WorkTaskStatus.InProgress),
+                        InReview   = p.Tasks.Count(t => !t.IsDeleted && t.Status == WorkTaskStatus.InReview),
+                        Done       = p.Tasks.Count(t => !t.IsDeleted && t.Status == WorkTaskStatus.Done),
+                        Cancelled  = p.Tasks.Count(t => !t.IsDeleted && t.Status == WorkTaskStatus.Cancelled),
+                    },
+                })
                 .ToListAsync();
 
             var result = new PagedResult<ProjectDto>
             {
-                Items = projects.Select(MapToDto).ToList(),
+                Items = projects,
                 TotalCount = totalCount,
                 Page = query.Page,
                 PageSize = query.PageSize
@@ -133,6 +162,7 @@ public class ProjectService : IProjectService
         try
         {
             var project = await _context.Projects
+                .AsNoTracking()
                 .Include(p => p.CreatedBy)
                 .Include(p => p.ProjectLead)
                 .Include(p => p.Tasks)

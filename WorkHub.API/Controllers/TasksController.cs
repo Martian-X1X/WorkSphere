@@ -38,6 +38,14 @@ public class TasksController : ControllerBase
         [FromQuery] TaskQueryDto query)
     {
         var result = await _taskService.GetTasksAsync(projectId, query);
+
+        if (result.Success && result.Data != null)
+            AppendPaginationHeaders(
+                result.Data.TotalCount,
+                result.Data.Page,
+                result.Data.PageSize,
+                result.Data.HasNextPage);
+
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
@@ -307,6 +315,28 @@ public class TasksController : ControllerBase
     public async Task<IActionResult> GetMyTasks([FromQuery] MyTasksQueryDto query)
     {
         var result = await _taskService.GetMyTasksAsync(query);
+
+        if (result.Success && result.Data != null)
+            AppendPaginationHeaders(
+                result.Data.TotalCount,
+                result.Data.Page,
+                result.Data.PageSize,
+                result.Data.HasNextPage);
+
         return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    // ── Pagination metadata in response headers ─────────────────────
+    // Lets the client read the total without an extra count request.
+    private void AppendPaginationHeaders(
+        int  totalCount,
+        int  page,
+        int  pageSize,
+        bool hasMore)
+    {
+        Response.Headers.Append("X-Total-Count", totalCount.ToString());
+        Response.Headers.Append("X-Page-Number", page.ToString());
+        Response.Headers.Append("X-Page-Size", pageSize.ToString());
+        Response.Headers.Append("X-Has-More", hasMore.ToString().ToLower());
     }
 }

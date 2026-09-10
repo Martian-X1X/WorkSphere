@@ -63,6 +63,7 @@ public class TaskService : ITaskService
 
             // ── Base query scoped to project ───────────────────
             var baseQuery = _context.Tasks
+                .AsNoTracking()
                 .Include(t => t.CreatedBy)
                 .Include(t => t.AssignedTo)
                 .Include(t => t.Project)
@@ -157,6 +158,7 @@ public class TaskService : ITaskService
         try
         {
             var task = await _context.Tasks
+                .AsNoTracking()
                 .Include(t => t.CreatedBy)
                 .Include(t => t.AssignedTo)
                 .Include(t => t.Project)
@@ -640,6 +642,7 @@ public class TaskService : ITaskService
         try
         {
             var task = await _context.Tasks
+                .AsNoTracking()
                 .Include(t => t.AssignedTo)
                 .Include(t => t.TaskAssignees)
                     .ThenInclude(ta => ta.User)
@@ -836,6 +839,7 @@ public class TaskService : ITaskService
             // ── Run both queries separately ────────────────────────
             // Query 1: tasks where I'm the PRIMARY assignee
             var primaryTasks = await _context.Tasks
+                .AsNoTracking()
                 .Include(t => t.Project)
                 .Where(t =>
                     t.OrganizationId == orgId &&
@@ -844,12 +848,14 @@ public class TaskService : ITaskService
 
             // Query 2: task IDs where I'm a COLLABORATOR
             var collaboratorTaskIds = await _context.TaskAssignees
+                .AsNoTracking()
                 .Where(ta => ta.UserId == userId)
                 .Select(ta => ta.TaskId)
                 .ToListAsync();
 
             // Load those tasks separately
             var collaboratorTasks = await _context.Tasks
+                .AsNoTracking()
                 .Include(t => t.Project)
                 .Where(t =>
                     t.OrganizationId == orgId &&

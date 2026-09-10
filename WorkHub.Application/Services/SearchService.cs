@@ -36,6 +36,7 @@ public class SearchService : ISearchService
         {
             // ── Search Projects ──────────────────────────────────────────
             var projects = await _context.Projects
+                .AsNoTracking()
                 .Where(p =>
                     p.OrganizationId == orgId &&
                     !p.IsDeleted      &&
@@ -58,6 +59,7 @@ public class SearchService : ISearchService
 
             // ── Search Tasks ─────────────────────────────────────────────
             var tasks = await _context.Tasks
+                .AsNoTracking()
                 .Where(t =>
                     t.OrganizationId == orgId &&
                     !t.IsDeleted      &&

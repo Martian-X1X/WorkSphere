@@ -39,6 +39,13 @@ public class CommentsController : ControllerBase
     {
         var result = await _commentService.GetCommentsAsync(taskId, query);
 
+        if (result.Success && result.Data != null)
+            AppendPaginationHeaders(
+                result.Data.TotalCount,
+                result.Data.Page,
+                result.Data.PageSize,
+                result.Data.HasNextPage);
+
         if (!result.Success)
         {
             if (result.Message.Contains("not found"))
@@ -145,5 +152,18 @@ public class CommentsController : ControllerBase
         }
 
         return Ok(result);
+    }
+
+    // ── Pagination metadata in response headers ─────────────────────
+    private void AppendPaginationHeaders(
+        int  totalCount,
+        int  page,
+        int  pageSize,
+        bool hasMore)
+    {
+        Response.Headers.Append("X-Total-Count", totalCount.ToString());
+        Response.Headers.Append("X-Page-Number", page.ToString());
+        Response.Headers.Append("X-Page-Size", pageSize.ToString());
+        Response.Headers.Append("X-Has-More", hasMore.ToString().ToLower());
     }
 }
