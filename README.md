@@ -3548,68 +3548,7 @@ The persistent shell that **every future page lives inside:**
 > Sidebar collapse state persisted · Mobile responsive · Role-based nav items · 10 tests passing
  
 ---
- 
-## 🔌 Full API Endpoint Registry (50 endpoints)
- 
-<details>
 
-<summary><strong>Phase 1 — Auth + Organizations (22 endpoints)</strong></summary>
-| Method | Endpoint | Auth |
-|---|---|---|
-| `POST` | `/api/auth/register` | Public |
-| `POST` | `/api/auth/login` | Public |
-| `POST` | `/api/auth/refresh` | Public |
-| `POST` | `/api/auth/revoke` | 🔒 Bearer |
-| `GET` | `/api/auth/context` | 🔒 Bearer |
-| `GET` | `/api/users/me` | 🔒 Bearer |
-| `GET` | `/api/users/me/permissions` | 🔒 Bearer |
-| `GET` | `/api/users/me/tasks` | 🔒 Bearer |
-| `GET` | `/api/organizations/me` | 🔒 Any |
-| `PUT` | `/api/organizations/me` | 🔒 Owner |
-| `GET` | `/api/organizations/me/members` | 🔒 Any |
-| `GET` | `/api/organizations/me/members/{id}` | 🔒 Any |
-| `PATCH` | `/api/organizations/me/members/{id}/role` | 🔒 Owner |
-| `PATCH` | `/api/organizations/me/members/{id}/deactivate` | 🔒 Owner/Admin |
-| `POST` | `/api/organizations/me/invites` | 🔒 Owner/Admin |
-| `GET` | `/api/organizations/me/invites` | 🔒 Owner/Admin |
-| `DELETE` | `/api/organizations/me/invites/{id}` | 🔒 Owner/Admin |
-| `GET` | `/api/invites/{token}` | Public |
-| `POST` | `/api/invites/{token}/accept` | Public |
-| `GET` | `/health` | Public |
- 
-</details>
-
-<details>
-
-<summary><strong>Phase 2 — Projects, Tasks, Comments, Activity (28 endpoints)</strong></summary>
-| Method | Endpoint | Auth |
-|---|---|---|
-| `GET` | `/api/projects` | 🔒 Any |
-| `GET` | `/api/projects/{id}` | 🔒 Any |
-| `POST` | `/api/projects` | 🔒 Owner/Admin |
-| `PUT` | `/api/projects/{id}` | 🔒 Owner/Admin |
-| `PATCH` | `/api/projects/{id}/status` | 🔒 Owner/Admin |
-| `DELETE` | `/api/projects/{id}` | 🔒 Owner/Admin |
-| `GET` | `/api/projects/{id}/activity` | 🔒 Any |
-| `GET` | `/api/projects/{id}/tasks` | 🔒 Any |
-| `POST` | `/api/projects/{id}/tasks` | 🔒 Owner/Admin |
-| `GET` | `/api/tasks/{id}` | 🔒 Any |
-| `PUT` | `/api/tasks/{id}` | 🔒 Any (own) |
-| `PATCH` | `/api/tasks/{id}/status` | 🔒 Any (own) |
-| `PATCH` | `/api/tasks/{id}/assign` | 🔒 Owner/Admin |
-| `DELETE` | `/api/tasks/{id}` | 🔒 Owner/Admin |
-| `GET` | `/api/tasks/{id}/assignees` | 🔒 Any |
-| `POST` | `/api/tasks/{id}/assignees` | 🔒 Owner/Admin |
-| `DELETE` | `/api/tasks/{id}/assignees/{userId}` | 🔒 Owner/Admin |
-| `GET` | `/api/tasks/{id}/activity` | 🔒 Any |
-| `GET` | `/api/tasks/{id}/comments` | 🔒 Any |
-| `POST` | `/api/tasks/{id}/comments` | 🔒 Any |
-| `PUT` | `/api/tasks/{id}/comments/{id}` | 🔒 Own only |
-| `DELETE` | `/api/tasks/{id}/comments/{id}` | 🔒 Own / Admin+ |
-| `GET` | `/api/activity` | 🔒 Any |
- 
-</details>
----
 
 ### ✅ Day 41 — Organization UI
 
@@ -4041,9 +3980,506 @@ Member (other)→ Edit: ❌  Delete: ❌
 
 ---
 
-### ✅ Bonus — My Tasks Page
+### ✅ Day 51 — Activity Log UI
 
-Dedicated page showing all tasks assigned to the logged-in user, grouped by project.
+Org-wide timeline feed showing everything happening across all projects.
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Activity                              [↺ Live]  [↻]        │
+│  ┌──────────┐ ┌──────────┐ ┌────────┐ ┌────────────────────┐ │
+│  │ 📋 24    │ │ 🔵 8     │ │ Demo   │ │ Last: 3:02 PM      │ │
+│  │ Today    │ │ This week│ │ Active │ └────────────────────┘ │
+│  └──────────┘ └──────────┘ └────────┘                       │
+│  [All] [Projects] [Tasks] [Members] [Comments]               │
+│  Project: [All ▾]    User: [All ▾]                           │
+│  ─────────────────────────────────────────────────────────── │
+│  ● Demo Admin changed status Todo → InProgress   2 min ago   │
+│  ● Alice Johnson added a comment                 15 min ago  │
+│  ● Demo Owner created project "Mobile App v2"    1h ago      │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Features:**
+```
+✅ Auto-refresh every 30s (Live/Paused toggle)
+✅ Category filter tabs: All / Projects / Tasks / Comments / Members
+✅ Project dropdown filter
+✅ User dropdown filter
+✅ Page size control: 25 / 50 / 100 events
+✅ Stats: events today, this week, most active member, last activity
+✅ Entity links — click to navigate to project/task
+✅ Status/priority change pills in activity items
+✅ Full-page skeleton during load
+✅ Clear filters from empty state
+```
+
+---
+
+### ✅ Day 52 — UI Polish + Responsive
+
+Mobile-first audit and fix across all pages.
+
+**Key fixes applied:**
+```
+✅ All inputs: font-size 16px (prevents iOS zoom on focus)
+✅ All buttons: min-height 44px (WCAG touch target)
+✅ Modals: full-screen on mobile, slide from bottom
+✅ Filter tabs: horizontal scroll with scrollbar-hide
+✅ Kanban board: horizontal scroll with scroll hint on mobile
+✅ Breadcrumbs: horizontal scroll on small screens
+✅ Dashboard: 2×2 quick nav grid on mobile
+✅ Stats rows: 2-column grid on mobile
+✅ Sidebar: 44px nav item touch targets
+✅ Toast: top-right on desktop
+✅ Focus rings: visible blue outline for keyboard users
+✅ Page transitions: smooth 200ms fade-in
+✅ Button: active:scale-[0.98] press feedback
+```
+
+---
+
+### ✅ Day 53 — Role-Based UI Access
+
+Replaced blunt `isAdminOrOwner()` checks with granular 25-permission system.
+
+**Architecture:**
+```
+src/lib/permissions.ts    → 25 permission constants (mirrors backend)
+src/hooks/usePermission.ts → usePermission(), usePermissions(), useRole()
+src/components/ui/Can.tsx  → declarative permission wrapper
+
+Usage:
+  <Can permission="projects.create">
+    <Button>New Project</Button>
+  </Can>
+
+  <Can role="Owner">
+    <Button>Archive Project</Button>
+  </Can>
+```
+
+**Permission matrix applied to:**
+```
+✅ ProjectsPage    → "projects.create"
+✅ ProjectDetail   → "tasks.create"
+✅ TaskRow         → "tasks.update" / "tasks.delete" separately
+✅ TaskActions     → "tasks.update.own" for member own tasks
+✅ MemberRow       → "members.changerole" / "members.remove"
+✅ CommentItem     → "comments.delete" / "comments.delete.own"
+✅ KanbanColumn    → "tasks.create"
+✅ Sidebar         → filtered by permission per nav item
+✅ UserMenu        → role badge + permission count
+✅ Dashboard       → grouped permission display (6 categories)
+```
+
+---
+
+### ✅ Day 54 — Permission Checks
+
+Route-level permission enforcement + proper 403/404 pages.
+
+**Components built:**
+| Component | Description |
+|---|---|
+| `ForbiddenPage` | Full 403 page with role hint + go back/dashboard buttons |
+| `NotFoundPage` | Full 404 page |
+| `PermissionRoute` | Route wrapper — shows 403 or redirects if no permission |
+| `PermissionGate` | Section-level permission + loading state wrapper |
+
+**Routes protected:**
+```
+/settings    → requires "organizations.update" (Owner only)
+/members     → requires "members.view"
+/projects/*  → requires "projects.view"
+/tasks/*     → requires "tasks.view"
+```
+
+**API-level:**
+```
+403 response → fires window custom event "worksphere:forbidden"
+ForbiddenListener in App.tsx → toast "You do not have permission"
+QueryError component → renders ForbiddenPage inline on 403
+```
+
+---
+
+### ✅ Day 55 — API Error Handling
+
+Complete Axios interceptor rewrite with error classification.
+
+**Error classifier** (`src/lib/errors.ts`):
+```
+401 → refresh token → retry → logout on fail
+403 → toast + custom event
+404 → silent (components show empty state)
+409 → conflict toast "⚡ Duplicate resource"
+422 → validation errors listed
+429 → rate limit toast "🚦 Too many requests"
+500 → server error + Correlation ID "🔥 Error ID: a1b2c3"
+503 → unavailable toast "🚧 Server unavailable"
+Network → persistent offline toast "📡 No internet"
+Timeout → "⏱ Request timed out"
+```
+
+**Additional features:**
+```
+✅ Toast deduplication (same error once per 3s)
+✅ Offline/online event detection
+✅ Refresh token queue (simultaneous 401s → single refresh)
+✅ API health indicator in Header (green/red dot)
+✅ Polling /health every 30s
+✅ Smart retry: GET queries retry 2x, mutations never retry
+✅ Exponential backoff: 1s, 2s, 4s
+```
+
+---
+
+### ✅ Day 56 — Form Validation
+
+All forms converted to React Hook Form + Zod with inline field errors.
+
+**Centralized schemas** (`src/lib/schemas.ts`):
+```typescript
+loginSchema          → email + password
+registerSchema       → name + email + password + org (cross-field: passwords match)
+projectSchema        → name + description + dates (cross-field: due > start)
+taskSchema           → title + priority + estimate (0-999h range)
+inviteSchema         → email + role enum
+commentSchema        → content (whitespace-only blocked)
+changePasswordSchema → current + new + confirm (new ≠ current)
+updateProfileSchema  → firstName + lastName
+orgUpdateSchema      → name + description + logoUrl
+acceptInviteSchema   → firstName + lastName + password (strength rules)
+```
+
+**UX improvements:**
+```
+✅ mode: 'onBlur' — validate on field blur, not on every keystroke
+✅ reValidateMode: 'onChange' — clear error as user types
+✅ noValidate on all forms — disables browser native validation
+✅ TextareaField — auto char count (turns yellow at 85%, red at 100%)
+✅ Date warning — yellow "⚡ This date is in the past" (non-blocking)
+✅ Server errors as field errors (login 401 → under password field)
+✅ setError() for API conflict errors (invite 409 → under email)
+```
+
+---
+
+### ✅ Day 57 — Global Search (Cmd+K)
+
+Full-stack search — backend LINQ + frontend modal.
+
+**Backend:**
+```
+GET /api/search?q={query}&maxResults=8
+  → Searches Projects (name, description)
+  → Searches Tasks (title, description)
+  → Case-insensitive: EF.Functions.ILike
+  → Min 2 chars (prevents full-table scans)
+  → Tenant-isolated: OrganizationId filter
+  → Returns: { projects: [...], tasks: [...], totalCount: N }
+```
+
+**Frontend:**
+```
+┌─────────────────────────────────────────────────────┐
+│  🔍  Search projects, tasks...            Esc       │
+│  ─────────────────────────────────────────────────  │
+│  📁 PROJECTS (1)                                    │
+│  ├── Website **Redesign**      Active · 4 tasks     │
+│                                                     │
+│  ✅ TASKS (2)                                       │
+│  ├── Create **UI** mockups     InProgress · High    │
+│  └── Design new app **UI** kit  InProgress · Urgent │
+│                                                     │
+│  Recent: "website"  "ui"  "mockup"                  │
+└─────────────────────────────────────────────────────┘
+```
+
+```
+✅ Cmd+K / Ctrl+K opens from anywhere
+✅ Header search button with keyboard hint
+✅ 300ms debounce (avoids API spam)
+✅ Keyword highlighting in results
+✅ Recent searches (localStorage, last 5)
+✅ Clear recent searches button
+✅ Loading skeleton (4 rows)
+✅ Empty state: "No results for 'xyz'"
+✅ Click → navigate + close
+✅ Esc closes
+✅ Backdrop click closes
+```
+
+---
+
+### ✅ Day 58 — User Profile Page
+
+Full profile management at `/profile`.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  [DM]  Demo Owner                              [Owner]      │
+│  Large  demo.owner@worksphere.io · WorkSphere Demo          │
+│  avatar Member since Jul 2026 · Last seen 2 hours ago       │
+├──────────────────────────────┬──────────────────────────────┤
+│  Account Info                │  Stats                       │
+│  ─────────────────           │  Tasks assigned: 4           │
+│  First name  [Demo    ]      │  Projects in org: 3          │
+│  Last name   [Owner   ]      │  Comments made: 2            │
+│  Email       [read-only]     │  Activity events: 15         │
+│  Org         [read-only]     ├──────────────────────────────┤
+│  Role        [read-only]     │  Recent Activity             │
+│              [Save Changes]  │  ● Changed status Todo→Done  │
+├──────────────────────────────│  ● Created project "..."     │
+│  Change Password             └──────────────────────────────┘
+│  Current    [••••••••]
+│  New        [••••••••] ████████░░ Good
+│  Confirm    [••••••••]
+│             [Update Password]
+```
+
+**Backend endpoints:**
+```
+GET   /api/users/me/profile → profile + stats (tasks, comments, projects)
+PUT   /api/users/me/profile → update firstName + lastName
+PATCH /api/users/me/password → change password (current required)
+                              → invalidates all sessions on success
+                              → sends security email notification
+```
+
+---
+
+### ✅ Day 59 — Invite Acceptance Flow
+
+The complete invite link experience for new users.
+
+**Flow:**
+```
+Admin sends invite → email sent + link returned
+New user clicks: http://localhost:5173/invite/{256-bit-token}
+
+States handled:
+  Valid   → registration form + org info + role badge
+  Expired → "Invite expired on Jul 28" + who to contact
+  Used    → "Already accepted" + Sign in button
+  Invalid → "Invalid link" + red X icon
+```
+
+**AcceptInvitePage features:**
+```
+✅ Org name + role displayed before registering
+✅ Password strength bar (5 segments)
+✅ Password requirements checklist (live updates)
+✅ Auto-login after successful accept
+✅ Redirect to /dashboard
+✅ "Already have an account? Sign in" link
+✅ Public route — no auth required
+```
+
+**InviteRow improvements:**
+```
+✅ Copy invite link button (hover to reveal)
+✅ Resend invite button (generates new token, resets 7-day expiry)
+✅ InviteMemberModal shows link + copy button after sending
+```
+
+---
+
+### ✅ Day 60 — Email Sending (MailKit)
+
+Production email via SMTP with fire-and-forget architecture.
+
+**Emails sent automatically:**
+| Trigger | Email |
+|---|---|
+| Invite created | "You've been invited to join {Org}" with Accept button |
+| Invite accepted | "Welcome to {Org}! 🎉" with dashboard link |
+| Password changed | "Your password was changed" security alert |
+
+**Architecture:**
+```
+API responds immediately (< 100ms)
+Email sends in background (fire-and-forget)
+Email failure → Serilog warning (never breaks API)
+
+NullEmailService → used when SMTP not configured (logs instead)
+Smart registration → real vs null based on config presence
+```
+
+**HTML templates** (`EmailTemplates.cs`):
+```
+✅ Dark theme matching app design
+✅ Responsive email layout
+✅ Styled CTA button
+✅ Role badge in invite email
+✅ HTML encoded (XSS safe)
+✅ Plain text fallback
+✅ Mailtrap.io compatible (dev sandbox)
+```
+
+---
+
+### ✅ Day 61 — Notification DB Model
+
+Foundation for the in-app notification system.
+
+**Notification entity:**
+```
+Id              → Guid
+UserId          → recipient
+OrganizationId  → tenant isolation
+Type            → "TaskAssigned" | "CommentAdded" | "ProjectCreated" | ...
+Title           → "New task assigned to you"
+Message         → "Demo Admin assigned you to Create UI mockups"
+EntityType      → "Task" | "Project" | "Member"
+EntityId        → navigation target ID
+ActionUrl       → "/tasks/{id}"
+IsRead          → false (default)
+ReadAt          → null until read
+CreatedByName   → actor snapshot
+Metadata        → JSON { "projectName": "Website Redesign" }
+CreatedAt       → UTC timestamp
+```
+
+**Notification types wired:**
+```
+TaskAssigned     → when task is assigned to you
+CommentAdded     → when someone comments on your task
+MemberJoined     → Owner/Admin when new member joins org
+InviteAccepted   → inviter when their invite is accepted
+ProjectCreated   → all members when new project created
+```
+
+**Indexes created:**
+```
+IX_Notifications_UserId_IsRead      → fast unread count
+IX_Notifications_UserId_CreatedAt   → fast feed query
+IX_Notifications_OrganizationId     → tenant isolation
+```
+
+---
+
+### ✅ Day 62 — Notification API
+
+6 REST endpoints for notification management.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/notifications` | Paginated feed (newest first, filterable) |
+| `GET` | `/api/notifications/count` | Unread count (fast — for bell badge) |
+| `PATCH` | `/api/notifications/{id}/read` | Mark single as read |
+| `PATCH` | `/api/notifications/read-all` | Mark ALL as read |
+| `DELETE` | `/api/notifications/{id}` | Delete single notification |
+| `DELETE` | `/api/notifications/all` | Clear all notifications |
+
+**Key design decisions:**
+```
+✅ /count is a separate endpoint — lightweight, polled every 30s
+✅ Ownership enforced — users only see/modify their own
+✅ Org isolation — OrganizationId always scoped in service
+✅ Paginated — page + pageSize + unreadOnly filters
+✅ hasMore field — enables infinite scroll in future
+✅ ResponseCaching on /count — 10s server-side cache
+```
+
+---
+
+### ✅ Days 63–64 — Notification UI + Mark as Read
+
+Complete in-app notification experience.
+
+```
+Header bell:
+  [🔔³]  → red badge with unread count
+   ↓ click
+┌────────────────────────────────────────┐
+│  Notifications        [✓ Mark all]    │
+│  ● 3 new                              │
+│  ──────────────────────────────────── │
+│  ● [✅] New task assigned    2m ago [✕]│
+│    Demo Admin assigned you to...       │
+│  ● [💬] New comment on task 15m ago[✕]│
+│    Alice commented on "Create..."     │
+│    [📁] New project created  1h ago[✕]│
+│    Demo Owner created "Mobile..."     │
+│  ──────────────────────────────────── │
+│       View all notifications →        │
+└────────────────────────────────────────┘
+```
+
+**Notification type icons:**
+```
+TaskAssigned/Completed → CheckSquare (blue/green)
+CommentAdded/Mention   → MessageSquare (purple)
+ProjectCreated         → FolderKanban (indigo)
+MemberJoined           → UserPlus (green)
+InviteAccepted         → Mail (green)
+TaskDueSoon/Overdue    → AlertCircle (yellow/red)
+```
+
+**Interactions:**
+```
+✅ Bell polls /count every 30s (auto-refresh)
+✅ Dropdown only loads feed when OPEN (efficient)
+✅ Click notification → navigate + mark as read
+✅ Hover → delete button (✕) appears
+✅ Mark all read → unread count → 0
+✅ Escape closes dropdown
+✅ Outside click closes dropdown
+✅ /notifications full page — All/Unread tabs
+✅ Empty state: "All caught up! 🎉"
+```
+
+---
+
+### ✅ Day 65 — Backend Optimization
+
+Performance audit, indexes, caching, and compression.
+
+**Database indexes added:**
+
+| Table | Index | Purpose |
+|---|---|---|
+| Projects | `(OrgId, IsDeleted, CreatedAt)` | Project list query |
+| Projects | `(OrgId, Status, IsDeleted)` | Status filter |
+| Tasks | `(ProjectId, IsDeleted, OrderIndex)` | Task list |
+| Tasks | `(ProjectId, Status, IsDeleted)` | Status filter |
+| Tasks | `(AssignedToUserId, IsDeleted)` | My Tasks |
+| Comments | `(TaskId, IsDeleted, CreatedAt)` | Comment feed |
+| ActivityLogs | `(OrgId, CreatedAt)` | Activity feed |
+| ActivityLogs | `(UserId, CreatedAt)` | User activity |
+| OrganizationInvites | `(Token)` UNIQUE | Invite lookup |
+| TaskAssignees | `(UserId)` | Collaborator query |
+
+**EF Core optimizations:**
+```
+✅ AsNoTracking() on ALL read queries
+✅ Explicit .Select() projections (no SELECT *)
+✅ N+1 eliminated — JOINs in single SQL query
+✅ SlowQueryInterceptor — logs queries > 500ms
+✅ EnableRetryOnFailure(3) — auto-retry transient failures
+✅ CommandTimeout(30) — 30s query timeout
+```
+
+**Infrastructure:**
+```
+✅ Response compression: Brotli + Gzip (60-80% bandwidth saving)
+✅ IMemoryCache registered
+✅ Notification count cached (10s TTL, invalidated on change)
+✅ Connection pooling: min=2, max=20 connections
+✅ VACUUM ANALYZE run on all tables
+✅ DiagnosticsController: /db-ping, /table-stats, /indexes
+✅ Pagination headers: X-Total-Count, X-Has-More
+```
+
+**Performance results:**
+```
+/api/notifications/count → < 5ms  (cached: < 1ms)
+/api/projects            → < 20ms (was ~45ms)
+/api/activity            → < 30ms (was ~80ms)
+/api/search?q=...        → < 50ms (was ~120ms)
+```
 
 ```
 My Tasks
@@ -4085,13 +4521,14 @@ Mobile App v2                                             1 task
 
 | Phase | Days | Milestone | Status |
 |---|---|---|---|
-| **1** | 1–17 | Backend foundation: auth, JWT, multi-tenancy | ✅ Complete |
+| **1** | 1–17  | Backend foundation: auth, JWT, multi-tenancy | ✅ Complete |
 | **2** | 18–30 | Projects, tasks, comments, activity log | ✅ Complete |
-| **3** | 31–50 | React frontend: dashboard, kanban, drag & drop | ✅ Complete |
-| **4** | 51–65 | Notifications, search, real-time features | 🟡 In Progress |
-| **5** | 66–80 | SignalR chat, presence, file uploads | 🔲 Upcoming |
+| **3** | 31–50 | React frontend: dashboard, kanban, drag & drop, comments | ✅ Complete |
+| **4** | 51–65 | Production-like: search, notifications, emails, optimization | ✅ Complete |
+| **5** | 66–80 | Real-time: SignalR, chat, file uploads, analytics | 🟡 In Progress |
 | **6** | 81–90 | Docker, CI/CD, cloud deployment | 🔲 Upcoming |
-| **7** | 91–100 | Production hardening, security audit, launch | 🔲 Upcoming |
+| **7** | 91–100 | Production hardening, security audit, portfolio launch | 🔲 Upcoming |
+
 ---
 
 ## 🔑 Key Milestones
@@ -4101,10 +4538,95 @@ Mobile App v2                                             1 task
 | 17 | Complete auth system — register, login, JWT, roles, multi-tenancy | ✅ Done |
 | 30 | Full project & task API with filtering, pagination, activity logs | ✅ Done |
 | 50 | Complete React frontend — dashboard, kanban, drag & drop, comments | ✅ Done |
-| 65 | Production-like platform with notifications, invites, permissions | 🔲 Upcoming |
+| 65 | Production-like platform — search, notifications, emails, optimization | ✅ Done |
 | 80 | Real-time chat, SignalR notifications, file uploads, analytics | 🔲 Upcoming |
 | 90 | Dockerized, deployed to cloud, CI/CD pipeline live | 🔲 Upcoming |
-| 100 | Production-ready SaaS — fully deployed, secured, and documented | 🔲 Upcoming |
+| 100 | Production-ready SaaS — fully deployed, secured, documented | 🔲 Upcoming |
+
+---
+
+## 🔌 Full API Endpoint Registry (50 endpoints)
+ 
+<details>
+
+<summary><strong>Phase 1 — Auth + Organizations (22 endpoints)</strong></summary>
+| Method | Endpoint | Auth |
+|---|---|---|
+| `POST` | `/api/auth/register` | Public |
+| `POST` | `/api/auth/login` | Public |
+| `POST` | `/api/auth/refresh` | Public |
+| `POST` | `/api/auth/revoke` | 🔒 Bearer |
+| `GET` | `/api/auth/context` | 🔒 Bearer |
+| `GET` | `/api/users/me` | 🔒 Bearer |
+| `GET` | `/api/users/me/permissions` | 🔒 Bearer |
+| `GET` | `/api/users/me/tasks` | 🔒 Bearer |
+| `GET` | `/api/organizations/me` | 🔒 Any |
+| `PUT` | `/api/organizations/me` | 🔒 Owner |
+| `GET` | `/api/organizations/me/members` | 🔒 Any |
+| `GET` | `/api/organizations/me/members/{id}` | 🔒 Any |
+| `PATCH` | `/api/organizations/me/members/{id}/role` | 🔒 Owner |
+| `PATCH` | `/api/organizations/me/members/{id}/deactivate` | 🔒 Owner/Admin |
+| `POST` | `/api/organizations/me/invites` | 🔒 Owner/Admin |
+| `GET` | `/api/organizations/me/invites` | 🔒 Owner/Admin |
+| `DELETE` | `/api/organizations/me/invites/{id}` | 🔒 Owner/Admin |
+| `GET` | `/api/invites/{token}` | Public |
+| `POST` | `/api/invites/{token}/accept` | Public |
+| `GET` | `/health` | Public |
+ 
+</details>
+
+<details>
+
+<summary><strong>Phase 2 — Projects, Tasks, Comments, Activity (28 endpoints)</strong></summary>
+| Method | Endpoint | Auth |
+|---|---|---|
+| `GET` | `/api/projects` | 🔒 Any |
+| `GET` | `/api/projects/{id}` | 🔒 Any |
+| `POST` | `/api/projects` | 🔒 Owner/Admin |
+| `PUT` | `/api/projects/{id}` | 🔒 Owner/Admin |
+| `PATCH` | `/api/projects/{id}/status` | 🔒 Owner/Admin |
+| `DELETE` | `/api/projects/{id}` | 🔒 Owner/Admin |
+| `GET` | `/api/projects/{id}/activity` | 🔒 Any |
+| `GET` | `/api/projects/{id}/tasks` | 🔒 Any |
+| `POST` | `/api/projects/{id}/tasks` | 🔒 Owner/Admin |
+| `GET` | `/api/tasks/{id}` | 🔒 Any |
+| `PUT` | `/api/tasks/{id}` | 🔒 Any (own) |
+| `PATCH` | `/api/tasks/{id}/status` | 🔒 Any (own) |
+| `PATCH` | `/api/tasks/{id}/assign` | 🔒 Owner/Admin |
+| `DELETE` | `/api/tasks/{id}` | 🔒 Owner/Admin |
+| `GET` | `/api/tasks/{id}/assignees` | 🔒 Any |
+| `POST` | `/api/tasks/{id}/assignees` | 🔒 Owner/Admin |
+| `DELETE` | `/api/tasks/{id}/assignees/{userId}` | 🔒 Owner/Admin |
+| `GET` | `/api/tasks/{id}/activity` | 🔒 Any |
+| `GET` | `/api/tasks/{id}/comments` | 🔒 Any |
+| `POST` | `/api/tasks/{id}/comments` | 🔒 Any |
+| `PUT` | `/api/tasks/{id}/comments/{id}` | 🔒 Own only |
+| `DELETE` | `/api/tasks/{id}/comments/{id}` | 🔒 Own / Admin+ |
+| `GET` | `/api/activity` | 🔒 Any |
+ 
+</details>
+
+<details>
+<summary><strong>Phase 4 — Search, Notifications, Profile (15 endpoints)</strong></summary>
+
+| Method | Endpoint | Auth |
+|---|---|---|
+| `GET` | `/api/search` | 🔒 Bearer |
+| `GET` | `/api/users/me/profile` | 🔒 Bearer |
+| `PUT` | `/api/users/me/profile` | 🔒 Bearer |
+| `PATCH` | `/api/users/me/password` | 🔒 Bearer |
+| `GET` | `/api/notifications` | 🔒 Bearer |
+| `GET` | `/api/notifications/count` | 🔒 Bearer |
+| `PATCH` | `/api/notifications/{id}/read` | 🔒 Bearer |
+| `PATCH` | `/api/notifications/read-all` | 🔒 Bearer |
+| `DELETE` | `/api/notifications/{id}` | 🔒 Bearer |
+| `DELETE` | `/api/notifications/all` | 🔒 Bearer |
+| `POST` | `/api/organizations/me/invites/{id}/resend` | 🔒 Owner/Admin |
+| `GET` | `/api/diagnostics/db-ping` | Public |
+| `GET` | `/api/diagnostics/table-stats` | 🔒 Dev only |
+| `GET` | `/api/diagnostics/indexes` | 🔒 Dev only |
+
+</details>
 ---
 
 ## 📄 License
