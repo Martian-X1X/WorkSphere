@@ -68,15 +68,15 @@ const totalCount = projectData?.totalCount ?? 0
 
   // ── Status counts for tabs ────────────────────────────────────────
 const { data: allProjectData } = useProjects({})
-const allProjects = allProjectData?.items ?? []
 
   const statusCounts = useMemo(() => {
+    const allProjects = allProjectData?.items ?? []
     const counts: Record<string, number> = { '': allProjects.length }
     allProjects.forEach((p) => {
       counts[p.status] = (counts[p.status] ?? 0) + 1
     })
     return counts
-  }, [allProjects])
+  }, [allProjectData])
 
   if (isLoading) return <ProjectsPageSkeleton />
   if (error)     return <QueryError error={error} onRetry={refetch} title="Failed to load projects" />

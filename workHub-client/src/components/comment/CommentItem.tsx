@@ -30,10 +30,11 @@ export function CommentItem({
 }: CommentItemProps) {
   const [menuOpen, setMenuOpen] = useState(false)
 
+  const canComment      = usePermission('comments.create')
   const canDeleteComment = usePermission('comments.delete')
-  const canDeleteOwn    = usePermission('comments.delete.own')
-  const canEdit         = comment.isOwnComment && usePermission('comments.create')
-  const canDelete       = canDeleteComment || (comment.isOwnComment && canDeleteOwn)
+  const canDeleteOwn     = usePermission('comments.delete.own')
+  const canEdit          = comment.isOwnComment && canComment
+  const canDelete        = canDeleteComment || (comment.isOwnComment && canDeleteOwn)
 
   const handleEditSubmit = async (content: string) => {
     await onEdit(comment.id, content)

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import toast from 'react-hot-toast'
 import { Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react'
@@ -10,6 +10,29 @@ import {
   type ChangePasswordFormData,
 } from '@/lib/schemas'
 import { cn, getApiError } from '@/utils'
+
+// Show/hide password toggle button
+interface ToggleButtonProps {
+  show:     boolean
+  onToggle: () => void
+}
+
+function ToggleButton({ show, onToggle }: ToggleButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="absolute right-3 top-1/2 -translate-y-1/2
+                 text-surface-500 hover:text-surface-300 transition-colors"
+      tabIndex={-1}
+      aria-label={show ? 'Hide password' : 'Show password'}
+    >
+      {show
+        ? <EyeOff className="w-4 h-4" />
+        : <Eye    className="w-4 h-4" />}
+    </button>
+  )
+}
 
 export function ChangePasswordForm() {
   const { mutate: changePassword, isPending } = useChangePassword()
@@ -22,14 +45,14 @@ export function ChangePasswordForm() {
     handleSubmit,
     reset,
     setError,
-    watch,
+    control,
     formState: { errors, isDirty },
   } = useForm<ChangePasswordFormData>({
     resolver: zodResolver(changePasswordSchema),
     mode:     'onBlur',
   })
 
-  const newPassword = watch('newPassword') ?? ''
+  const newPassword = useWatch({ control, name: 'newPassword', defaultValue: '' }) ?? ''
 
   // Password strength
   const strength = [
@@ -69,28 +92,6 @@ export function ChangePasswordForm() {
       },
     })
   }
-
-  // Show/hide toggle button
-  const ToggleButton = ({
-    show,
-    onToggle,
-  }: {
-    show:     boolean
-    onToggle: () => void
-  }) => (
-    <button
-      type="button"
-      onClick={onToggle}
-      className="absolute right-3 top-1/2 -translate-y-1/2
-                 text-surface-500 hover:text-surface-300 transition-colors"
-      tabIndex={-1}
-      aria-label={show ? 'Hide password' : 'Show password'}
-    >
-      {show
-        ? <EyeOff className="w-4 h-4" />
-        : <Eye    className="w-4 h-4" />}
-    </button>
-  )
 
   return (
     <div className="card space-y-5">

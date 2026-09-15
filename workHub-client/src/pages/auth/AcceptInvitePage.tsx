@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   CheckCircle2, XCircle, Clock,
@@ -61,14 +61,14 @@ export default function AcceptInvitePage() {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors },
   } = useForm<AcceptInviteFormData>({
     resolver: zodResolver(acceptInviteSchema),
     mode: 'onBlur',
   })
 
-  const password = watch('password') ?? ''
+  const password = useWatch({ control, name: 'password', defaultValue: '' }) ?? ''
   const strengthItems = [
     { label: 'At least 8 characters', met: password.length >= 8 },
     { label: 'Uppercase letter', met: /[A-Z]/.test(password) },

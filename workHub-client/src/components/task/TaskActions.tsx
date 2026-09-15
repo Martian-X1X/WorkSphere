@@ -23,9 +23,10 @@ interface TaskActionsProps {
 
 export function TaskActions({ task, onEdit }: TaskActionsProps) {
   const { user } = useAuthStore()
-  const canEdit   = usePermission('tasks.update') ||
-                    (usePermission('tasks.update.own') && task.assignedToUserId === user?.id)
-  const canDelete = usePermission('tasks.delete')
+  const canUpdate  = usePermission('tasks.update')
+  const canUpdateOwn = usePermission('tasks.update.own')
+  const canEdit    = canUpdate || (canUpdateOwn && task.assignedToUserId === user?.id)
+  const canDelete  = usePermission('tasks.delete')
   const queryClient = useQueryClient()
   const navigate    = useNavigate()
   const [statusMenuOpen, setStatusMenuOpen] = useState(false)

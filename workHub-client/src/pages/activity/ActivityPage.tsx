@@ -3,10 +3,9 @@ import { RefreshCw, Activity, CheckCircle2 } from 'lucide-react'
 import { EmptyState }         from '@/components/ui/EmptyState'
 import { QueryError }         from '@/components/ui/QueryError'
 import { ActivityItem }       from '@/components/activity/ActivityItem'
-import { ActivityFilterBar,
-         ACTION_CATEGORY_MAP,
-         type ActivityCategory } from '@/components/activity/ActivityFilterBar'
+import { ActivityFilterBar } from '@/components/activity/ActivityFilterBar'
 import { ActivityStats }      from '@/components/activity/ActivityStats'
+import { ACTION_CATEGORY_MAP, type ActivityCategory } from '@/lib/activityConfig'
 import { ActivityPageSkeleton } from '@/components/activity/ActivityPageSkeleton'
 import { useOrgActivity }     from '@/hooks/useActivity'
 import { useProjects }        from '@/hooks/useProjects'
@@ -37,7 +36,7 @@ export default function ActivityPage() {
   const { data: projectsData } = useProjects({})
   const { data: members }      = useMembers()
 
-  const allActivities  = activityData ?? []
+  const allActivities  = useMemo(() => activityData ?? [], [activityData])
   const totalCount     = allActivities.length
   const projects       = projectsData?.items      ?? []
 

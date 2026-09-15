@@ -5,7 +5,7 @@ import { KanbanCardSkeleton } from './KanbanCardSkeleton'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/utils'
 import { Plus } from 'lucide-react'
-import type { KanbanColumnConfig } from './KanbanColumn'
+import type { KanbanColumnConfig } from '@/lib/kanbanConfig'
 import type { Task } from '@/types'
 
 

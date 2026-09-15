@@ -59,7 +59,7 @@ const ACTION_CONFIG: Record<string, ActionConfig> = {
   CommentDeleted:   { label: (_, n) => `deleted comment on "${n}"`,  icon: MessageSquare,iconColor: 'text-red-400',    dotColor: 'bg-red-400',    category: 'comment' },
 
   // Members
-  MemberInvited:    { label: (m, _) => `invited ${m?.email ?? 'a member'}`,      icon: UserCheck, iconColor: 'text-green-400',  dotColor: 'bg-green-400',  category: 'member' },
+  MemberInvited:    { label: (m) => `invited ${m?.email ?? 'a member'}`,      icon: UserCheck, iconColor: 'text-green-400',  dotColor: 'bg-green-400',  category: 'member' },
   MemberJoined:     { label: (_, n) => `${n} joined the organization`,           icon: UserCheck, iconColor: 'text-green-400',  dotColor: 'bg-green-400',  category: 'member' },
   MemberDeactivated:{ label: (_, n) => `deactivated ${n}`,                       icon: UserCheck, iconColor: 'text-red-400',    dotColor: 'bg-red-400',    category: 'member' },
   MemberRoleChanged:{ label: (m, n) => m?.to ? `changed ${n}'s role to ${m.to}` : `changed ${n}'s role`, icon: UserCheck, iconColor: 'text-yellow-400', dotColor: 'bg-yellow-400', category: 'member' },
@@ -75,12 +75,11 @@ const DEFAULT_CONFIG: ActionConfig = {
 }
 
 // ── Entity type → icon ─────────────────────────────────────────────
-function getEntityIcon(entityType: string) {
-  if (entityType === 'Project') return FolderKanban
-  if (entityType === 'Task')    return CheckSquare
-  if (entityType === 'Comment') return MessageSquare
-  if (entityType === 'Member')  return UserCheck
-  return AlertCircle
+const ENTITY_ICONS: Record<string, React.ElementType> = {
+  Project: FolderKanban,
+  Task:    CheckSquare,
+  Comment: MessageSquare,
+  Member:  UserCheck,
 }
 
 // ── Entity link ────────────────────────────────────────────────────
@@ -104,7 +103,7 @@ export function ActivityItem({ activity, showLine = true }: ActivityItemProps) {
   const meta   = activity.metadata as Record<string, string> | null
   const config = ACTION_CONFIG[activity.action] ?? DEFAULT_CONFIG
   const Icon   = config.icon
-  const EntityIcon = getEntityIcon(activity.entityType)
+  const EntityIcon = ENTITY_ICONS[activity.entityType] ?? AlertCircle
   const entityLink = getEntityLink(
     activity.entityType,
     activity.entityId,
