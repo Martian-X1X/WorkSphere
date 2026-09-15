@@ -1,7 +1,8 @@
-using System.Net;
 using System.Text.Json;
+using FluentValidation;
 using Serilog;
 using WorkHub.Application.DTOs.Common;
+using WorkHub.Domain.Exceptions;
 
 namespace WorkHub.API.Middleware;
 
@@ -43,12 +44,13 @@ public class GlobalExceptionMiddleware
             ex.GetType().Name,
             ex.Message);
 
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        var (statusCode, message) = GetStatusCode(ex);
 
-        var message = _env.IsDevelopment()
-            ? $"Internal server error: {ex.Message}"
-            : "An unexpected error occurred. Please try again later.";
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = statusCode;
+
+        if (statusCode >= 500 && !_env.IsDevelopment())
+            message = "An unexpected error occurred. Please try again later.";
 
         var response = ApiResponse<object>.Fail(message);
 
@@ -58,6 +60,33 @@ public class GlobalExceptionMiddleware
         });
 
         await context.Response.WriteAsync(json);
+    }
+
+    private static (int statusCode, string message) GetStatusCode(Exception exception)
+    {
+        return exception switch
+        {
+            // ── Domain exceptions — clean, intentional errors ──────
+            NotFoundException        ex => (StatusCodes.Status404NotFound, ex.Message),
+            ForbiddenException       ex => (StatusCodes.Status403Forbidden, ex.Message),
+            BusinessRuleException    ex => (StatusCodes.Status400BadRequest, ex.Message),
+            ConflictException        ex => (StatusCodes.Status409Conflict, ex.Message),
+            AuthenticationException  ex => (StatusCodes.Status401Unauthorized, ex.Message),
+
+            // ── Legacy exceptions — kept for backward compatibility ──
+            KeyNotFoundException     ex => (StatusCodes.Status404NotFound, ex.Message),
+            UnauthorizedAccessException ex => (StatusCodes.Status401Unauthorized, ex.Message),
+            InvalidOperationException   ex => (StatusCodes.Status400BadRequest, ex.Message),
+            ArgumentException           ex => (StatusCodes.Status400BadRequest, ex.Message),
+
+            // ── FluentValidation ─────────────────────────────────────
+            ValidationException ex => (StatusCodes.Status400BadRequest,
+                string.Join(", ", ex.Errors.Select(e => e.ErrorMessage))),
+
+            // ── Everything else → 500 ───────────────────────────────
+            _ => (StatusCodes.Status500InternalServerError,
+                "An unexpected error occurred.")
+        };
     }
 }
 

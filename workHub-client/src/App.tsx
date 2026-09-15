@@ -33,9 +33,7 @@ function ForbiddenListener() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const handler = (e: Event) => {
-      const detail = (e as CustomEvent).detail
-      console.warn('403 Forbidden:', detail.url)
+    const handler = () => {
       toast.error('You do not have permission to perform this action.', {
         id: 'forbidden',  // deduplicate — only show once
       })

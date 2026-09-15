@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Microsoft.Extensions.Options;
 using WorkHub.Application.Interfaces;
 using WorkHub.Application.Settings;
+using WorkHub.Domain.Constants;
 
 namespace WorkHub.Application.Services;
 
@@ -23,7 +24,7 @@ public class RefreshTokenService : IRefreshTokenService
         // ✅ Cryptographically secure random bytes
         // RandomNumberGenerator is thread-safe and uses OS entropy
         // 64 bytes = 512 bits of randomness — astronomically hard to guess
-        var randomBytes = new byte[64];
+        var randomBytes = new byte[AppConstants.RefreshTokenByteLength];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomBytes);
 

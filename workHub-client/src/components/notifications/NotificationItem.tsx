@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
 import { getNotificationConfig } from '@/lib/notificationConfig'
 import { formatRelative, cn } from '@/utils'
-import type { NotificationDto } from '@/services/notification.service'
+import type { NotificationDto } from '@/types'
 
 interface NotificationItemProps {
   notification: NotificationDto

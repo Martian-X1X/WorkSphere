@@ -318,3 +318,33 @@ export interface InvitePreview {
   isExpired: boolean
   isAlreadyAccepted: boolean
 }
+
+// ──────────────────────────────────────────────────────────────────
+// Notification types
+// ──────────────────────────────────────────────────────────────────
+export interface NotificationDto {
+  id:            string
+  type:          string
+  title:         string
+  message:       string
+  entityType:    string | null
+  entityId:      string | null
+  actionUrl:     string | null
+  createdByName: string | null
+  isRead:        boolean
+  readAt:        string | null
+  createdAt:     string
+  metadata:      string | null
+}
+
+export interface NotificationFeedDto {
+  items:       NotificationDto[]
+  unreadCount: number
+  totalCount:  number
+  hasMore:     boolean
+}
+
+export interface NotificationCountDto {
+  unreadCount: number
+  totalCount:  number
+}

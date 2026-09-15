@@ -39,9 +39,6 @@ export default function ActivityPage() {
 
   const allActivities  = activityData ?? []
   const totalCount     = allActivities.length
-
-  console.log('Activity data updated at:', new Date(dataUpdatedAt).toLocaleTimeString())
-  console.log('Total activities:', allActivities.length)
   const projects       = projectsData?.items      ?? []
 
   // ── Client-side filtering ─────────────────────────────────────────

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WorkHub.Application.DTOs.Common;
 using WorkHub.Application.DTOs.Notifications;
 using WorkHub.Application.Interfaces;
+using WorkHub.Domain.Constants;
 
 namespace WorkHub.API.Controllers;
 
@@ -44,7 +45,7 @@ public class NotificationsController : ControllerBase
     {
         // Clamp values to safe range
         page     = Math.Max(1, page);
-        pageSize = Math.Clamp(pageSize, 1, 50);
+        pageSize = Math.Clamp(pageSize, 1, AppConstants.NotificationMaxPerPage);
 
         var feed = await _notificationService.GetFeedAsync(
             page, pageSize, unreadOnly);

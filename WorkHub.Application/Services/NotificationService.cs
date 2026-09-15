@@ -4,7 +4,9 @@ using WorkHub.Infrastructure.Data;
 using WorkHub.Infrastructure.Services;
 using WorkHub.Application.DTOs.Notifications;
 using WorkHub.Application.Interfaces;
+using WorkHub.Domain.Constants;
 using WorkHub.Domain.Entities;
+using WorkHub.Domain.Exceptions;
 
 namespace WorkHub.Application.Services;
 
@@ -16,7 +18,8 @@ public class NotificationService : INotificationService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ICacheService       _cache;
 
-    private static readonly TimeSpan CountCacheDuration = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan CountCacheDuration =
+        TimeSpan.FromSeconds(AppConstants.NotificationCountCacheSeconds);
 
     public NotificationService(
         AppDbContext             context,
@@ -316,7 +319,7 @@ public class NotificationService : INotificationService
             .FirstOrDefaultAsync(n =>
                 n.Id     == notificationId &&
                 n.UserId == userId)
-            ?? throw new KeyNotFoundException("Notification not found.");
+            ?? throw new NotFoundException("Notification", notificationId);
 
         if (!notification.IsRead)
         {

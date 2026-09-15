@@ -9,10 +9,10 @@ import { AuthLayout } from '@/components/layout/AuthLayout'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import type { AxiosResponse } from 'axios'
-import { authService } from '@/features/auth/auth.service'
+import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/stores/authStore'
 import { registerSchema, type RegisterFormData } from '@/lib/schemas'
-import { getApiError } from '@/shared/utils'
+import { getApiError } from '@/utils'
 import type { ApiResponse, AuthResponse } from '@/types'
 
 // ── Password strength indicator ────────────────────────────────────

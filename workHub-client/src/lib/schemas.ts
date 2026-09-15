@@ -159,8 +159,8 @@ export const orgUpdateSchema = z.object({
   description: z
     .string()
     .max(500, 'Description cannot exceed 500 characters')
-    .optional()
-    .transform((v) => v?.trim() || undefined),
+    .trim()
+    .optional(),
 
   logoUrl: z
     .string()

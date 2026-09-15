@@ -52,12 +52,12 @@ public class OrgContextService : IOrgContextService
         return _cachedOrg;
     }
 
-    public async Task<bool> BelongsToCurrentOrgAsync(Guid organizationId)
+    public Task<bool> BelongsToCurrentOrgAsync(Guid organizationId)
     {
-        if (!_currentUser.IsAuthenticated) return false;
+        if (!_currentUser.IsAuthenticated) return Task.FromResult(false);
 
         // Owner/Admin can access their own org data only
-        return organizationId == _currentUser.OrganizationId;
+        return Task.FromResult(organizationId == _currentUser.OrganizationId);
     }
 
     public async Task<(bool isValid, string? reason)> ValidateCurrentUserContextAsync()

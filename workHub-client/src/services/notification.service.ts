@@ -1,33 +1,9 @@
 import api from '@/lib/api'
-import type { ApiResponse } from '@/types'
-
-// ── Types ──────────────────────────────────────────────────────────
-export interface NotificationDto {
-  id:            string
-  type:          string
-  title:         string
-  message:       string
-  entityType:    string | null
-  entityId:      string | null
-  actionUrl:     string | null
-  createdByName: string | null
-  isRead:        boolean
-  readAt:        string | null
-  createdAt:     string
-  metadata:      string | null
-}
-
-export interface NotificationFeedDto {
-  items:       NotificationDto[]
-  unreadCount: number
-  totalCount:  number
-  hasMore:     boolean
-}
-
-export interface NotificationCountDto {
-  unreadCount: number
-  totalCount:  number
-}
+import type {
+  ApiResponse,
+  NotificationFeedDto,
+  NotificationCountDto,
+} from '@/types'
 
 // ── Service ────────────────────────────────────────────────────────
 export const notificationService = {

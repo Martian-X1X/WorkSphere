@@ -7,6 +7,7 @@ using WorkHub.Application.DTOs.Auth;
 using WorkHub.Application.DTOs.Common;
 using WorkHub.Application.DTOs.Invite;
 using WorkHub.Application.Interfaces;
+using WorkHub.Domain.Constants;
 using WorkHub.Domain.Entities;
 
 namespace WorkHub.Application.Services;
@@ -23,9 +24,6 @@ public class InviteService : IInviteService
     private readonly INotificationService _notificationService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<InviteService> _logger;
-
-    // Invite expires after 7 days
-    private const int InviteExpiryDays = 7;
 
     public InviteService(
         AppDbContext context,
@@ -90,7 +88,7 @@ public class InviteService : IInviteService
 
             // ─── Generate secure token ─────────────────────────
             // 32 bytes = 256 bits of randomness — URL-safe base64
-            var tokenBytes = new byte[32];
+            var tokenBytes = new byte[AppConstants.InviteTokenByteLength];
             RandomNumberGenerator.Fill(tokenBytes);
             var token = Convert.ToBase64String(tokenBytes)
                 .Replace("+", "-")
@@ -105,7 +103,7 @@ public class InviteService : IInviteService
                 InviteeEmail = email,
                 Role = dto.Role,
                 Token = token,
-                ExpiresAt = DateTime.UtcNow.AddDays(InviteExpiryDays),
+                ExpiresAt = DateTime.UtcNow.AddDays(AppConstants.InviteExpiryDays),
                 Status = InviteStatus.Pending
             };
 
@@ -120,7 +118,7 @@ public class InviteService : IInviteService
             var org = await _context.Organizations
                 .FirstOrDefaultAsync(o => o.Id == _currentUser.OrganizationId);
 
-            var baseUrl    = _configuration["AppSettings:BaseUrl"] ?? "http://localhost:5173";
+            var baseUrl    = GetBaseUrl();
             var inviteLink = $"{baseUrl}/invite/{token}";
 
             // Fire-and-forget — don't await, don't block response
@@ -189,7 +187,7 @@ public class InviteService : IInviteService
                 Role = i.Role,
                 Status = i.Status == InviteStatus.Pending && i.ExpiresAt < now
                     ? InviteStatus.Expired : i.Status,
-                InviteLink = $"https://worksphere.io/invite/{i.Token}",
+                InviteLink = $"{GetBaseUrl()}/invite/{i.Token}",
                 ExpiresAt = i.ExpiresAt,
                 CreatedAt = i.CreatedAt,
                 InvitedByName = i.InvitedBy.FullName
@@ -452,15 +450,13 @@ public class InviteService : IInviteService
                     "Only pending invites can be resent.");
 
             // Generate a fresh token + reset expiry
-            var tokenBytes = new byte[32];
+            var tokenBytes = new byte[AppConstants.InviteTokenByteLength];
             RandomNumberGenerator.Fill(tokenBytes);
             invite.Token     = Convert.ToBase64String(tokenBytes)
                 .Replace("+", "-").Replace("/", "_").Replace("=", "");
-            invite.ExpiresAt = DateTime.UtcNow.AddDays(InviteExpiryDays);
+            invite.ExpiresAt = DateTime.UtcNow.AddDays(AppConstants.InviteExpiryDays);
 
             await _context.SaveChangesAsync();
-
-            var baseUrl = "https://worksphere.io";
 
             _logger.LogInformation(
                 "Invite {InviteId} resent by {UserId}",
@@ -472,7 +468,7 @@ public class InviteService : IInviteService
                 InviteeEmail  = invite.InviteeEmail,
                 Role          = invite.Role,
                 Status        = invite.Status,
-                InviteLink    = $"{baseUrl}/invite/{invite.Token}",
+                InviteLink    = $"{GetBaseUrl()}/invite/{invite.Token}",
                 ExpiresAt     = invite.ExpiresAt,
                 CreatedAt     = invite.CreatedAt,
                 InvitedByName = _currentUser.FullName ?? "Someone"
@@ -484,4 +480,10 @@ public class InviteService : IInviteService
             return ApiResponse<InviteResponseDto>.Fail("An unexpected error occurred.");
         }
     }
+
+    // ── Base URL helper ─────────────────────────────────────────────
+    // Single source of truth for invite links. Prefer the configured
+    // AppSettings:BaseUrl; fall back to the local dev URL.
+    private string GetBaseUrl()
+        => _configuration["AppSettings:BaseUrl"] ?? "http://localhost:5173";
 }

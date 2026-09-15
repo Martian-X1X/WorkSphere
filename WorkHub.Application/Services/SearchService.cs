@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WorkHub.Application.DTOs.Search;
 using WorkHub.Application.Interfaces;
+using WorkHub.Domain.Constants;
 using WorkHub.Infrastructure.Data;
 
 namespace WorkHub.Application.Services;
@@ -23,12 +24,15 @@ public class SearchService : ISearchService
 
     public async Task<SearchResultDto> SearchAsync(
         string query,
-        int    maxResults = 10)
+        int    maxResults = AppConstants.SearchMaxResults)
     {
-        // Sanitize — minimum 2 chars to avoid huge result sets
+        // Sanitize — reject too-short queries to avoid huge result sets
         query = query?.Trim() ?? string.Empty;
-        if (query.Length < 2)
+        if (query.Length < AppConstants.SearchMinQueryLength)
             return new SearchResultDto();
+
+        // Clamp against the safe upper bound
+        maxResults = Math.Clamp(maxResults, 1, AppConstants.SearchMaxResults);
 
         var orgId = _currentUser.OrganizationId;
 

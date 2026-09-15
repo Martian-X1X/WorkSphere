@@ -1,6 +1,7 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
+using WorkHub.Domain.Constants;
 
 namespace WorkHub.Infrastructure.Interceptors;
 
@@ -11,7 +12,7 @@ namespace WorkHub.Infrastructure.Interceptors;
 public class SlowQueryInterceptor : DbCommandInterceptor
 {
     private readonly ILogger<SlowQueryInterceptor> _logger;
-    private const int ThresholdMs = 500;   // warn if query > 500ms
+    private const int ThresholdMs = AppConstants.SlowQueryThresholdMs;
 
     public SlowQueryInterceptor(ILogger<SlowQueryInterceptor> logger)
     {
