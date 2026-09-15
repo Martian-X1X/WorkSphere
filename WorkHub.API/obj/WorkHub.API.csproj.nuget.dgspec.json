@@ -35,6 +35,9 @@
               "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Application\\WorkHub.Application.csproj": {
                 "projectPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Application\\WorkHub.Application.csproj"
               },
+              "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj": {
+                "projectPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Domain\\WorkHub.Domain.csproj"
+              },
               "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\WorkHub.Infrastructure.csproj": {
                 "projectPath": "C:\\Users\\Abdul\\Documents\\GitHub\\WorkSphere\\WorkHub.Infrastructure\\WorkHub.Infrastructure.csproj"
               }
@@ -216,13 +219,17 @@
             },
             "MailKit": {
               "target": "Package",
-              "version": "[4.3.0, )"
+              "version": "[4.18.0, )"
             },
             "Microsoft.AspNetCore.Http.Abstractions": {
               "target": "Package",
               "version": "[2.3.0, )"
             },
             "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.EntityFrameworkCore.Relational": {
               "target": "Package",
               "version": "[9.0.4, )"
             },
