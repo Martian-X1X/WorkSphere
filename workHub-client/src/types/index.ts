@@ -348,3 +348,31 @@ export interface NotificationCountDto {
   unreadCount: number
   totalCount:  number
 }
+
+// ──────────────────────────────────────────────────────────────────
+// Global search types
+// ──────────────────────────────────────────────────────────────────
+export interface SearchProjectResult {
+  id:          string
+  name:        string
+  description: string | null
+  status:      string
+  taskCount:   number
+}
+
+export interface SearchTaskResult {
+  id:             string
+  title:          string
+  description:    string | null
+  status:         string
+  priority:       string
+  projectId:      string
+  projectName:    string
+  assignedToName: string | null
+}
+
+export interface SearchResult {
+  projects:   SearchProjectResult[]
+  tasks:      SearchTaskResult[]
+  totalCount: number
+}

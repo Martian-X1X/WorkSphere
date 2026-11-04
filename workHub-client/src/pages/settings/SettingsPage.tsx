@@ -1,11 +1,11 @@
-import { useState }           from 'react'
+import { useRef, useState }   from 'react'
 import { Link }               from 'react-router-dom'
 import { useForm }            from 'react-hook-form'
 import { zodResolver }        from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Building2, Shield, Bell, Palette,
-  Save, ArrowRight,
+  Save, ArrowRight, Camera, CheckCircle2,
 } from 'lucide-react'
 import toast                  from 'react-hot-toast'
 import { Input }              from '@/components/ui/Input'
@@ -13,6 +13,7 @@ import { Button }             from '@/components/ui/Button'
 import { Can }                from '@/components/ui/Can'
 import { useOrganization }    from '@/hooks/useOrganization'
 import { organizationService } from '@/services/organization.service'
+import { useAuthStore }       from '@/stores/authStore'
 import { orgUpdateSchema, type OrgUpdateFormData } from '@/lib/schemas'
 import { queryKeys }          from '@/lib/queryKeys'
 import { getApiError }        from '@/utils'
@@ -81,6 +82,7 @@ export default function SettingsPage() {
 function OrgSettings() {
   const queryClient            = useQueryClient()
   const { data: org, isLoading } = useOrganization()
+  const fileInputRef           = useRef<HTMLInputElement>(null)
 
   const { register, handleSubmit, formState: { errors, isDirty } } =
     useForm<OrgUpdateFormData>({
@@ -88,7 +90,6 @@ function OrgSettings() {
       values: {
         name:        org?.name        ?? '',
         description: org?.description ?? '',
-        logoUrl:     org?.logoUrl     ?? '',
       },
     })
 
@@ -97,7 +98,6 @@ function OrgSettings() {
       organizationService.updateMyOrg({
         name:        data.name,
         description: data.description,
-        logoUrl:     data.logoUrl || undefined,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.org.detail() })
@@ -105,6 +105,32 @@ function OrgSettings() {
     },
     onError: (error) => toast.error(getApiError(error)),
   })
+
+  const logoMutation = useMutation({
+    mutationFn: (file: File) => organizationService.uploadLogo(file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.org.detail() })
+      toast.success('Logo updated!')
+    },
+    onError: (error) => toast.error(getApiError(error)),
+  })
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file')
+      return
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Logo must be 2 MB or smaller')
+      return
+    }
+
+    logoMutation.mutate(file)
+    e.target.value = ''
+  }
 
   if (isLoading) {
     return (
@@ -157,14 +183,51 @@ function OrgSettings() {
             />
           </div>
 
-          <Input
-            label="Logo URL"
-            optional
-            placeholder="https://example.com/logo.png"
-            error={errors.logoUrl?.message}
-            hint="Public URL to your organization's logo"
-            {...register('logoUrl')}
-          />
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-surface-300">
+              Logo
+              <span className="text-surface-600 font-normal ml-1">(optional)</span>
+            </label>
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-xl bg-surface-800 border
+                              border-surface-700 flex items-center justify-center
+                              overflow-hidden flex-shrink-0">
+                {org?.logoUrl ? (
+                  <img
+                    src={org.logoUrl}
+                    alt="Organization logo"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Building2 className="w-6 h-6 text-surface-600" />
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  className="hidden"
+                  onChange={handleLogoChange}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  loading={logoMutation.isPending}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2"
+                >
+                  <Camera className="w-4 h-4" />
+                  Upload logo
+                </Button>
+                <p className="text-xs text-surface-600">
+                  PNG, JPEG, WebP or GIF. Max 2 MB.
+                </p>
+              </div>
+            </div>
+          </div>
 
           {/* Org slug — read only */}
           <Input
@@ -193,6 +256,8 @@ function OrgSettings() {
 
 // ── Security settings ──────────────────────────────────────────────
 function SecuritySettings() {
+  const user = useAuthStore((s) => s.user)
+
   return (
     <div className="card space-y-5">
       <div className="flex items-center gap-2 pb-2 border-b border-surface-700/50">
@@ -203,6 +268,31 @@ function SecuritySettings() {
       </div>
 
       <div className="space-y-4">
+        {/* Email verification status */}
+        <div className="flex items-center justify-between p-4 rounded-xl
+                        bg-surface-800/50 border border-surface-700/50">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-surface-200">Email address</p>
+            <p className="text-xs text-surface-500 mt-0.5 truncate">
+              {user?.email}
+            </p>
+          </div>
+          {user?.isEmailVerified ? (
+            <span className="flex items-center gap-1.5 text-xs font-medium
+                             text-green-400 bg-green-900/20 border
+                             border-green-800/50 px-2 py-1 rounded-full">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              Verified
+            </span>
+          ) : (
+            <span className="text-xs font-medium text-yellow-400
+                             bg-yellow-900/20 border border-yellow-800/50
+                             px-2 py-1 rounded-full">
+              Not verified
+            </span>
+          )}
+        </div>
+
         {/* Change password link */}
         <div className="flex items-center justify-between p-4 rounded-xl
                         bg-surface-800/50 border border-surface-700/50">

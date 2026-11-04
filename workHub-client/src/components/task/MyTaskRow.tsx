@@ -7,6 +7,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { PriorityBadge }   from '@/components/ui/PriorityBadge'
+import { ConfirmDialog }   from '@/components/ui/ConfirmDialog'
 import { StatusDropdown }  from './StatusDropdown'
 import { taskService }     from '@/services/task.service'
 import { queryKeys }       from '@/lib/queryKeys'
@@ -23,6 +24,7 @@ export function MyTaskRow({ task, onEdit }: MyTaskRowProps) {
   const { isAdminOrOwner, user } = useAuthStore()
   const queryClient = useQueryClient()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const overdue     = isOverdue(task.dueDate, task.status)
   const isDone      = task.status === 'Done'
@@ -41,6 +43,7 @@ export function MyTaskRow({ task, onEdit }: MyTaskRowProps) {
         queryKey: queryKeys.projects.detail(task.projectId),
       })
       toast.success('Task deleted')
+      setConfirmDelete(false)
     },
     onError: (error) => toast.error(getApiError(error)),
   })
@@ -139,7 +142,7 @@ export function MyTaskRow({ task, onEdit }: MyTaskRowProps) {
             {menuOpen && (
               <>
                 <div
-                  className="fixed inset-0 z-10"
+                  className="fixed inset-0 z-40"
                   onClick={(e) => {
                     e.stopPropagation()
                     setMenuOpen(false)
@@ -147,7 +150,7 @@ export function MyTaskRow({ task, onEdit }: MyTaskRowProps) {
                 />
                 <div className="absolute right-0 top-7 w-36 bg-surface-800
                                 border border-surface-700 rounded-xl shadow-xl
-                                z-20 overflow-hidden animate-fade-in">
+                                z-50 overflow-hidden animate-fade-in">
                   <button
                     onClick={(e) => {
                       e.preventDefault()
@@ -163,14 +166,12 @@ export function MyTaskRow({ task, onEdit }: MyTaskRowProps) {
                     Edit task
                   </button>
                   <button
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setMenuOpen(false)
-                      if (window.confirm(`Delete "${task.title}"?`)) {
-                        deleteMutation.mutate()
-                      }
-                    }}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setMenuOpen(false)
+                        setConfirmDelete(true)
+                      }}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5
                                text-sm text-red-400 hover:text-red-300
                                hover:bg-red-900/20 transition-colors text-left"
@@ -184,6 +185,17 @@ export function MyTaskRow({ task, onEdit }: MyTaskRowProps) {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmDelete}
+        title="Delete Task"
+        message={`"${task.title}" will be permanently deleted.`}
+        confirmLabel="Delete"
+        danger
+        loading={deleteMutation.isPending}
+        onConfirm={() => deleteMutation.mutate()}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { organizationService } from '@/services/organization.service'
+import { queryKeys } from '@/lib/queryKeys'
 import { Avatar } from '@/components/ui/Avatar'
 import { cn } from '@/utils'
 
@@ -11,7 +12,7 @@ interface AssigneeSelectProps {
 
 export function AssigneeSelect({ value, onChange, error }: AssigneeSelectProps) {
   const { data } = useQuery({
-    queryKey: ['members'],
+    queryKey: queryKeys.org.members(),
     queryFn: () => organizationService.getMembers(1, 100),
     staleTime: 5 * 60 * 1000,
   })

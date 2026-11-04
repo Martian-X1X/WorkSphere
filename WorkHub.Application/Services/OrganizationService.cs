@@ -90,7 +90,13 @@ public class OrganizationService : IOrganizationService
             // Update fields
             org.Name = dto.Name.Trim();
             org.Description = dto.Description?.Trim();
-            org.LogoUrl = dto.LogoUrl?.Trim();
+
+            // Logo is managed by the dedicated upload endpoint.
+            // Only overwrite when a value is explicitly supplied so that
+            // saving org details doesn't wipe an uploaded logo.
+            if (dto.LogoUrl != null)
+                org.LogoUrl = dto.LogoUrl.Trim();
+
             // UpdatedAt handled automatically by AppDbContext.SaveChangesAsync
 
             await _context.SaveChangesAsync();
@@ -110,6 +116,49 @@ public class OrganizationService : IOrganizationService
         {
             _logger.LogError(ex, "Error updating organization for {UserId}",
                 _currentUser.UserId);
+            return ApiResponse<OrganizationDto>.Fail(
+                "An unexpected error occurred.");
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // UPDATE LOGO
+    // ════════════════════════════════════════════════════════════
+    public async Task<ApiResponse<OrganizationDto>> UpdateLogoUrlAsync(
+        string logoUrl)
+    {
+        try
+        {
+            var org = await _context.Organizations
+                .FirstOrDefaultAsync(o => o.Id == _currentUser.OrganizationId);
+
+            if (org == null)
+                return ApiResponse<OrganizationDto>.Fail(
+                    "Organization not found.");
+
+            var guard = _orgScopeGuard.Check(org.Id);
+            if (!guard.Allowed)
+                return ApiResponse<OrganizationDto>.Fail(guard.Reason!);
+
+            org.LogoUrl = logoUrl;
+
+            await _context.SaveChangesAsync();
+
+            var memberCount = await _context.Users
+                .CountAsync(u => u.OrganizationId == org.Id && u.IsActive);
+
+            _logger.LogInformation(
+                "Org {OrgId} logo updated by {UserId}",
+                org.Id, _currentUser.UserId);
+
+            return ApiResponse<OrganizationDto>.Ok(
+                MapToDto(org, memberCount),
+                "Organization logo updated successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating logo for org {OrgId}",
+                _currentUser.OrganizationId);
             return ApiResponse<OrganizationDto>.Fail(
                 "An unexpected error occurred.");
         }

@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { TaskStatusBadge } from '@/components/ui/TaskStatusBadge'
 import { PriorityBadge } from '@/components/ui/PriorityBadge'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useAuthStore } from '@/stores/authStore'
 import { taskService } from '@/services/task.service'
 import { queryKeys } from '@/lib/queryKeys'
@@ -30,6 +31,7 @@ export function TaskActions({ task, onEdit }: TaskActionsProps) {
   const queryClient = useQueryClient()
   const navigate    = useNavigate()
   const [statusMenuOpen, setStatusMenuOpen] = useState(false)
+  const [confirmDelete, setConfirmDelete]   = useState(false)
 
   // ── Status mutation ──────────────────────────────────────────
   const statusMutation = useMutation({
@@ -39,12 +41,8 @@ export function TaskActions({ task, onEdit }: TaskActionsProps) {
       queryClient.invalidateQueries({
         queryKey: queryKeys.tasks.detail(task.id),
       })
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.byProject(task.projectId),
-      })
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.activity(task.id),
-      })
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all() })
+      queryClient.invalidateQueries({ queryKey: ['activity'] })
       queryClient.invalidateQueries({
         queryKey: queryKeys.projects.detail(task.projectId),
       })
@@ -58,23 +56,19 @@ export function TaskActions({ task, onEdit }: TaskActionsProps) {
   const deleteMutation = useMutation({
     mutationFn: () => taskService.deleteTask(task.id),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.byProject(task.projectId),
-      })
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all() })
       queryClient.invalidateQueries({
         queryKey: queryKeys.projects.detail(task.projectId),
       })
+      queryClient.invalidateQueries({ queryKey: ['activity'] })
       toast.success('Task deleted')
+      setConfirmDelete(false)
       navigate(`/projects/${task.projectId}`)
     },
     onError: (error) => toast.error(getApiError(error)),
   })
 
-  const handleDelete = () => {
-    if (window.confirm(`Delete "${task.title}"? This cannot be undone.`)) {
-      deleteMutation.mutate()
-    }
-  }
+  const handleDelete = () => setConfirmDelete(true)
 
   return (
     <div className="flex items-start gap-2 flex-wrap">
@@ -103,12 +97,12 @@ export function TaskActions({ task, onEdit }: TaskActionsProps) {
             {statusMenuOpen && (
               <>
                 <div
-                  className="fixed inset-0 z-10"
+                  className="fixed inset-0 z-40"
                   onClick={() => setStatusMenuOpen(false)}
                 />
                 <div className="absolute left-0 top-10 w-40 bg-surface-800
                                 border border-surface-700 rounded-xl shadow-xl
-                                z-20 overflow-hidden animate-fade-in">
+                                z-50 overflow-hidden animate-fade-in">
                   {STATUSES.map((s) => (
                     <button
                       key={s}
@@ -161,6 +155,17 @@ export function TaskActions({ task, onEdit }: TaskActionsProps) {
           {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
         </button>
       )}
+
+      <ConfirmDialog
+        isOpen={confirmDelete}
+        title="Delete Task"
+        message={`"${task.title}" will be permanently deleted.`}
+        confirmLabel="Delete"
+        danger
+        loading={deleteMutation.isPending}
+        onConfirm={() => deleteMutation.mutate()}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </div>
   )
 }

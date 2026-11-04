@@ -4,7 +4,9 @@ import { MoreHorizontal, Shield, UserX, Mail } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Avatar } from '@/components/ui/Avatar'
 import { RoleBadge } from '@/components/ui/RoleBadge'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { organizationService } from '@/services/organization.service'
+import { queryKeys } from '@/lib/queryKeys'
 import { useAuthStore } from '@/stores/authStore'
 import { usePermission } from '@/hooks/usePermission'
 import { formatRelative, getApiError } from '@/utils'
@@ -21,13 +23,15 @@ export function MemberRow({ member, onChangeRole }: MemberRowProps) {
   const canDeactivate = usePermission('members.remove')
   const queryClient = useQueryClient()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [confirmDeactivate, setConfirmDeactivate] = useState(false)
 
   const deactivateMutation = useMutation({
     mutationFn: () => organizationService.deactivateMember(member.id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['members'] })
-      queryClient.invalidateQueries({ queryKey: ['org'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.org.members() })
+      queryClient.invalidateQueries({ queryKey: queryKeys.org.detail() })
       toast.success(`${member.fullName} has been deactivated`)
+      setConfirmDeactivate(false)
     },
     onError: (error) => toast.error(getApiError(error)),
   })
@@ -102,13 +106,13 @@ export function MemberRow({ member, onChangeRole }: MemberRowProps) {
             <>
               {/* Backdrop */}
               <div
-                className="fixed inset-0 z-10"
+                className="fixed inset-0 z-40"
                 onClick={() => setMenuOpen(false)}
               />
               {/* Dropdown */}
               <div className="absolute right-0 top-8 w-44 bg-surface-800
                               border border-surface-700 rounded-xl shadow-xl
-                              z-20 overflow-hidden animate-fade-in">
+                              z-50 overflow-hidden animate-fade-in">
                 {/* Change role */}
                 {canChangeRole && (
                   <button
@@ -129,11 +133,7 @@ export function MemberRow({ member, onChangeRole }: MemberRowProps) {
                   <button
                     onClick={() => {
                       setMenuOpen(false)
-                      if (window.confirm(
-                        `Deactivate ${member.fullName}? They will be immediately logged out.`
-                      )) {
-                        deactivateMutation.mutate()
-                      }
+                      setConfirmDeactivate(true)
                     }}
                     disabled={deactivateMutation.isPending}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5
@@ -149,6 +149,17 @@ export function MemberRow({ member, onChangeRole }: MemberRowProps) {
           )}
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={confirmDeactivate}
+        title="Deactivate Member"
+        message={`${member.fullName} will be immediately logged out and lose access to WorkSphere.`}
+        confirmLabel="Deactivate"
+        danger
+        loading={deactivateMutation.isPending}
+        onConfirm={() => deactivateMutation.mutate()}
+        onCancel={() => setConfirmDeactivate(false)}
+      />
     </div>
   )
 }

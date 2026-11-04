@@ -161,12 +161,6 @@ export const orgUpdateSchema = z.object({
     .max(500, 'Description cannot exceed 500 characters')
     .trim()
     .optional(),
-
-  logoUrl: z
-    .string()
-    .url('Please enter a valid URL')
-    .optional()
-    .or(z.literal('')),
 })
 
 export type OrgUpdateFormData = z.infer<typeof orgUpdateSchema>

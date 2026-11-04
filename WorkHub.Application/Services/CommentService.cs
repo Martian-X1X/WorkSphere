@@ -142,12 +142,22 @@ public class CommentService : ICommentService
                 entityName: taskTitle,
                 projectId: taskId); // store taskId in ProjectId for easy task-level querying
 
-            // ✅ Fire-and-forget notification to task assignee
-            if (task.AssignedToUserId.HasValue &&
-                task.AssignedToUserId != _currentUser.UserId)
+            // ✅ Fire-and-forget notifications to the task assignee
+            // and the task creator (deduplicated, never the commenter)
+            var recipients = new HashSet<Guid>();
+
+            if (task.AssignedToUserId.HasValue)
+                recipients.Add(task.AssignedToUserId.Value);
+
+            if (task.CreatedByUserId != Guid.Empty)
+                recipients.Add(task.CreatedByUserId);
+
+            recipients.Remove(_currentUser.UserId);
+
+            foreach (var recipientId in recipients)
             {
                 await _notificationService.NotifyCommentAddedAsync(
-                    taskOwnerId:     task.AssignedToUserId.Value,
+                    taskOwnerId:     recipientId,
                     organizationId:  task.OrganizationId,
                     taskTitle:       task.Title,
                     taskId:          task.Id,

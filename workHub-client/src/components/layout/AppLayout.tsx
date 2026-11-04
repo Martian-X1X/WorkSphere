@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { MobileMenu } from './MobileMenu'
+import { GlobalSearch } from '@/components/search/GlobalSearch'
 import { Spinner } from '@/components/ui/Spinner'
 import { useLayout } from '@/hooks/useLayout'
 import { useAuthContext } from '@/hooks/useAuth'
@@ -46,6 +47,9 @@ export function AppLayout() {
         open={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
       />
+
+      {/* ── Global search (Ctrl/Cmd+K) ─────────────────────── */}
+      <GlobalSearch />
 
       {/* ── Main area — header + scrollable content ─────── */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">

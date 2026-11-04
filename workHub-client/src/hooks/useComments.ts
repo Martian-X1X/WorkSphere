@@ -28,10 +28,9 @@ export function useCreateComment(taskId: string) {
       queryClient.invalidateQueries({
         queryKey: queryKeys.comments.byTask(taskId),
       })
-      // Invalidate activity too — comment creates an activity entry
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.activity(taskId),
-      })
+      // Invalidate activity too — comment creates an activity entry.
+      // Prefix key catches task, project and org activity feeds.
+      queryClient.invalidateQueries({ queryKey: ['activity'] })
     },
 
     onError: (error) => toast.error(getApiError(error)),
@@ -58,6 +57,7 @@ export function useUpdateComment(taskId: string) {
       queryClient.invalidateQueries({
         queryKey: queryKeys.comments.byTask(taskId),
       })
+      queryClient.invalidateQueries({ queryKey: ['activity'] })
       toast.success('Comment updated')
     },
 
@@ -77,9 +77,7 @@ export function useDeleteComment(taskId: string) {
       queryClient.invalidateQueries({
         queryKey: queryKeys.comments.byTask(taskId),
       })
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.activity(taskId),
-      })
+      queryClient.invalidateQueries({ queryKey: ['activity'] })
       toast.success('Comment deleted')
     },
 

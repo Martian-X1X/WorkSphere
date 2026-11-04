@@ -16,8 +16,18 @@ export const organizationService = {
   getMyOrg: () =>
     api.get<ApiResponse<Organization>>('/organizations/me'),
 
-  updateMyOrg: (data: { name: string; description?: string; logoUrl?: string }) =>
+  updateMyOrg: (data: { name: string; description?: string }) =>
     api.put<ApiResponse<Organization>>('/organizations/me', data),
+
+  uploadLogo: (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post<ApiResponse<Organization>>(
+      '/organizations/me/logo',
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    )
+  },
 
   // ── Members ─────────────────────────────────────────────────────
   getMembers: (page = 1, pageSize = 50) =>

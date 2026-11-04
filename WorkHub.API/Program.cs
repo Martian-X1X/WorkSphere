@@ -439,6 +439,10 @@ try
     }
 
     app.UseHttpsRedirection();
+
+    // ─── Serve uploaded assets (organization logos) ───────────────────
+    app.UseStaticFiles();
+
     app.UseAuthentication(); // ← BEFORE Authorization
     app.UseAuthorization();  // ← AFTER Authentication
     app.UseTenantValidation();

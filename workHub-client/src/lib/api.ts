@@ -67,8 +67,16 @@ api.interceptors.response.use(
       _retry?: boolean
     }
 
+    // Auth endpoints must NOT trigger refresh/redirect — a 401 here
+    // means bad credentials, not an expired session.
+    const isAuthEndpoint =
+      config.url?.includes('/auth/login') ||
+      config.url?.includes('/auth/register') ||
+      config.url?.includes('/auth/refresh') ||
+      config.url?.includes('/invites/')
+
     // ── 401 — Try token refresh ───────────────────────────────────
-    if (status === 401 && !config._retry) {
+    if (status === 401 && !config._retry && !isAuthEndpoint) {
       // If already refreshing, queue this request
       if (isRefreshing) {
         return new Promise((resolve, reject) => {

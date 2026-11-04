@@ -50,12 +50,12 @@ export function StatusDropdown({
       {open && (
         <>
           <div
-            className="fixed inset-0 z-10"
+            className="fixed inset-0 z-40"
             onClick={(e) => { e.stopPropagation(); setOpen(false) }}
           />
           <div className="absolute right-0 top-7 w-36 bg-surface-800
                           border border-surface-700 rounded-xl shadow-xl
-                          z-20 overflow-hidden animate-fade-in">
+                          z-50 overflow-hidden animate-fade-in">
             {STATUSES.map((s) => (
               <button
                 key={s}

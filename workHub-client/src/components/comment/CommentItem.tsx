@@ -90,12 +90,12 @@ export function CommentItem({
               {menuOpen && (
                 <>
                   <div
-                    className="fixed inset-0 z-10"
+                    className="fixed inset-0 z-40"
                     onClick={() => setMenuOpen(false)}
                   />
                   <div className="absolute right-0 top-7 w-36 bg-surface-800
                                   border border-surface-700 rounded-xl shadow-xl
-                                  z-20 overflow-hidden animate-fade-in">
+                                  z-50 overflow-hidden animate-fade-in">
                     {/* Edit — own comments only */}
                     {canEdit && (
                       <button

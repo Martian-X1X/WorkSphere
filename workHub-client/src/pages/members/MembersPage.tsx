@@ -14,6 +14,7 @@ import { InviteRow } from '@/components/organization/InviteRow'
 import { InviteMemberModal } from '@/components/organization/InviteMemberModal'
 import { ChangeRoleModal } from '@/components/organization/ChangeRoleModal'
 import { organizationService } from '@/services/organization.service'
+import { queryKeys } from '@/lib/queryKeys'
 import { useAuthStore } from '@/stores/authStore'
 import { QueryError } from '@/components/ui/QueryError'
 import { MembersPageSkeleton } from '@/components/organization/MembersPageSkeleton'
@@ -27,19 +28,19 @@ export default function MembersPage() {
 
   // ── Queries ──────────────────────────────────────────────────────
   const orgQuery = useQuery({
-    queryKey: ['org'],
+    queryKey: queryKeys.org.detail(),
     queryFn: () => organizationService.getMyOrg(),
     staleTime: 5 * 60 * 1000,
   })
 
   const membersQuery = useQuery({
-    queryKey: ['members'],
+    queryKey: queryKeys.org.members(),
     queryFn: () => organizationService.getMembers(1, 100),
     staleTime: 60 * 1000,
   })
 
   const invitesQuery = useQuery({
-    queryKey: ['invites'],
+    queryKey: queryKeys.org.invites(),
     queryFn: () => organizationService.getInvites(),
     enabled: isAdminOrOwner(),
     staleTime: 60 * 1000,

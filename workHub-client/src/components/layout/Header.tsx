@@ -1,7 +1,8 @@
-import { Menu } from 'lucide-react'
+import { Menu, Search } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { UserMenu } from './UserMenu'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
+import { OPEN_SEARCH_EVENT } from '@/components/search/GlobalSearch'
 import { useLayout } from '@/hooks/useLayout'
 import { useApiHealth } from '@/hooks/useApiHealth'
 import { cn } from '@/utils'
@@ -65,8 +66,25 @@ export function Header() {
         </div>
       </div>
 
-      {/* ── Right — health indicator + notifications + user menu ── */}
+      {/* ── Right — search + health + notifications + user menu ── */}
       <div className="flex items-center gap-1 sm:gap-2">
+
+        {/* Global search trigger */}
+        <button
+          onClick={() => window.dispatchEvent(new Event(OPEN_SEARCH_EVENT))}
+          className="flex items-center gap-2 px-2.5 py-1.5 text-sm
+                     text-surface-400 hover:text-surface-200
+                     hover:bg-surface-800 rounded-lg transition-colors"
+          title="Search (Ctrl+K)"
+        >
+          <Search className="w-4 h-4" />
+          <span className="hidden md:inline">Search</span>
+          <kbd className="hidden lg:inline text-[10px] text-surface-500
+                          bg-surface-800 border border-surface-700
+                          rounded px-1 py-0.5">
+            Ctrl K
+          </kbd>
+        </button>
 
         {/* API health indicator */}
         <div

@@ -176,12 +176,12 @@ const { data: allProjectData } = useProjects({})
             {showSortMenu && (
               <>
                 <div
-                  className="fixed inset-0 z-10"
+                  className="fixed inset-0 z-40"
                   onClick={() => setShowSortMenu(false)}
                 />
                 <div className="absolute right-0 top-10 w-44 bg-surface-800
                                 border border-surface-700 rounded-xl shadow-xl
-                                z-20 overflow-hidden animate-fade-in">
+                                z-50 overflow-hidden animate-fade-in">
                   {SORT_OPTIONS.map((opt, idx) => (
                     <button
                       key={idx}

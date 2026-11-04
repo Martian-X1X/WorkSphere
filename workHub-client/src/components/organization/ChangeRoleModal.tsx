@@ -5,6 +5,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Avatar } from '@/components/ui/Avatar'
 import { organizationService } from '@/services/organization.service'
+import { queryKeys } from '@/lib/queryKeys'
 import { getApiError } from '@/utils'
 import type { Member } from '@/types'
 
@@ -50,7 +51,8 @@ export function ChangeRoleModal({
         role: selectedRole,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['members'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.org.members() })
+      queryClient.invalidateQueries({ queryKey: queryKeys.org.detail() })
       toast.success(`${member?.fullName}'s role updated to ${selectedRole}`)
       onClose()
     },

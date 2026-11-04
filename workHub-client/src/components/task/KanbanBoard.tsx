@@ -159,14 +159,11 @@ export function KanbanBoard({
       await taskService.changeStatus(activeTaskId, overColumnId)
 
       // Success — invalidate to sync with server
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.tasks.byProject(projectId),
-      })
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all() })
       queryClient.invalidateQueries({
         queryKey: queryKeys.projects.detail(projectId),
       })
       queryClient.invalidateQueries({ queryKey: ['activity'] })
-      queryClient.invalidateQueries({ queryKey: ['activity', 'org', 1] })
 
       toast.success(
         `Moved to ${

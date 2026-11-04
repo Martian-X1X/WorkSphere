@@ -11,6 +11,9 @@ public interface IOrganizationService
     /// <summary>Update organization details — Owner only</summary>
     Task<ApiResponse<OrganizationDto>> UpdateOrganizationAsync(UpdateOrganizationDto dto);
 
+    /// <summary>Update the organization logo URL — Owner only</summary>
+    Task<ApiResponse<OrganizationDto>> UpdateLogoUrlAsync(string logoUrl);
+
     /// <summary>Get paginated list of members in the current org</summary>
     Task<ApiResponse<PagedResult<MemberDto>>> GetMembersAsync(int page = 1, int pageSize = 20);
 

@@ -9,6 +9,7 @@ import { TaskFormFields } from './TaskFormFields'
 import { taskService } from '@/services/task.service'
 import { taskSchema, type TaskFormData } from '@/lib/schemas'
 import { classifyError } from '@/lib/errors'
+import { queryKeys } from '@/lib/queryKeys'
 
 interface CreateTaskModalProps {
   open: boolean
@@ -58,9 +59,11 @@ export function CreateTaskModal({
       })
     },
     onSuccess: (res) => {
-      // Invalidate tasks + project (task summary updates)
-      queryClient.invalidateQueries({ queryKey: ['tasks', projectId] })
-      queryClient.invalidateQueries({ queryKey: ['project', projectId] })
+      // Invalidate all task lists (project board + My Tasks) and project summary
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all() })
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.projects.detail(projectId),
+      })
       queryClient.invalidateQueries({ queryKey: ['activity'] })
       toast.success(`Task "${res.data.data.title}" created!`)
       reset()

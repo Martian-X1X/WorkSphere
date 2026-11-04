@@ -13,15 +13,29 @@ namespace WorkHub.API.Controllers;
 [Authorize] // All endpoints require authentication
 public class OrganizationsController : ControllerBase
 {
+    private const long MaxLogoBytes = 2 * 1024 * 1024;
+
+    private static readonly Dictionary<string, string> AllowedLogoTypes =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["image/png"]  = ".png",
+            ["image/jpeg"] = ".jpg",
+            ["image/webp"] = ".webp",
+            ["image/gif"]  = ".gif",
+        };
+
     private readonly IOrganizationService _orgService;
     private readonly ILogger<OrganizationsController> _logger;
+    private readonly IWebHostEnvironment _environment;
 
     public OrganizationsController(
         IOrganizationService orgService,
-        ILogger<OrganizationsController> logger)
+        ILogger<OrganizationsController> logger,
+        IWebHostEnvironment environment)
     {
         _orgService = orgService;
         _logger = logger;
+        _environment = environment;
     }
 
     /// <summary>
@@ -63,6 +77,66 @@ public class OrganizationsController : ControllerBase
 
         var result = await _orgService.UpdateOrganizationAsync(dto);
         return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
+    /// Upload a new organization logo. Owner only.
+    /// Stores the file under wwwroot/uploads/logos and persists its URL.
+    /// </summary>
+    [HttpPost("me/logo")]
+    [Authorize(Policy = PolicyNames.CanManageOrganization)]
+    [RequestSizeLimit(MaxLogoBytes)]
+    [ProducesResponseType(typeof(ApiResponse<OrganizationDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<OrganizationDto>), 400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    public async Task<IActionResult> UploadLogo(IFormFile? file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(ApiResponse<OrganizationDto>.Fail(
+                "No logo file was provided."));
+
+        if (file.Length > MaxLogoBytes)
+            return BadRequest(ApiResponse<OrganizationDto>.Fail(
+                "Logo must be 2 MB or smaller."));
+
+        if (!AllowedLogoTypes.TryGetValue(file.ContentType, out var extension))
+            return BadRequest(ApiResponse<OrganizationDto>.Fail(
+                "Unsupported image type. Use PNG, JPEG, WebP or GIF."));
+
+        try
+        {
+            var webRoot = _environment.WebRootPath
+                ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+            var uploadsRoot = Path.Combine(webRoot, "uploads", "logos");
+            Directory.CreateDirectory(uploadsRoot);
+
+            var fileName = $"{Guid.NewGuid():N}{extension}";
+            var filePath = Path.Combine(uploadsRoot, fileName);
+
+            await using (var stream = System.IO.File.Create(filePath))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var logoUrl = $"/uploads/logos/{fileName}";
+            var result = await _orgService.UpdateLogoUrlAsync(logoUrl);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            _logger.LogInformation(
+                "Logo uploaded for organization by user {UserId}",
+                User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to upload organization logo");
+            return BadRequest(ApiResponse<OrganizationDto>.Fail(
+                "Failed to upload logo. Please try again."));
+        }
     }
 
     /// <summary>

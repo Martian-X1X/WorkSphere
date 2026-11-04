@@ -53,7 +53,9 @@ export default function LoginPage() {
 
       // 401 from the login endpoint = wrong credentials
       if (classified.statusCode === 401) {
-        setError('password', { message: 'Incorrect email or password' })
+        const message = 'Incorrect email or password'
+        setError('password', { type: 'server', message })
+        toast.error(message)
       } else {
         toast.error(classified.message)
       }

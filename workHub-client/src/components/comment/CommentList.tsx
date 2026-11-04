@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { MessageSquare } from 'lucide-react'
 import { CommentItem } from './CommentItem'
 import { CommentForm } from './CommentForm'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useComments, useCreateComment, useUpdateComment, useDeleteComment } from '@/hooks/useComments'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -36,6 +37,7 @@ export function CommentList({ taskId }: CommentListProps) {
   // ── Active edit state ────────────────────────────────────────────
   const [editingId,      setEditingId]      = useState<string | null>(null)
   const [deletingId,     setDeletingId]     = useState<string | null>(null)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   // ── Hooks ────────────────────────────────────────────────────────
   const {
@@ -66,10 +68,18 @@ export function CommentList({ taskId }: CommentListProps) {
   }
 
   const handleDelete = (commentId: string) => {
-    if (!window.confirm('Delete this comment?')) return
+    setPendingDeleteId(commentId)
+  }
+
+  const handleConfirmDelete = () => {
+    if (!pendingDeleteId) return
+    const commentId = pendingDeleteId
     setDeletingId(commentId)
     deleteMutation.mutate(commentId, {
-      onSettled: () => setDeletingId(null),
+      onSettled: () => {
+        setDeletingId(null)
+        setPendingDeleteId(null)
+      },
     })
   }
 
@@ -132,6 +142,17 @@ export function CommentList({ taskId }: CommentListProps) {
           </p>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={!!pendingDeleteId}
+        title="Delete Comment"
+        message="This comment will be permanently deleted."
+        confirmLabel="Delete"
+        danger
+        loading={deleteMutation.isPending}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setPendingDeleteId(null)}
+      />
     </div>
   )
 }

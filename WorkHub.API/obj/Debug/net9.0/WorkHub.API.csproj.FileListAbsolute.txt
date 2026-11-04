@@ -345,3 +345,4 @@ C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\Microsof
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\System.Formats.Asn1.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\System.Security.Cryptography.Pkcs.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\runtimes\win\lib\net9.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\WorkHub.API.staticwebassets.runtime.json

@@ -10,6 +10,7 @@ import { TaskFormFields } from './TaskFormFields'
 import { taskService } from '@/services/task.service'
 import { taskSchema, type TaskFormData } from '@/lib/schemas'
 import { classifyError } from '@/lib/errors'
+import { queryKeys } from '@/lib/queryKeys'
 import type { Task } from '@/types'
 
 interface EditTaskModalProps {
@@ -76,10 +77,13 @@ export function EditTaskModal({ task, open, onClose }: EditTaskModalProps) {
     })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', task!.projectId] })
-      queryClient.invalidateQueries({ queryKey: ['task', task!.id] })
-      queryClient.invalidateQueries({ queryKey: ['project', task!.projectId] })
-      queryClient.invalidateQueries({ queryKey: ['projects'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all() })
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.tasks.detail(task!.id),
+      })
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.projects.detail(task!.projectId),
+      })
       queryClient.invalidateQueries({ queryKey: ['activity'] })
       toast.success('Task updated successfully!')
       onClose()
