@@ -38,6 +38,13 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      // SignalR hub: WebSocket upgrade must be proxied too.
+      '/hubs': {
+        target: 'http://localhost:5210',
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
     },
   },
 })

@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WorkHub.API.Authorization;
+using WorkHub.API.Hubs;
+using WorkHub.API.SignalR;
 using WorkHub.Application.Authorization;
 using WorkHub.Infrastructure.Data;
 using WorkHub.Infrastructure.Interceptors;
@@ -46,10 +48,36 @@ try
     builder.Services.AddControllers()
         .ConfigureApiBehaviorOptions(options =>
         {
-            // ✅ We suppress the default ASP.NET validation response
+            // ? We suppress the default ASP.NET validation response
             // and use our own ApiResponse<T> format via the pipeline
             options.SuppressModelStateInvalidFilter = true;
         });
+
+    // ��� SignalR - real-time notifications �������������������������?
+    builder.Services.AddSignalR(options =>
+    {
+        options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+        options.MaximumReceiveMessageSize = 32 * 1024; // 32 KB
+        options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+        options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+    });
+
+    builder.Services.AddScoped<INotificationHubSender, NotificationHubSender>();
+
+    // ��� CORS - required for credentialed SignalR connections ����������?
+    var allowedOrigins = builder.Configuration
+        .GetSection("AllowedOrigins")
+        .Get<string[]>()
+        ?? new[] { "http://localhost:5173", "http://127.0.0.1:5173" };
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("SignalRPolicy", policy =>
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials());
+    });
 
     // ─── Response compression — Brotli primary, Gzip fallback ────────
     // Reduces JSON payload sizes by 60-80% on the wire.
@@ -194,6 +222,22 @@ try
         // Return 401/403 in ApiResponse format
         options.Events = new JwtBearerEvents
         {
+            // WebSocket upgrades cannot send Authorization headers, so
+            // SignalR passes the JWT via the access_token query string.
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path        = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    path.StartsWithSegments("/hubs"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            },
+
             OnChallenge = context =>
             {
                 context.HandleResponse();
@@ -443,6 +487,7 @@ try
     // ─── Serve uploaded assets (organization logos) ───────────────────
     app.UseStaticFiles();
 
+    app.UseCors("SignalRPolicy");
     app.UseAuthentication(); // ← BEFORE Authorization
     app.UseAuthorization();  // ← AFTER Authentication
     app.UseTenantValidation();
@@ -450,6 +495,7 @@ try
 
     app.MapHealthChecks("/health");
     app.MapControllers();
+    app.MapHub<NotificationHub>("/hubs/notifications");
     app.Run();
 
 }

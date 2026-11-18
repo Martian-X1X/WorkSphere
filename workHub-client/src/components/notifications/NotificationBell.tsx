@@ -2,10 +2,12 @@ import { useState, useCallback } from 'react'
 import { Bell } from 'lucide-react'
 import { NotificationDropdown } from './NotificationDropdown'
 import { useNotificationCount } from '@/hooks/useNotifications'
+import { useNotificationStore } from '@/stores/notificationStore'
 import { cn } from '@/utils'
 
 export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false)
+  const isConnected = useNotificationStore((s) => s.isConnected)
 
   const toggle = useCallback(() => setIsOpen((p) => !p), [])
   const close  = useCallback(() => setIsOpen(false), [])
@@ -42,6 +44,16 @@ export function NotificationBell() {
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
+
+        {/* Live connection dot */}
+        <span
+          className={cn(
+            'absolute bottom-0.5 right-0.5 w-2 h-2 rounded-full',
+            'border border-surface-900',
+            isConnected ? 'bg-green-500' : 'bg-surface-600',
+          )}
+          title={isConnected ? 'Live updates on' : 'Live updates offline'}
+        />
       </button>
 
       {/* ── Dropdown ────────────────────────────────────── */}

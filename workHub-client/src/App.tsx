@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import { AppLayout }       from '@/components/layout/AppLayout'
 import { ProtectedRoute }  from '@/components/layout/ProtectedRoute'
 import { PermissionRoute } from '@/components/layout/PermissionRoute'
+import { SignalRProvider } from '@/providers/SignalRProvider'
 
 // Auth pages (use AuthLayout internally)
 import LoginPage        from '@/pages/auth/LoginPage'
@@ -49,8 +50,9 @@ function ForbiddenListener() {
 export default function App() {
   return (
     <BrowserRouter>
-      <ForbiddenListener />
-      <Routes>
+      <SignalRProvider>
+        <ForbiddenListener />
+        <Routes>
         {/* ── Public routes (no shell) ────────────────────── */}
         <Route path="/login"           element={<LoginPage />} />
         <Route path="/register"        element={<RegisterPage />} />
@@ -111,7 +113,8 @@ export default function App() {
 
         {/* ── 404 ──────────────────────────────────────────── */}
         <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+        </Routes>
+      </SignalRProvider>
     </BrowserRouter>
   )
 }

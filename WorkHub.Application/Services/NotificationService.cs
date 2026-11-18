@@ -17,6 +17,7 @@ public class NotificationService : INotificationService
     private readonly ILogger<NotificationService> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ICacheService       _cache;
+    private readonly INotificationHubSender _hubSender;
 
     private static readonly TimeSpan CountCacheDuration =
         TimeSpan.FromSeconds(AppConstants.NotificationCountCacheSeconds);
@@ -26,13 +27,86 @@ public class NotificationService : INotificationService
         ICurrentUserService      currentUser,
         ILogger<NotificationService> logger,
         IServiceScopeFactory     scopeFactory,
-        ICacheService            cache)
+        ICacheService            cache,
+        INotificationHubSender   hubSender)
     {
         _context      = context;
         _currentUser  = currentUser;
         _logger       = logger;
         _scopeFactory = scopeFactory;
         _cache        = cache;
+        _hubSender    = hubSender;
+    }
+
+    // ── Real-time helpers ────────────────────────────────────────────
+
+    private static NotificationDto MapToDto(Notification n) => new()
+    {
+        Id            = n.Id,
+        Type          = n.Type,
+        Title         = n.Title,
+        Message       = n.Message,
+        EntityType    = n.EntityType,
+        EntityId      = n.EntityId,
+        ActionUrl     = n.ActionUrl,
+        CreatedByName = n.CreatedByName,
+        IsRead        = n.IsRead,
+        ReadAt        = n.ReadAt,
+        CreatedAt     = n.CreatedAt,
+        Metadata      = n.Metadata,
+    };
+
+    /// <summary>
+    /// Pushes a newly created notification + fresh unread count to the
+    /// recipient. Never throws — real-time delivery is best-effort.
+    /// </summary>
+    private async Task PushNewNotificationAsync(
+        AppDbContext            context,
+        Notification            notification,
+        INotificationHubSender  hubSender)
+    {
+        try
+        {
+            var userId = notification.UserId.ToString();
+
+            await hubSender.SendToUserAsync(
+                userId, "NewNotification", MapToDto(notification));
+
+            var unread = await context.Notifications.CountAsync(n =>
+                n.UserId         == notification.UserId &&
+                n.OrganizationId == notification.OrganizationId &&
+                !n.IsRead);
+
+            await hubSender.SendUnreadCountAsync(userId, unread);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "Failed to push real-time notification to user {UserId}",
+                notification.UserId);
+        }
+    }
+
+    /// <summary>Pushes the current unread count to a user. Best-effort.</summary>
+    private async Task PushUnreadCountAsync(
+        Guid             userId,
+        Guid             organizationId,
+        INotificationHubSender hubSender)
+    {
+        try
+        {
+            var unread = await _context.Notifications.CountAsync(n =>
+                n.UserId         == userId &&
+                n.OrganizationId == organizationId &&
+                !n.IsRead);
+
+            await hubSender.SendUnreadCountAsync(userId.ToString(), unread);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "Failed to push unread count to user {UserId}", userId);
+        }
     }
 
     // ── Fire-and-forget safe create ─────────────────────────────────
@@ -68,6 +142,10 @@ public class NotificationService : INotificationService
                 await context.SaveChangesAsync();
 
                 InvalidateCountCache(dto.UserId);
+
+                var hubSender = scope.ServiceProvider
+                                     .GetRequiredService<INotificationHubSender>();
+                await PushNewNotificationAsync(context, notification, hubSender);
 
                 _logger.LogDebug(
                     "Background notification saved for user {UserId}: {Type}",
@@ -118,6 +196,12 @@ public class NotificationService : INotificationService
                 foreach (var userId in userIds)
                     InvalidateCountCache(userId);
 
+                var hubSender = scope.ServiceProvider
+                                     .GetRequiredService<INotificationHubSender>();
+
+                foreach (var notification in notifications)
+                    await PushNewNotificationAsync(context, notification, hubSender);
+
                 _logger.LogDebug(
                     "Background bulk notifications saved for {Count} users: {Type}",
                     notifications.Count, template.Type);
@@ -156,6 +240,8 @@ public class NotificationService : INotificationService
             await _context.SaveChangesAsync();
 
             InvalidateCountCache(dto.UserId);
+
+            await PushNewNotificationAsync(_context, notification, _hubSender);
 
             _logger.LogDebug(
                 "Notification created for user {UserId}: {Type}",
@@ -200,6 +286,9 @@ public class NotificationService : INotificationService
 
             foreach (var userId in userIds)
                 InvalidateCountCache(userId);
+
+            foreach (var notification in notifications)
+                await PushNewNotificationAsync(_context, notification, _hubSender);
 
             _logger.LogDebug(
                 "Bulk notifications created for {Count} users: {Type}",
@@ -327,6 +416,21 @@ public class NotificationService : INotificationService
             notification.ReadAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             InvalidateCountCache(userId);
+
+            try
+            {
+                await _hubSender.SendToUserAsync(
+                    userId.ToString(), "NotificationRead", notification.Id.ToString());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex,
+                    "Failed to push read receipt for notification {Id}",
+                    notification.Id);
+            }
+
+            await PushUnreadCountAsync(
+                userId, notification.OrganizationId, _hubSender);
         }
     }
 
@@ -348,6 +452,18 @@ public class NotificationService : INotificationService
             );
 
         InvalidateCountCache(userId);
+
+        try
+        {
+            await _hubSender.SendToUserAsync(
+                userId.ToString(), "AllNotificationsRead", new { });
+            await _hubSender.SendUnreadCountAsync(userId.ToString(), 0);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "Failed to push mark-all-read to user {UserId}", userId);
+        }
     }
 
     // ── Delete ─────────────────────────────────────────────────────
@@ -362,6 +478,9 @@ public class NotificationService : INotificationService
             .ExecuteDeleteAsync();
 
         InvalidateCountCache(userId);
+
+        await PushUnreadCountAsync(
+            userId, _currentUser.OrganizationId, _hubSender);
     }
 
     // ── Delete all ────────────────────────────────────────────────────
@@ -377,6 +496,8 @@ public class NotificationService : INotificationService
             .ExecuteDeleteAsync();
 
         InvalidateCountCache(userId);
+
+        await PushUnreadCountAsync(userId, orgId, _hubSender);
     }
 
     // ── Domain helpers ─────────────────────────────────────────────
