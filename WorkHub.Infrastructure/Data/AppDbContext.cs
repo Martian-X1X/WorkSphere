@@ -19,6 +19,11 @@ public class AppDbContext : DbContext
       public DbSet<Comment> Comments { get; set; }
       public DbSet<ActivityLog> ActivityLogs { get; set; }
       public DbSet<Notification> Notifications { get; set; }
+      public DbSet<ChatRoom> ChatRooms { get; set; }
+      public DbSet<ChatRoomMember> ChatRoomMembers { get; set; }
+      public DbSet<Message> Messages { get; set; }
+      public DbSet<MessageReaction> MessageReactions { get; set; }
+      public DbSet<MessageAttachment> MessageAttachments { get; set; }
 
       // ✅ Auto-update timestamps + handle soft delete
       public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -357,6 +362,125 @@ public class AppDbContext : DbContext
                         .WithMany()
                         .HasForeignKey(n => n.CreatedByUserId)
                         .OnDelete(DeleteBehavior.SetNull);  // keep notif if actor deleted
+            });
+
+            // ── ChatRoom ──────────────────────────────────────────────
+            modelBuilder.Entity<ChatRoom>(entity =>
+            {
+                  entity.ToTable("ChatRooms");
+
+                  entity.Property(e => e.Name).HasMaxLength(100);
+                  entity.Property(e => e.Description).HasMaxLength(500);
+                  entity.Property(e => e.LastMessagePreview).HasMaxLength(200);
+                  entity.Property(e => e.Icon).HasMaxLength(10);
+
+                  entity.HasIndex(e => new { e.OrganizationId, e.LastMessageAt });
+
+                  entity.HasIndex(e => e.ProjectId)
+                        .IsUnique()
+                        .HasFilter("\"ProjectId\" IS NOT NULL");
+
+                  entity.HasOne(e => e.Organization)
+                        .WithMany()
+                        .HasForeignKey(e => e.OrganizationId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                  entity.HasOne(e => e.Project)
+                        .WithMany()
+                        .HasForeignKey(e => e.ProjectId)
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                  entity.HasOne(e => e.CreatedBy)
+                        .WithMany()
+                        .HasForeignKey(e => e.CreatedByUserId)
+                        .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ── ChatRoomMember ────────────────────────────────────────
+            modelBuilder.Entity<ChatRoomMember>(entity =>
+            {
+                  entity.ToTable("ChatRoomMembers");
+
+                  entity.HasIndex(e => new { e.ChatRoomId, e.UserId }).IsUnique();
+                  entity.HasIndex(e => new { e.UserId, e.IsActive });
+
+                  entity.HasOne(e => e.ChatRoom)
+                        .WithMany(r => r.Members)
+                        .HasForeignKey(e => e.ChatRoomId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                  entity.HasOne(e => e.User)
+                        .WithMany()
+                        .HasForeignKey(e => e.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                  entity.HasOne(e => e.LastReadMessage)
+                        .WithMany()
+                        .HasForeignKey(e => e.LastReadMessageId)
+                        .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // ── Message ───────────────────────────────────────────────
+            modelBuilder.Entity<Message>(entity =>
+            {
+                  entity.ToTable("Messages");
+
+                  entity.Property(e => e.Content).IsRequired().HasMaxLength(4000);
+
+                  entity.HasIndex(e => new { e.ChatRoomId, e.CreatedAt });
+
+                  entity.HasIndex(e => e.ParentMessageId)
+                        .HasFilter("\"ParentMessageId\" IS NOT NULL");
+
+                  entity.HasOne(e => e.ChatRoom)
+                        .WithMany(r => r.Messages)
+                        .HasForeignKey(e => e.ChatRoomId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                  entity.HasOne(e => e.Sender)
+                        .WithMany()
+                        .HasForeignKey(e => e.SenderUserId)
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                  entity.HasOne(e => e.ParentMessage)
+                        .WithMany(m => m.Replies)
+                        .HasForeignKey(e => e.ParentMessageId)
+                        .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ── MessageReaction ───────────────────────────────────────
+            modelBuilder.Entity<MessageReaction>(entity =>
+            {
+                  entity.ToTable("MessageReactions");
+
+                  entity.HasIndex(e => new { e.MessageId, e.UserId, e.Emoji }).IsUnique();
+
+                  entity.Property(e => e.Emoji).IsRequired().HasMaxLength(10);
+
+                  entity.HasOne(e => e.Message)
+                        .WithMany(m => m.Reactions)
+                        .HasForeignKey(e => e.MessageId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                  entity.HasOne(e => e.User)
+                        .WithMany()
+                        .HasForeignKey(e => e.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ── MessageAttachment ─────────────────────────────────────
+            modelBuilder.Entity<MessageAttachment>(entity =>
+            {
+                  entity.ToTable("MessageAttachments");
+
+                  entity.Property(e => e.FileName).IsRequired().HasMaxLength(255);
+                  entity.Property(e => e.FileUrl).IsRequired().HasMaxLength(1000);
+                  entity.Property(e => e.ContentType).IsRequired().HasMaxLength(100);
+
+                  entity.HasOne(e => e.Message)
+                        .WithMany(m => m.Attachments)
+                        .HasForeignKey(e => e.MessageId)
+                        .OnDelete(DeleteBehavior.Cascade);
             });
 
       }

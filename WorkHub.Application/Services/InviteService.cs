@@ -9,6 +9,7 @@ using WorkHub.Application.DTOs.Invite;
 using WorkHub.Application.Interfaces;
 using WorkHub.Domain.Constants;
 using WorkHub.Domain.Entities;
+using WorkHub.Domain.Enums;
 
 namespace WorkHub.Application.Services;
 
@@ -318,6 +319,40 @@ public class InviteService : IInviteService
             invite.Status = InviteStatus.Accepted;
             invite.AcceptedAt = DateTime.UtcNow;
             invite.AcceptedByUserId = user.Id;
+
+            var generalRoom = await _context.ChatRooms
+                .FirstOrDefaultAsync(r =>
+                    r.OrganizationId == user.OrganizationId &&
+                    r.Type == ChatRoomType.General &&
+                    r.IsActive);
+
+            if (generalRoom != null)
+            {
+                var alreadyMember = await _context.ChatRoomMembers.AnyAsync(m =>
+                    m.ChatRoomId == generalRoom.Id &&
+                    m.UserId == user.Id);
+
+                if (!alreadyMember)
+                {
+                    _context.ChatRoomMembers.Add(new ChatRoomMember
+                    {
+                        ChatRoomId = generalRoom.Id,
+                        UserId = user.Id,
+                        JoinedAt = DateTime.UtcNow,
+                        IsActive = true,
+                    });
+
+                    _context.Messages.Add(new Message
+                    {
+                        ChatRoomId = generalRoom.Id,
+                        OrganizationId = user.OrganizationId,
+                        SenderUserId = user.Id,
+                        Content = $"{user.FirstName} {user.LastName} joined the workspace.",
+                        Type = MessageType.System,
+                        CreatedAt = DateTime.UtcNow,
+                    });
+                }
+            }
 
             await _context.SaveChangesAsync();
 

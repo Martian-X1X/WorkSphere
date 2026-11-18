@@ -466,6 +466,7 @@ try
 
         var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
         await seeder.SeedAsync();
+        await ChatSeeder.SeedAsync(context);
     }
 
     // ─── Middleware pipeline — ORDER IS CRITICAL ──────────────────────

@@ -74,6 +74,15 @@ export const queryKeys = {
       ['activity', 'task', taskId] as const,
   },
 
+  // ── Chat ────────────────────────────────────────────────────────
+  chat: {
+    rooms: () => ['chat', 'rooms'] as const,
+    room: (roomId: string) => ['chat', 'room', roomId] as const,
+    messages: (roomId: string) => ['chat', 'messages', roomId] as const,
+    members: (roomId: string) => ['chat', 'members', roomId] as const,
+    unreadCounts: () => ['chat', 'unread'] as const,
+  },
+
   // ── Analytics ───────────────────────────────────────────────────
   analytics: {
     dashboard: (days?: number) =>

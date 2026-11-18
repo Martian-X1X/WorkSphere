@@ -6,6 +6,7 @@ using WorkHub.Application.DTOs.Organization;
 using WorkHub.Application.DTOs.Project;
 using WorkHub.Application.Interfaces;
 using WorkHub.Domain.Entities;
+using WorkHub.Domain.Enums;
 
 namespace WorkHub.Application.Services;
 
@@ -221,6 +222,54 @@ public class ProjectService : IProjectService
             };
 
             _context.Projects.Add(project);
+
+            var welcomeText = $"Project **{project.Name}** was created. Welcome!";
+            var roomName = project.Name.Trim().ToLowerInvariant().Replace(' ', '-');
+            if (roomName.Length > 100)
+                roomName = roomName[..100];
+
+            var projectRoom = new ChatRoom
+            {
+                OrganizationId = project.OrganizationId,
+                Name = roomName,
+                Description = $"Chat for project: {project.Name}",
+                Type = ChatRoomType.Project,
+                ProjectId = project.Id,
+                Icon = "📁",
+                IsActive = true,
+                CreatedByUserId = _currentUser.UserId,
+                CreatedAt = DateTime.UtcNow,
+                LastMessageAt = DateTime.UtcNow,
+                LastMessagePreview = welcomeText,
+            };
+
+            _context.ChatRooms.Add(projectRoom);
+
+            var memberIds = new HashSet<Guid> { _currentUser.UserId };
+            if (dto.ProjectLeadUserId.HasValue)
+                memberIds.Add(dto.ProjectLeadUserId.Value);
+
+            foreach (var memberId in memberIds)
+            {
+                _context.ChatRoomMembers.Add(new ChatRoomMember
+                {
+                    ChatRoomId = projectRoom.Id,
+                    UserId = memberId,
+                    JoinedAt = DateTime.UtcNow,
+                    IsActive = true,
+                });
+            }
+
+            _context.Messages.Add(new Message
+            {
+                ChatRoomId = projectRoom.Id,
+                OrganizationId = project.OrganizationId,
+                SenderUserId = _currentUser.UserId,
+                Content = welcomeText,
+                Type = MessageType.System,
+                CreatedAt = DateTime.UtcNow,
+            });
+
             await _context.SaveChangesAsync();
 
             await _activityService.LogAsync(
