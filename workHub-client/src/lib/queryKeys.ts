@@ -74,6 +74,12 @@ export const queryKeys = {
       ['activity', 'task', taskId] as const,
   },
 
+  // ── Analytics ───────────────────────────────────────────────────
+  analytics: {
+    dashboard: (days?: number) =>
+      ['analytics', 'dashboard', days ?? 30] as const,
+  },
+
   // ── Notifications ───────────────────────────────────────────────
   notifications: {
     all:   () => ['notifications'] as const,

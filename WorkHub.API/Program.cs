@@ -409,6 +409,7 @@ try
     builder.Services.AddScoped<ISearchService, SearchService>();
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<INotificationService, NotificationService>();
+    builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
     // ─── Seeder ───────────────────────────────────────────────────────
     builder.Services.AddScoped<DataSeeder>();
 
