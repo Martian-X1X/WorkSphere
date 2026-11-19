@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { useLayout } from '@/hooks/useLayout'
 import { useAuthContext } from '@/hooks/useAuth'
 import { useAuthStore } from '@/stores/authStore'
+import { cn } from '@/utils'
 
 export function AppLayout() {
   const { isLoading } = useAuthContext()  // loads + syncs permissions
@@ -17,6 +18,7 @@ export function AppLayout() {
   const { mobileMenuOpen, setMobileMenuOpen } = useLayout()
 
   const location = useLocation()
+  const isChatPage = location.pathname.startsWith('/chat')
 
   // Show "Access Denied" toast when redirected due to missing permission
   useEffect(() => {
@@ -58,11 +60,13 @@ export function AppLayout() {
         <Header />
 
         {/* Scrollable page content */}
-        <main className="flex-1 overflow-auto">
+        <main className={cn('flex-1 overflow-auto', isChatPage && 'overflow-hidden')}>
           {permissionsLoading ? (
             <div className="flex items-center justify-center h-full">
               <Spinner size="lg" label="Loading your workspace..." />
             </div>
+          ) : isChatPage ? (
+            <Outlet />
           ) : (
             <div className="p-4 sm:p-6 max-w-7xl mx-auto w-full animate-fade-in">
               <Outlet />

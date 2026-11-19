@@ -69,6 +69,7 @@ public class GlobalExceptionMiddleware
             // ── Domain exceptions — clean, intentional errors ──────
             NotFoundException        ex => (StatusCodes.Status404NotFound, ex.Message),
             ForbiddenException       ex => (StatusCodes.Status403Forbidden, ex.Message),
+            BadRequestException      ex => (StatusCodes.Status400BadRequest, ex.Message),
             BusinessRuleException    ex => (StatusCodes.Status400BadRequest, ex.Message),
             ConflictException        ex => (StatusCodes.Status409Conflict, ex.Message),
             AuthenticationException  ex => (StatusCodes.Status401Unauthorized, ex.Message),

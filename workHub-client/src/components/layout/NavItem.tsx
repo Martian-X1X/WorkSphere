@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/utils'
+import { useChatStore } from '@/stores/chatStore'
 import type { NavItem as NavItemType } from './navConfig'
 
 interface NavItemProps {
@@ -10,6 +11,8 @@ interface NavItemProps {
 
 export function NavItem({ item, collapsed, onClick }: NavItemProps) {
   const Icon = item.icon
+  const chatUnread = useChatStore((s) => s.getTotalUnread())
+  const badge = item.dynamicBadge === 'chat' ? chatUnread : item.badge
 
   return (
     <NavLink
@@ -54,12 +57,15 @@ export function NavItem({ item, collapsed, onClick }: NavItemProps) {
           )}
 
           {/* Badge */}
-          {!collapsed && item.badge && item.badge > 0 && (
-            <span className="ml-auto bg-primary-600 text-white text-xs
-                             font-medium px-1.5 py-0.5 rounded-full min-w-[18px]
-                             text-center leading-none">
-              {item.badge > 99 ? '99+' : item.badge}
-            </span>
+          {badge && badge > 0 && (
+            collapsed
+              ? <span className="absolute top-1 right-1 w-2 h-2 rounded-full
+                                bg-primary-500 ring-2 ring-surface-900" />
+              : <span className="ml-auto bg-primary-600 text-white text-xs
+                                font-medium px-1.5 py-0.5 rounded-full min-w-[18px]
+                                text-center leading-none">
+                  {badge > 99 ? '99+' : badge}
+                </span>
           )}
 
           {/* Tooltip when collapsed */}

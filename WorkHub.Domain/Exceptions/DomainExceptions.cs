@@ -34,6 +34,15 @@ public class ForbiddenException : DomainException
 }
 
 /// <summary>
+/// Thrown when a request is malformed or invalid.
+/// Maps to HTTP 400.
+/// </summary>
+public class BadRequestException : DomainException
+{
+    public BadRequestException(string message) : base(message) { }
+}
+
+/// <summary>
 /// Thrown when business rules are violated.
 /// Maps to HTTP 400.
 /// </summary>

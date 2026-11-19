@@ -7,6 +7,7 @@ import { AppLayout }       from '@/components/layout/AppLayout'
 import { ProtectedRoute }  from '@/components/layout/ProtectedRoute'
 import { PermissionRoute } from '@/components/layout/PermissionRoute'
 import { SignalRProvider } from '@/providers/SignalRProvider'
+import { ChatHubProvider } from '@/providers/ChatHubProvider'
 
 // Auth pages (use AuthLayout internally)
 import LoginPage        from '@/pages/auth/LoginPage'
@@ -24,6 +25,7 @@ import ProfilePage    from '@/pages/profile/ProfilePage'
 import ProjectDetailPage from '@/pages/projects/ProjectDetailPage'
 import TaskDetailPage from '@/pages/tasks/TaskDetailPage'
 import NotificationsPage from '@/pages/notifications/NotificationsPage'
+import ChatPage from '@/pages/ChatPage'
 
 // Error pages
 import ForbiddenPage from '@/pages/errors/ForbiddenPage'
@@ -51,69 +53,73 @@ export default function App() {
   return (
     <BrowserRouter>
       <SignalRProvider>
-        <ForbiddenListener />
-        <Routes>
-        {/* ── Public routes (no shell) ────────────────────── */}
-        <Route path="/login"           element={<LoginPage />} />
-        <Route path="/register"        element={<RegisterPage />} />
-        <Route path="/invite/:token"   element={<AcceptInvitePage />} />
+        <ChatHubProvider>
+          <ForbiddenListener />
+          <Routes>
+            {/* ── Public routes (no shell) ────────────────────── */}
+            <Route path="/login"           element={<LoginPage />} />
+            <Route path="/register"        element={<RegisterPage />} />
+            <Route path="/invite/:token"   element={<AcceptInvitePage />} />
 
-        {/* ── Protected routes (inside AppLayout shell) ───── */}
-        <Route
-          element={
-            <ProtectedRoute>
-              <AppLayout />
-            </ProtectedRoute>
-          }
-        >
-          {/* ── Open to all authenticated users ──────────────── */}
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/activity"  element={<ActivityPage />} />
-          <Route path="/tasks"     element={<MyTasksPage />} />
-          <Route path="/profile"   element={<ProfilePage />} />
-          <Route path="/notifications" element={<NotificationsPage />} />
+            {/* ── Protected routes (inside AppLayout shell) ───── */}
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              {/* ── Open to all authenticated users ──────────────── */}
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/activity"  element={<ActivityPage />} />
+              <Route path="/tasks"     element={<MyTasksPage />} />
+              <Route path="/profile"   element={<ProfilePage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/chat"           element={<ChatPage />} />
+              <Route path="/chat/:roomId"   element={<ChatPage />} />
 
-          {/* ── Requires projects.view ───────────────────────── */}
-          <Route path="/projects" element={
-            <PermissionRoute permission="projects.view">
-              <ProjectsPage />
-            </PermissionRoute>
-          } />
-          <Route path="/projects/:projectId" element={
-            <PermissionRoute permission="projects.view">
-              <ProjectDetailPage />
-            </PermissionRoute>
-          } />
-          <Route path="/tasks/:taskId" element={
-            <PermissionRoute permission="tasks.view">
-              <TaskDetailPage />
-            </PermissionRoute>
-          } />
+              {/* ── Requires projects.view ───────────────────────── */}
+              <Route path="/projects" element={
+                <PermissionRoute permission="projects.view">
+                  <ProjectsPage />
+                </PermissionRoute>
+              } />
+              <Route path="/projects/:projectId" element={
+                <PermissionRoute permission="projects.view">
+                  <ProjectDetailPage />
+                </PermissionRoute>
+              } />
+              <Route path="/tasks/:taskId" element={
+                <PermissionRoute permission="tasks.view">
+                  <TaskDetailPage />
+                </PermissionRoute>
+              } />
 
-          {/* ── Requires members.view ────────────────────────── */}
-          <Route path="/members" element={
-            <PermissionRoute permission="members.view">
-              <MembersPage />
-            </PermissionRoute>
-          } />
+              {/* ── Requires members.view ────────────────────────── */}
+              <Route path="/members" element={
+                <PermissionRoute permission="members.view">
+                  <MembersPage />
+                </PermissionRoute>
+              } />
 
-          {/* ── Requires organizations.update (Owner only) ───── */}
-          <Route path="/settings" element={
-            <PermissionRoute permission="organizations.update">
-              <SettingsPage />
-            </PermissionRoute>
-          } />
+              {/* ── Requires organizations.update (Owner only) ───── */}
+              <Route path="/settings" element={
+                <PermissionRoute permission="organizations.update">
+                  <SettingsPage />
+                </PermissionRoute>
+              } />
 
-          {/* ── 403 for authenticated users ──────────────────── */}
-          <Route path="/forbidden" element={<ForbiddenPage />} />
-        </Route>
+              {/* ── 403 for authenticated users ──────────────────── */}
+              <Route path="/forbidden" element={<ForbiddenPage />} />
+            </Route>
 
-        {/* ── Default redirect ─────────────────────────────── */}
-        <Route path="/"  element={<Navigate to="/dashboard" replace />} />
+            {/* ── Default redirect ─────────────────────────────── */}
+            <Route path="/"  element={<Navigate to="/dashboard" replace />} />
 
-        {/* ── 404 ──────────────────────────────────────────── */}
-        <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+            {/* ── 404 ──────────────────────────────────────────── */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </ChatHubProvider>
       </SignalRProvider>
     </BrowserRouter>
   )

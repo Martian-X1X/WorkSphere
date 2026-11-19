@@ -4,6 +4,7 @@ import {
   CheckSquare,
   Users,
   Activity,
+  MessageCircle,
   Settings,
   type LucideIcon,
 } from 'lucide-react'
@@ -13,6 +14,7 @@ export interface NavItem {
   path:       string
   icon:       LucideIcon
   badge?:     number
+  dynamicBadge?: 'chat'
   permission?: string
   adminOnly?: boolean
 }
@@ -52,6 +54,12 @@ export const navSections: NavSection[] = [
   {
     title: 'Team',
     items: [
+      {
+        label: 'Chat',
+        path: '/chat',
+        icon: MessageCircle,
+        dynamicBadge: 'chat',
+      },
       {
         label: 'Members',
         path: '/members',

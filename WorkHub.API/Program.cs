@@ -63,8 +63,9 @@ try
     });
 
     builder.Services.AddScoped<INotificationHubSender, NotificationHubSender>();
+    builder.Services.AddScoped<IChatHubSender, ChatHubSender>();
 
-    // ��� CORS - required for credentialed SignalR connections ����������?
+    //��� CORS - required for credentialed SignalR connections ����������?
     var allowedOrigins = builder.Configuration
         .GetSection("AllowedOrigins")
         .Get<string[]>()
@@ -410,6 +411,7 @@ try
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<INotificationService, NotificationService>();
     builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+    builder.Services.AddScoped<IChatService, ChatService>();
     // ─── Seeder ───────────────────────────────────────────────────────
     builder.Services.AddScoped<DataSeeder>();
 
@@ -498,6 +500,7 @@ try
     app.MapHealthChecks("/health");
     app.MapControllers();
     app.MapHub<NotificationHub>("/hubs/notifications");
+    app.MapHub<ChatHub>("/hubs/chat");
     app.Run();
 
 }

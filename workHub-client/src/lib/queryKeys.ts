@@ -76,11 +76,12 @@ export const queryKeys = {
 
   // ── Chat ────────────────────────────────────────────────────────
   chat: {
-    rooms: () => ['chat', 'rooms'] as const,
-    room: (roomId: string) => ['chat', 'room', roomId] as const,
-    messages: (roomId: string) => ['chat', 'messages', roomId] as const,
-    members: (roomId: string) => ['chat', 'members', roomId] as const,
-    unreadCounts: () => ['chat', 'unread'] as const,
+    all:      ()            => ['chat'] as const,
+    rooms:    ()            => ['chat', 'rooms'] as const,
+    room:     (id: string)  => ['chat', 'rooms', id] as const,
+    messages: (id: string)  => ['chat', 'rooms', id, 'messages'] as const,
+    members:  (id: string)  => ['chat', 'rooms', id, 'members'] as const,
+    unreadCounts: ()        => ['chat', 'unread'] as const,
   },
 
   // ── Analytics ───────────────────────────────────────────────────
