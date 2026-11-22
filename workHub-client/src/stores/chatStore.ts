@@ -107,8 +107,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   incrementUnread: (roomId) =>
     set((s) => ({
       rooms: s.rooms.map((r) =>
-        r.id === roomId && r.id !== s.activeRoomId
-          ? { ...r, unreadCount: r.unreadCount + 1 }
+        r.id === roomId
+          ? { ...r, unreadCount: (r.unreadCount ?? 0) + 1 }
           : r
       ),
     })),

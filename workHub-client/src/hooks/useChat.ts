@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import {
   useMutation, useQuery, useQueryClient,
 } from '@tanstack/react-query'
@@ -79,7 +79,7 @@ export function useChatMembers(roomId: string) {
 
 export function useMessages(roomId: string) {
   const setMessages = useChatStore((s) => s.setMessages)
-  const messages = useChatStore((s) => s.messages[roomId] ?? [])
+  const storeMessages = useChatStore((s) => s.messages[roomId] ?? [])
 
   const query = useQuery({
     queryKey: queryKeys.chat.messages(roomId),
@@ -88,15 +88,22 @@ export function useMessages(roomId: string) {
     enabled: !!roomId,
   })
 
+  const seededRef = useRef<string | null>(null)
+
   useEffect(() => {
-    if (query.data?.messages) {
+    if (query.data?.messages && seededRef.current !== roomId) {
+      seededRef.current = roomId
       setMessages(roomId, query.data.messages)
     }
   }, [query.data, roomId, setMessages])
 
+  useEffect(() => {
+    seededRef.current = null
+  }, [roomId])
+
   return {
     ...query,
-    messages,
+    messages: storeMessages,
     hasMore: query.data?.hasMore ?? false,
     cursor: query.data?.nextCursor ?? null,
   }

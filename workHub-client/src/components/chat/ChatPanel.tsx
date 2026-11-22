@@ -42,11 +42,13 @@ export function ChatPanel({ roomId }: ChatPanelProps) {
   useActiveRoom(roomId)
 
   useEffect(() => {
+    if (!roomId) return
     const last = messages[messages.length - 1]
-    if (!last || last.id === lastMarkedRef.current) return
-    lastMarkedRef.current = last.id
+    const marker = `${roomId}:${last?.id ?? ''}`
+    if (marker === lastMarkedRef.current) return
+    lastMarkedRef.current = marker
     void markRead()
-  }, [messages, markRead])
+  }, [roomId, messages, markRead])
 
   const handleLoadMore = async () => {
     if (!cursor || loadingMore) return

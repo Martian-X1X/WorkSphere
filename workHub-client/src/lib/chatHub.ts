@@ -50,11 +50,12 @@ export function getChatHubConnection(): signalR.HubConnection | null {
 }
 
 export async function disconnectChatHub(): Promise<void> {
-  if (
-    chatConnection &&
-    chatConnection.state !== signalR.HubConnectionState.Disconnected
-  ) {
-    await chatConnection.stop()
-  }
+  const connection = chatConnection
   chatConnection = null
+  if (
+    connection &&
+    connection.state !== signalR.HubConnectionState.Disconnected
+  ) {
+    await connection.stop()
+  }
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { HubConnectionState } from '@microsoft/signalr'
+import type { HubConnection } from '@microsoft/signalr'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { createChatHubConnection, disconnectChatHub } from '@/lib/chatHub'
@@ -16,22 +17,44 @@ interface ReactionUpdatedPayload {
   userIds?: string[]
 }
 
+interface MessageDeletedPayload {
+  messageId: string
+  chatRoomId: string
+}
+
+interface RoomUpdatedPayload {
+  roomId: string
+  lastMessageAt: string
+  lastMessagePreview: string
+}
+
+interface MemberPayload {
+  roomId: string
+  userId?: string
+}
+
 export function ChatHubProvider({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const userId = useAuthStore((s) => s.user?.id ?? null)
 
   const queryClient = useQueryClient()
   const activeUserRef = useRef<string | null>(null)
+  const lifecycleHubRef = useRef<HubConnection | null>(null)
 
   useEffect(() => {
     if (!isAuthenticated || !userId) {
       void disconnectChatHub()
       activeUserRef.current = null
+      lifecycleHubRef.current = null
       useChatStore.getState().setConnected(false)
       return
     }
 
-    // StrictMode remount / token refresh must not create a second connection.
+    if (activeUserRef.current && activeUserRef.current !== userId) {
+      void disconnectChatHub()
+      lifecycleHubRef.current = null
+    }
+
     if (activeUserRef.current === userId) return
     activeUserRef.current = userId
 
@@ -58,15 +81,23 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
               ...r,
               ...patch,
               unreadCount: incrementUnread
-                ? r.unreadCount + 1
+                ? (r.unreadCount ?? 0) + 1
                 : r.unreadCount,
             }
           : r))
     }
 
-    // ── Server → client events ────────────────────────────────────────
+    const adjustMemberCount = (roomId: string, delta: number) => {
+      const room = useChatStore.getState().rooms.find((r) => r.id === roomId)
+      const current = room?.memberCount ?? room?.members.length ?? 0
+      const memberCount = Math.max(0, current + delta)
+      useChatStore.getState().updateRoom(roomId, { memberCount })
+      patchRoomInCache(roomId, { memberCount })
+    }
 
-    hub.on('NewMessage', (message: Message) => {
+    // ── Named handlers (required for hub.off cleanup) ─────────────────
+
+    const onNewMessage = (message: Message) => {
       const store = useChatStore.getState()
       store.addMessage(message.chatRoomId, message)
 
@@ -79,31 +110,26 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
           ? `${message.content.slice(0, 100)}…`
           : message.content,
       }, !isActive)
-    })
+    }
 
-    hub.on('MessageEdited', (message: Message) => {
+    const onMessageEdited = (message: Message) => {
       useChatStore.getState().updateMessage(message.chatRoomId, message)
-    })
+    }
 
-    hub.on('MessageDeleted', (payload: {
-      messageId: string
-      chatRoomId: string
-    }) => {
+    const onMessageDeleted = (payload: MessageDeletedPayload) => {
       useChatStore.getState().deleteMessage(
         payload.chatRoomId,
         payload.messageId,
       )
-    })
+    }
 
-    hub.on('ReactionUpdated', (payload: ReactionUpdatedPayload) => {
+    const onReactionUpdated = (payload: ReactionUpdatedPayload) => {
       const { messages } = useChatStore.getState()
       const roomId = Object.keys(messages).find((rid) =>
         messages[rid].some((m) => m.id === payload.messageId),
       )
       if (!roomId) return
 
-      // "IncludesMe" is per-viewer — recompute it from the user ids the
-      // server broadcasts instead of trusting the acting user's value.
       const group = payload.group
         ? {
             ...payload.group,
@@ -119,13 +145,9 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
         payload.emoji,
         group,
       )
-    })
+    }
 
-    hub.on('RoomUpdated', (payload: {
-      roomId: string
-      lastMessageAt: string
-      lastMessagePreview: string
-    }) => {
+    const onRoomUpdated = (payload: RoomUpdatedPayload) => {
       useChatStore.getState().updateRoom(payload.roomId, {
         lastMessageAt: payload.lastMessageAt,
         lastMessagePreview: payload.lastMessagePreview,
@@ -134,55 +156,66 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
         lastMessageAt: payload.lastMessageAt,
         lastMessagePreview: payload.lastMessagePreview,
       })
-    })
-
-    const adjustMemberCount = (roomId: string, delta: number) => {
-      const room = useChatStore.getState().rooms.find((r) => r.id === roomId)
-      const current = room?.memberCount ?? room?.members.length ?? 0
-      const memberCount = Math.max(0, current + delta)
-      useChatStore.getState().updateRoom(roomId, { memberCount })
-      patchRoomInCache(roomId, { memberCount })
     }
 
-    hub.on('MemberJoined', (payload: { roomId: string }) => {
+    const onMemberJoined = (payload: MemberPayload) => {
       adjustMemberCount(payload.roomId, 1)
-    })
+    }
 
-    hub.on('MemberLeft', (payload: { roomId: string; userId: string }) => {
+    const onMemberLeft = (payload: MemberPayload) => {
       adjustMemberCount(payload.roomId, -1)
       queryClient.invalidateQueries({
         queryKey: queryKeys.chat.members(payload.roomId),
       })
-    })
+    }
 
-    hub.on('MarkRead', (roomId: string) => {
+    const onMarkRead = (roomId: string) => {
       useChatStore.getState().clearUnread(roomId)
-    })
+    }
 
-    hub.on('UserTyping', () => {
+    const onUserTyping = () => {
       // Full typing indicator is wired up on Day 75.
-    })
+    }
 
-    hub.on('UserStoppedTyping', () => {
+    const onUserStoppedTyping = () => {
       // Full typing indicator is wired up on Day 75.
-    })
+    }
 
-    // ── Connection lifecycle ──────────────────────────────────────────
-
-    hub.onreconnecting(() => {
+    const onReconnecting = () => {
       useChatStore.getState().setConnected(false)
-    })
+    }
 
-    hub.onreconnected(() => {
+    const onReconnected = () => {
       useChatStore.getState().setConnected(true)
       void joinActiveRoom()
       queryClient.invalidateQueries({ queryKey: queryKeys.chat.rooms() })
-    })
+    }
 
-    hub.onclose(() => {
+    const onClose = () => {
       useChatStore.getState().setConnected(false)
       activeUserRef.current = null
-    })
+    }
+
+    // ── Register ──────────────────────────────────────────────────────
+
+    hub.on('NewMessage', onNewMessage)
+    hub.on('MessageEdited', onMessageEdited)
+    hub.on('MessageDeleted', onMessageDeleted)
+    hub.on('ReactionUpdated', onReactionUpdated)
+    hub.on('RoomUpdated', onRoomUpdated)
+    hub.on('MemberJoined', onMemberJoined)
+    hub.on('MemberLeft', onMemberLeft)
+    hub.on('MarkRead', onMarkRead)
+    hub.on('UserTyping', onUserTyping)
+    hub.on('UserStoppedTyping', onUserStoppedTyping)
+
+    // SignalR has no offclose/offreconnected — register once per connection.
+    if (lifecycleHubRef.current !== hub) {
+      lifecycleHubRef.current = hub
+      hub.onreconnecting(onReconnecting)
+      hub.onreconnected(onReconnected)
+      hub.onclose(onClose)
+    }
 
     const start = async () => {
       try {
@@ -197,6 +230,7 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
         if (!stillAuthenticated) {
           await disconnectChatHub()
           activeUserRef.current = null
+          lifecycleHubRef.current = null
           return
         }
 
@@ -212,6 +246,22 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
     }
 
     void start()
+
+    // ── Cleanup — prevents duplicate listeners on re-render / StrictMode ──
+
+    return () => {
+      hub.off('NewMessage', onNewMessage)
+      hub.off('MessageEdited', onMessageEdited)
+      hub.off('MessageDeleted', onMessageDeleted)
+      hub.off('ReactionUpdated', onReactionUpdated)
+      hub.off('RoomUpdated', onRoomUpdated)
+      hub.off('MemberJoined', onMemberJoined)
+      hub.off('MemberLeft', onMemberLeft)
+      hub.off('MarkRead', onMarkRead)
+      hub.off('UserTyping', onUserTyping)
+      hub.off('UserStoppedTyping', onUserStoppedTyping)
+      activeUserRef.current = null
+    }
   }, [isAuthenticated, userId, queryClient])
 
   return <>{children}</>

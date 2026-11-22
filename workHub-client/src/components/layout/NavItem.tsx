@@ -11,7 +11,9 @@ interface NavItemProps {
 
 export function NavItem({ item, collapsed, onClick }: NavItemProps) {
   const Icon = item.icon
-  const chatUnread = useChatStore((s) => s.getTotalUnread())
+  const chatUnread = useChatStore((s) =>
+    s.rooms.reduce((sum, r) => sum + (r.unreadCount ?? 0), 0)
+  )
   const badge = item.dynamicBadge === 'chat' ? chatUnread : item.badge
 
   return (
