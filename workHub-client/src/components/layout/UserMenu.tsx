@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { useAuthStore } from '@/stores/authStore'
 import { authService } from '@/services/auth.service'
 import { RoleBadge } from '@/components/ui/RoleBadge'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { cn } from '@/utils'
 
 export function UserMenu() {
@@ -52,12 +53,13 @@ export function UserMenu() {
         )}
       >
         {/* Avatar */}
-        <div className="w-6 h-6 rounded-full bg-primary-700 flex items-center
-                        justify-center flex-shrink-0">
-          <span className="text-white text-xs font-semibold">
-            {user.firstName?.[0]}{user.lastName?.[0]}
-          </span>
-        </div>
+        <UserAvatar
+          userId={user.id}
+          name={user.fullName || `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim()}
+          avatarUrl={user.profilePictureUrl}
+          size="xs"
+          showPresence
+        />
 
         <span className="hidden sm:block max-w-[120px] truncate font-medium">
           {user.firstName}

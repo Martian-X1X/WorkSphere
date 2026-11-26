@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Check, CornerUpLeft, Pencil, Smile, Trash2, X } from 'lucide-react'
 
-import { Avatar } from '@/components/ui/Avatar'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { cn } from '@/utils'
 import { formatFileSize, formatMessageTime } from '@/lib/chatUtils'
 import type { Message } from '@/types/chat'
@@ -52,7 +52,15 @@ export function MessageBubble({
     )}>
       {!isMine && (
         showAvatar
-          ? <Avatar name={message.senderName} size="sm" />
+          ? (
+            <UserAvatar
+              userId={message.senderUserId}
+              name={message.senderName}
+              avatarUrl={message.senderAvatar}
+              size="sm"
+              showPresence
+            />
+          )
           : <div className="w-7 flex-shrink-0" />
       )}
 

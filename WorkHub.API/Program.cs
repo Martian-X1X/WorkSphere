@@ -12,6 +12,7 @@ using WorkHub.Application.Authorization;
 using WorkHub.Infrastructure.Data;
 using WorkHub.Infrastructure.Interceptors;
 using WorkHub.Infrastructure.Services;
+using WorkHub.Infrastructure.SignalR;
 using WorkHub.Application.Interfaces;
 using WorkHub.API.Middleware;
 using WorkHub.Application.Services;
@@ -62,6 +63,7 @@ try
         options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
     });
 
+    builder.Services.AddSingleton<PresenceTracker>();
     builder.Services.AddScoped<INotificationHubSender, NotificationHubSender>();
     builder.Services.AddScoped<IChatHubSender, ChatHubSender>();
 

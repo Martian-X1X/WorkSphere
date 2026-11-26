@@ -4,6 +4,7 @@ import { Search, UserMinus, UserPlus, X } from 'lucide-react'
 import { cn } from '@/utils'
 import { Avatar } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/Button'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useAuthStore } from '@/stores/authStore'
 import { useActiveMembers } from '@/hooks/useOrganization'
@@ -90,13 +91,13 @@ export function MemberPanel({ roomId, currentUserId, onClose }: MemberPanelProps
             <div key={member.userId}
                  className="group flex items-center gap-2.5 px-2 py-2 rounded-lg
                             hover:bg-surface-800">
-              <div className="relative">
-                <Avatar name={member.fullName} size="sm" />
-                {member.isOnline && (
-                  <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full
-                                   bg-green-500 ring-2 ring-surface-900" />
-                )}
-              </div>
+              <UserAvatar
+                userId={member.userId}
+                name={member.fullName}
+                avatarUrl={member.avatarUrl}
+                size="sm"
+                showPresence
+              />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-surface-200 truncate">
                   {member.fullName}

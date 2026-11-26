@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WorkHub.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fe8e3b77c7176991936880ad4b5bf4fb7e0a7054")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+426b5ee26ef84eef7d67bbd074cac07e06f4412e")]
 [assembly: System.Reflection.AssemblyProductAttribute("WorkHub.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WorkHub.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

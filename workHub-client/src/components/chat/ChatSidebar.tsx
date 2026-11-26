@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { MessageSquarePlus, Plus, Search } from 'lucide-react'
 
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { cn } from '@/utils'
 import {
   formatMessageTime, getRoomColor, getRoomIcon, getRoomName,
@@ -55,13 +56,28 @@ export function ChatSidebar({ activeRoomId, onSelectRoom }: ChatSidebarProps) {
             : 'hover:bg-surface-800',
         )}
       >
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-white
-                     text-xs font-semibold flex-shrink-0"
-          style={{ backgroundColor: getRoomColor(room.id) }}
-        >
-          {getRoomIcon(room, currentUserId)}
-        </div>
+        {room.type === 'Direct'
+          ? (() => {
+              const other = room.members.find((m) => m.userId !== currentUserId)
+              return (
+                <UserAvatar
+                  userId={other?.userId ?? room.id}
+                  name={getRoomName(room, currentUserId)}
+                  avatarUrl={other?.avatarUrl}
+                  size="xs"
+                  showPresence
+                />
+              )
+            })()
+          : (
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-white
+                         text-xs font-semibold flex-shrink-0"
+              style={{ backgroundColor: getRoomColor(room.id) }}
+            >
+              {getRoomIcon(room, currentUserId)}
+            </div>
+          )}
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">

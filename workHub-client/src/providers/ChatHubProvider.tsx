@@ -8,6 +8,7 @@ import { getStoredAccessToken } from '@/lib/signalr'
 import { queryKeys } from '@/lib/queryKeys'
 import { useAuthStore } from '@/stores/authStore'
 import { useChatStore } from '@/stores/chatStore'
+import { usePresenceStore } from '@/stores/presenceStore'
 import type { ChatRoom, Message, ReactionGroupDto } from '@/types/chat'
 
 interface ReactionUpdatedPayload {
@@ -47,12 +48,14 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
       activeUserRef.current = null
       lifecycleHubRef.current = null
       useChatStore.getState().setConnected(false)
+      usePresenceStore.getState().clear()
       return
     }
 
     if (activeUserRef.current && activeUserRef.current !== userId) {
       void disconnectChatHub()
       lifecycleHubRef.current = null
+      usePresenceStore.getState().clear()
     }
 
     if (activeUserRef.current === userId) return
@@ -181,6 +184,18 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
       // Full typing indicator is wired up on Day 75.
     }
 
+    const onOnlineUsers = (userIds: string[]) => {
+      usePresenceStore.getState().setOnlineUsers(userIds)
+    }
+
+    const onUserOnline = (userId: string) => {
+      usePresenceStore.getState().setUserOnline(userId)
+    }
+
+    const onUserOffline = (userId: string) => {
+      usePresenceStore.getState().setUserOffline(userId)
+    }
+
     const onReconnecting = () => {
       useChatStore.getState().setConnected(false)
     }
@@ -208,6 +223,9 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
     hub.on('MarkRead', onMarkRead)
     hub.on('UserTyping', onUserTyping)
     hub.on('UserStoppedTyping', onUserStoppedTyping)
+    hub.on('OnlineUsers', onOnlineUsers)
+    hub.on('UserOnline', onUserOnline)
+    hub.on('UserOffline', onUserOffline)
 
     // SignalR has no offclose/offreconnected — register once per connection.
     if (lifecycleHubRef.current !== hub) {
@@ -260,6 +278,9 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
       hub.off('MarkRead', onMarkRead)
       hub.off('UserTyping', onUserTyping)
       hub.off('UserStoppedTyping', onUserStoppedTyping)
+      hub.off('OnlineUsers', onOnlineUsers)
+      hub.off('UserOnline', onUserOnline)
+      hub.off('UserOffline', onUserOffline)
       activeUserRef.current = null
     }
   }, [isAuthenticated, userId, queryClient])

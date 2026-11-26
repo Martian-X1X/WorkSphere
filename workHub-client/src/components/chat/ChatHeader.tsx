@@ -1,8 +1,10 @@
 import { Users } from 'lucide-react'
 
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { cn } from '@/utils'
 import { getRoomColor, getRoomIcon, getRoomName } from '@/lib/chatUtils'
 import { useChatStore } from '@/stores/chatStore'
+import { usePresenceStore } from '@/stores/presenceStore'
 import type { ChatRoom } from '@/types/chat'
 
 interface ChatHeaderProps {
@@ -27,17 +29,32 @@ export function ChatHeader({
   }
 
   const name = getRoomName(room, currentUserId)
+  const otherMember = room.type === 'Direct'
+    ? room.members.find((member) => member.userId !== currentUserId)
+    : undefined
 
   return (
     <header className="h-16 flex-shrink-0 flex items-center gap-3 px-4
                        border-b border-surface-800 bg-surface-900">
-      <div
-        className="w-9 h-9 rounded-xl flex items-center justify-center
-                   text-white font-semibold flex-shrink-0"
-        style={{ backgroundColor: getRoomColor(room.id) }}
-      >
-        {getRoomIcon(room, currentUserId)}
-      </div>
+      {room.type === 'Direct'
+        ? (
+          <UserAvatar
+            userId={otherMember?.userId ?? ''}
+            name={name}
+            avatarUrl={otherMember?.avatarUrl}
+            size="sm"
+            showPresence
+          />
+        )
+        : (
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center
+                       text-white font-semibold flex-shrink-0"
+            style={{ backgroundColor: getRoomColor(room.id) }}
+          >
+            {getRoomIcon(room, currentUserId)}
+          </div>
+        )}
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
@@ -55,6 +72,12 @@ export function ChatHeader({
           <span className="text-[11px] text-surface-500">
             {isConnected ? 'Live' : 'Connecting...'}
           </span>
+          {room.type === 'Direct' && otherMember && (
+            <>
+              <span className="text-[11px] text-surface-600">·</span>
+              <OnlineStatusText userId={otherMember.userId} />
+            </>
+          )}
           {room.projectName && (
             <span className="text-[11px] text-surface-600 truncate">
               · {room.projectName}
@@ -80,5 +103,18 @@ export function ChatHeader({
         </button>
       )}
     </header>
+  )
+}
+
+function OnlineStatusText({ userId }: { userId: string }) {
+  const isOnline = usePresenceStore((s) => s.onlineUserIds.has(userId))
+
+  return (
+    <span className={cn(
+      'text-[11px] font-medium',
+      isOnline ? 'text-green-500' : 'text-surface-500',
+    )}>
+      {isOnline ? 'Online' : 'Offline'}
+    </span>
   )
 }

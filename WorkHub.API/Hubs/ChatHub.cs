@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using WorkHub.Infrastructure.Hubs;
+using WorkHub.Infrastructure.SignalR;
 
 namespace WorkHub.API.Hubs;
 
@@ -15,11 +17,13 @@ namespace WorkHub.API.Hubs;
 [Authorize]
 public class ChatHub : Hub
 {
-    private readonly ILogger<ChatHub> _logger;
+    private readonly ILogger<ChatHub>  _logger;
+    private readonly PresenceTracker   _presence;
 
-    public ChatHub(ILogger<ChatHub> logger)
+    public ChatHub(ILogger<ChatHub> logger, PresenceTracker presence)
     {
-        _logger = logger;
+        _logger   = logger;
+        _presence = presence;
     }
 
     // ── Connection lifecycle ───────────────────────────────────────────
@@ -40,6 +44,21 @@ public class ChatHub : Hub
         await Groups.AddToGroupAsync(Context.ConnectionId, $"org:{orgId}");
         await Groups.AddToGroupAsync(Context.ConnectionId, $"user:{userId}");
 
+        var justCameOnline = _presence.Connect(userId, orgId, Context.ConnectionId);
+
+        if (justCameOnline)
+        {
+            await Clients
+                .GroupExcept($"org:{orgId}", Context.ConnectionId)
+                .SendAsync(ChatHubEvents.UserOnline, userId);
+
+            _logger.LogInformation(
+                "[Presence] ONLINE: User={UserId} Org={OrgId}", userId, orgId);
+        }
+
+        var onlineUsers = _presence.GetOnlineUsers(orgId);
+        await Clients.Caller.SendAsync(ChatHubEvents.OnlineUsers, onlineUsers);
+
         _logger.LogInformation(
             "[ChatHub] Connected: User={UserId} Org={OrgId} Conn={ConnId}",
             userId, orgId, Context.ConnectionId);
@@ -51,6 +70,25 @@ public class ChatHub : Hub
     {
         var userId = GetUserId();
         var orgId  = GetOrgId();
+
+        if (!string.IsNullOrWhiteSpace(userId))
+        {
+            var justWentOffline = _presence.Disconnect(
+                userId, Context.ConnectionId, out var presenceOrgId);
+
+            var broadcastOrgId = orgId ?? presenceOrgId;
+
+            if (justWentOffline && !string.IsNullOrWhiteSpace(broadcastOrgId))
+            {
+                await Clients
+                    .Group($"org:{broadcastOrgId}")
+                    .SendAsync(ChatHubEvents.UserOffline, userId);
+
+                _logger.LogInformation(
+                    "[Presence] OFFLINE: User={UserId} Org={OrgId}",
+                    userId, broadcastOrgId);
+            }
+        }
 
         if (!string.IsNullOrWhiteSpace(orgId))
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"org:{orgId}");

@@ -16,6 +16,9 @@ public static class ChatHubEvents
     public const string RoomUpdated       = "RoomUpdated";
     public const string UserTyping        = "UserTyping";       // Day 75
     public const string UserStoppedTyping = "UserStoppedTyping"; // Day 75
+    public const string UserOnline        = "UserOnline";
+    public const string UserOffline       = "UserOffline";
+    public const string OnlineUsers       = "OnlineUsers";
 
     // Client -> Server (what browsers call on the hub)
     public const string JoinRoom          = "JoinRoom";
