@@ -22,3 +22,6 @@ C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\Wo
 C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\refint\WorkHub.Domain.dll
 C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\WorkHub.Domain.pdb
 C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Domain\obj\Debug\net9.0\ref\WorkHub.Domain.dll
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.Domain.deps.json
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.Domain.dll
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.Domain.pdb

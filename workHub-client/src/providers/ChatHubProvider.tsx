@@ -9,6 +9,7 @@ import { queryKeys } from '@/lib/queryKeys'
 import { useAuthStore } from '@/stores/authStore'
 import { useChatStore } from '@/stores/chatStore'
 import { usePresenceStore } from '@/stores/presenceStore'
+import { useTypingStore } from '@/stores/typingStore'
 import type { ChatRoom, Message, ReactionGroupDto } from '@/types/chat'
 
 interface ReactionUpdatedPayload {
@@ -34,6 +35,19 @@ interface MemberPayload {
   userId?: string
 }
 
+interface TypingStartedPayload {
+  roomId: string
+  userId: string
+  userName: string
+}
+
+interface TypingStoppedPayload {
+  roomId: string
+  userId: string
+}
+
+const TYPING_EXPIRY_MS = 3000
+
 export function ChatHubProvider({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const userId = useAuthStore((s) => s.user?.id ?? null)
@@ -49,6 +63,7 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
       lifecycleHubRef.current = null
       useChatStore.getState().setConnected(false)
       usePresenceStore.getState().clear()
+      useTypingStore.getState().clear()
       return
     }
 
@@ -56,12 +71,16 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
       void disconnectChatHub()
       lifecycleHubRef.current = null
       usePresenceStore.getState().clear()
+      useTypingStore.getState().clear()
     }
 
     if (activeUserRef.current === userId) return
     activeUserRef.current = userId
 
     const hub = createChatHubConnection(getStoredAccessToken)
+
+    // roomId:userId → auto-expiry timer for a remote typist
+    const typingTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
     const joinActiveRoom = async () => {
       const roomId = useChatStore.getState().activeRoomId
@@ -176,12 +195,26 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
       useChatStore.getState().clearUnread(roomId)
     }
 
-    const onUserTyping = () => {
-      // Full typing indicator is wired up on Day 75.
+    const clearTypingTimer = (key: string) => {
+      const timer = typingTimers.get(key)
+      if (timer) clearTimeout(timer)
+      typingTimers.delete(key)
     }
 
-    const onUserStoppedTyping = () => {
-      // Full typing indicator is wired up on Day 75.
+    const onUserTyping = ({ roomId, userId, userName }: TypingStartedPayload) => {
+      useTypingStore.getState().addTyping(roomId, userId, userName)
+
+      const key = `${roomId}:${userId}`
+      clearTypingTimer(key)
+      typingTimers.set(key, setTimeout(() => {
+        useTypingStore.getState().removeTyping(roomId, userId)
+        typingTimers.delete(key)
+      }, TYPING_EXPIRY_MS))
+    }
+
+    const onUserStoppedTyping = ({ roomId, userId }: TypingStoppedPayload) => {
+      useTypingStore.getState().removeTyping(roomId, userId)
+      clearTypingTimer(`${roomId}:${userId}`)
     }
 
     const onOnlineUsers = (userIds: string[]) => {
@@ -208,6 +241,7 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
 
     const onClose = () => {
       useChatStore.getState().setConnected(false)
+      useTypingStore.getState().clear()
       activeUserRef.current = null
     }
 
@@ -281,6 +315,8 @@ export function ChatHubProvider({ children }: { children: React.ReactNode }) {
       hub.off('OnlineUsers', onOnlineUsers)
       hub.off('UserOnline', onUserOnline)
       hub.off('UserOffline', onUserOffline)
+      typingTimers.forEach((timer) => clearTimeout(timer))
+      typingTimers.clear()
       activeUserRef.current = null
     }
   }, [isAuthenticated, userId, queryClient])

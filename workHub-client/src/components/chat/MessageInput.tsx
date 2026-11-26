@@ -11,6 +11,8 @@ interface MessageInputProps {
   onCancelReply?: () => void
   disabled?: boolean
   placeholder?: string
+  onKeyActivity?: () => void
+  onStopTyping?: () => void
 }
 
 export function MessageInput({
@@ -19,6 +21,8 @@ export function MessageInput({
   onCancelReply,
   disabled,
   placeholder = 'Write a message...',
+  onKeyActivity,
+  onStopTyping,
 }: MessageInputProps) {
   const [value, setValue] = useState('')
   const [showEmoji, setShowEmoji] = useState(false)
@@ -31,6 +35,7 @@ export function MessageInput({
   const submit = () => {
     const content = value.trim()
     if (!content || disabled) return
+    onStopTyping?.()
     onSend(content, replyTo?.id)
     setValue('')
     setShowEmoji(false)
@@ -51,6 +56,7 @@ export function MessageInput({
         <EmojiPickerPopover
           onSelect={(emoji) => {
             setValue((current) => current + emoji)
+            onKeyActivity?.()
             setShowEmoji(false)
             inputRef.current?.focus()
           }}
@@ -75,7 +81,11 @@ export function MessageInput({
           value={value}
           disabled={disabled}
           placeholder={placeholder}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            setValue(e.target.value)
+            if (e.target.value.trim()) onKeyActivity?.()
+            else onStopTyping?.()
+          }}
           onKeyDown={handleKeyDown}
           className={cn(
             'flex-1 resize-none bg-transparent text-sm text-surface-100',

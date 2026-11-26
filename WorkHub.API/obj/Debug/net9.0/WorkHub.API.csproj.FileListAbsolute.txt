@@ -346,3 +346,13 @@ C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\System.F
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\System.Security.Cryptography.Pkcs.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\runtimes\win\lib\net9.0\System.Security.Cryptography.Pkcs.dll
 C:\Users\Abdul\Documents\GitHub\WorkSphere\WorkHub.API\bin\Debug\net9.0\WorkHub.API.staticwebassets.runtime.json
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\appsettings.Development.json
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\appsettings.json
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.API.staticwebassets.runtime.json
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.API.staticwebassets.endpoints.json
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.API.exe
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.API.deps.json
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.API.runtimeconfig.json
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.API.dll
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.API.pdb
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.API.xml

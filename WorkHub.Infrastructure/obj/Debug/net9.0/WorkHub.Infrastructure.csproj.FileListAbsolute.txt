@@ -34,3 +34,7 @@ C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Infrastructure\obj\Debug\n
 C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Infrastructure\obj\Debug\net9.0\WorkHub.Infrastructure.pdb
 C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Infrastructure\obj\Debug\net9.0\WorkHub.Infrastructure.genruntimeconfig.cache
 C:\Users\Abdullah\Documents\GitHub\WorkSphere\WorkHub.Infrastructure\obj\Debug\net9.0\ref\WorkHub.Infrastructure.dll
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.Infrastructure.deps.json
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.Infrastructure.runtimeconfig.json
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.Infrastructure.dll
+C:\Users\Abdul\AppData\Local\Temp\opencode\day75-build\WorkHub.Infrastructure.pdb
